@@ -85,6 +85,7 @@
         };
     </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head_extra %}{% endblock %}
 </head>
 <body class="bg-background text-on-surface min-h-screen flex flex-col font-sans selection:bg-primary-fixed selection:text-primary">
     <div class="flex flex-1 min-h-screen">
@@ -105,40 +106,50 @@
 
                 <!-- Navigation Links -->
                 <nav class="flex flex-col gap-1.5" id="stitch-sidebar-nav">
-                    <button data-tab="tab-overview" class="stitch-nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-left">
+                    <a href="{{ url_for('index') }}#tab-overview" data-tab="tab-overview" class="stitch-nav-item {{ 'active' if request.endpoint == 'index' else 'text-on-surface-variant' }} flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-left">
                         <span class="material-symbols-outlined text-xl">dashboard</span>
                         <span>1. Dashboard Tổng Quan</span>
-                    </button>
+                    </a>
 
-                    <button data-tab="tab-sentiment" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
+                    <a href="{{ url_for('index') }}#tab-sentiment" data-tab="tab-sentiment" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
                         <span class="material-symbols-outlined text-xl">sentiment_satisfied</span>
-                        <span>2. Phân Tích Cảm Xúc MXH</span>
-                    </button>
+                        <span>2. Cảm Xúc &amp; ABSA</span>
+                    </a>
 
-                    <button data-tab="tab-forecaster" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
+                    <a href="{{ url_for('index') }}#tab-forecaster" data-tab="tab-forecaster" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
                         <span class="material-symbols-outlined text-xl">trending_up</span>
-                        <span>3. Dự Báo Doanh Số (ML)</span>
-                    </button>
+                        <span>3. Ước Lượng Nhịp Bán</span>
+                    </a>
 
-                    <button data-tab="tab-risk" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
+                    <a href="{{ url_for('index') }}#tab-risk" data-tab="tab-risk" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
                         <span class="material-symbols-outlined text-xl">warning</span>
-                        <span>4. Rủi Ro &amp; Hoàn Hàng</span>
-                    </button>
+                        <span>4. Chất Lượng Dữ Liệu</span>
+                    </a>
 
-                    <button data-tab="tab-basket" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
+                    <a href="{{ url_for('index') }}#tab-basket" data-tab="tab-basket" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
                         <span class="material-symbols-outlined text-xl">shopping_cart</span>
                         <span>5. Combo Giỏ Hàng (Apriori)</span>
-                    </button>
+                    </a>
 
-                    <button data-tab="tab-clustering" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
+                    <a href="{{ url_for('index') }}#tab-clustering" data-tab="tab-clustering" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
                         <span class="material-symbols-outlined text-xl">bubble_chart</span>
                         <span>6. Gom Cụm K-Means (PCA)</span>
-                    </button>
+                    </a>
 
-                    <button data-tab="tab-benchmark" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
+                    <a href="{{ url_for('index') }}#tab-benchmark" data-tab="tab-benchmark" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
                         <span class="material-symbols-outlined text-xl">equalizer</span>
-                        <span>7. So Sánh Mô Hình ML</span>
-                    </button>
+                        <span>7. Đánh Giá Mô Hình</span>
+                    </a>
+
+                    <div class="border-t border-outline-variant/30 my-1"></div>
+                    <a href="{{ url_for('report') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {{ 'bg-surface-container text-primary font-bold' if request.endpoint == 'report' else 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container' }}">
+                        <span class="material-symbols-outlined text-xl">description</span>
+                        <span>8. Báo Cáo Nghiệm Thu</span>
+                    </a>
+                    <a href="{{ url_for('theory') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {{ 'bg-surface-container text-primary font-bold' if request.endpoint == 'theory' else 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container' }}">
+                        <span class="material-symbols-outlined text-xl">menu_book</span>
+                        <span>9. Cơ Sở Lý Thuyết</span>
+                    </a>
                 </nav>
             </div>
 
@@ -167,7 +178,7 @@
                     <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
                         <span>Shopee Lab</span>
                         <span class="material-symbols-outlined text-xs">chevron_right</span>
-                        <span class="font-semibold text-primary" id="stitch-breadcrumb-text">Dashboard Tổng Quan</span>
+                        <span class="font-semibold text-primary" id="stitch-breadcrumb-text">{% block breadcrumb %}Dashboard Tổng Quan{% endblock %}</span>
                     </div>
                 </div>
 
@@ -180,10 +191,17 @@
                         <span class="px-2.5 py-1 bg-surface-container text-on-surface-variant rounded-full text-xs font-semibold">Dương Phương Anh</span>
                     </div>
 
-                    <button onclick="loadOverviewStats()" class="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white hover:bg-primary-container active:scale-95 text-xs font-semibold rounded-lg shadow-sm shadow-primary/20 transition-all cursor-pointer">
-                        <span class="material-symbols-outlined text-sm">refresh</span>
-                        <span>Cập Nhật Số Liệu</span>
-                    </button>
+                    {% if request.endpoint == 'index' %}
+                        <button onclick="loadOverviewStats()" class="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white hover:bg-primary-container active:scale-95 text-xs font-semibold rounded-lg shadow-sm shadow-primary/20 transition-all cursor-pointer">
+                            <span class="material-symbols-outlined text-sm">refresh</span>
+                            <span>Cập Nhật Số Liệu</span>
+                        </button>
+                    {% else %}
+                        <a href="{{ url_for('index') }}" class="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white hover:bg-primary-container text-xs font-semibold rounded-lg shadow-sm shadow-primary/20 transition-all">
+                            <span class="material-symbols-outlined text-sm">dashboard</span>
+                            <span>Về Dashboard</span>
+                        </a>
+                    {% endif %}
                 </div>
             </header>
 

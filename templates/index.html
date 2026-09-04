@@ -2,683 +2,170 @@
 
 {% block content %}
 <div class="space-y-6">
-
-    <!-- ================================================================= -->
-    <!-- TAB 1: DASHBOARD TỔNG QUAN (STITCH BENTO GRID) -->
-    <!-- ================================================================= -->
     <div class="tab-pane active" id="tab-overview">
-        <!-- Title Banner -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-6">
             <div>
-                <h2 class="font-headline font-bold text-2xl text-on-surface tracking-tight">Dashboard Tổng Quan &amp; Social Mining</h2>
-                <p class="text-sm text-on-surface-variant">Tổng hợp dữ liệu vận hành 1,200 sản phẩm và 3,500 thảo luận truyền thông mạng xã hội Shopee</p>
+                <h2 class="font-headline font-bold text-2xl">Dashboard Tổng Quan</h2>
+                <p class="text-sm text-on-surface-variant">Snapshot Shopee Malaysia tháng 4–5/2023 và review ABSA tiếng Việt công khai.</p>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="px-3 py-1 bg-surface-container rounded-full text-xs font-semibold text-on-surface-variant flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-[#00b050]"></span> Dữ Liệu Thời Gian Thực
-                </span>
-            </div>
+            <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold">Dữ liệu Kaggle đã kiểm checksum</span>
         </div>
 
-        <!-- Metric Cards (Stitch Bento Grid Style) -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-gutter">
-            <!-- Metric 1: Doanh số -->
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 flex flex-col justify-between h-32 relative overflow-hidden">
-                <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-xl pointer-events-none"></div>
-                <div>
-                    <p class="text-xs font-semibold text-on-surface-variant mb-1">Tổng Doanh Số Tháng</p>
-                    <h3 class="font-headline text-2xl font-black text-on-surface" id="kpi-sales">Đang tải...</h3>
-                </div>
-                <div class="flex items-center gap-1 text-[#00b050]">
-                    <span class="material-symbols-outlined text-sm">trending_up</span>
-                    <span class="text-xs font-bold">+18.5% so với tháng trước</span>
-                </div>
+            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+                <p class="text-xs text-on-surface-variant">Lượt bán tích lũy</p>
+                <h3 class="font-headline text-2xl font-black mt-1" id="kpi-sales">Đang tải...</h3>
+                <p class="text-[11px] text-on-surface-variant mt-3">Trường total_sold của snapshot; không phải doanh số tháng.</p>
             </div>
-
-            <!-- Metric 2: Lượt xem & Tương tác -->
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 flex flex-col justify-between h-32 relative overflow-hidden">
-                <div>
-                    <p class="text-xs font-semibold text-on-surface-variant mb-1">Sản Phẩm &amp; Lượt Xem</p>
-                    <h3 class="font-headline text-2xl font-black text-on-surface" id="kpi-products">1,200 SP</h3>
-                </div>
-                <div class="flex items-center gap-1 text-secondary">
-                    <span class="material-symbols-outlined text-sm">visibility</span>
-                    <span class="text-xs font-semibold">9 Ngành Hàng Shopee</span>
-                </div>
+            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+                <p class="text-xs text-on-surface-variant">Sản phẩm duy nhất</p>
+                <h3 class="font-headline text-2xl font-black mt-1" id="kpi-products">Đang tải...</h3>
+                <p class="text-[11px] text-on-surface-variant mt-3">Khóa shop_id + item_id.</p>
             </div>
-
-            <!-- Metric 3: Hiệu suất giao hàng -->
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 flex flex-col justify-between h-32 relative overflow-hidden">
-                <div>
-                    <p class="text-xs font-semibold text-on-surface-variant mb-1">Đánh Giá &amp; Bình Luận MXH</p>
-                    <h3 class="font-headline text-2xl font-black text-on-surface" id="kpi-reviews">3,500 Reviews</h3>
-                </div>
-                <div class="flex items-center gap-1 text-on-surface-variant">
-                    <span class="material-symbols-outlined text-sm">forum</span>
-                    <span class="text-xs font-semibold">Shopee, TikTok, Facebook</span>
-                </div>
+            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+                <p class="text-xs text-on-surface-variant">Review ABSA</p>
+                <h3 class="font-headline text-2xl font-black mt-1" id="kpi-reviews">Đang tải...</h3>
+                <p class="text-[11px] text-on-surface-variant mt-3">Có split train/validation/test gốc.</p>
             </div>
-
-            <!-- Metric 4: Điểm cảm xúc -->
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 flex flex-col justify-between h-32 relative overflow-hidden">
-                <div class="absolute -right-4 -top-4 w-24 h-24 bg-[#00b050]/10 rounded-full blur-xl pointer-events-none"></div>
-                <div>
-                    <p class="text-xs font-semibold text-on-surface-variant mb-1">Điểm Hài Lòng Trung Bình</p>
-                    <h3 class="font-headline text-2xl font-black text-[#00b050]" id="kpi-rating">4.62 / 5.0 ★</h3>
-                </div>
-                <div class="flex items-center gap-2">
-                    <div class="px-2 py-0.5 bg-[#00b050]/10 text-[#00b050] rounded text-xs font-bold">82% Tích Cực</div>
-                </div>
+            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+                <p class="text-xs text-on-surface-variant">Rating trung bình</p>
+                <h3 class="font-headline text-2xl font-black text-[#00b050] mt-1" id="kpi-rating">Đang tải...</h3>
+                <p class="text-[11px] text-on-surface-variant mt-3">Bỏ qua listing thiếu rating.</p>
             </div>
         </div>
 
-        <!-- Complex Layout Area: Charts & Visuals -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-gutter">
-            <!-- Large Chart (2/3 width) -->
-            <div class="lg:col-span-2 bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 flex flex-col">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary">bar_chart</span>
-                        <h3 class="font-headline font-bold text-base text-on-surface">Doanh Số Theo Ngành Hàng (SP / Tháng)</h3>
-                    </div>
-                    <div class="flex items-center gap-3 text-xs text-on-surface-variant">
-                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-primary"></span> Doanh số bán</span>
-                    </div>
-                </div>
-                <div class="h-[290px] w-full relative">
-                    <canvas id="chartCategorySales"></canvas>
-                </div>
+            <div class="lg:col-span-2 bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+                <h3 class="font-headline font-bold mb-4">Lượt Bán Tích Lũy Theo Ngành Hàng</h3>
+                <div class="h-[290px]"><canvas id="chartCategorySales"></canvas></div>
             </div>
-
-            <!-- Sentiment Donut (1/3 width) -->
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 flex flex-col justify-between">
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="material-symbols-outlined text-primary">pie_chart</span>
-                    <h3 class="font-headline font-bold text-base text-on-surface">Tỷ Lệ Khen / Chê MXH</h3>
-                </div>
-                <div class="h-[220px] w-full relative flex items-center justify-center">
-                    <canvas id="chartSentimentDoughnut"></canvas>
-                </div>
-                <div class="flex justify-around text-xs pt-2 border-t border-outline-variant/30 text-on-surface-variant font-medium">
-                    <span class="text-[#00b050]">● Khen (60%)</span>
-                    <span class="text-[#f59e0b]">● Trung lập (20%)</span>
-                    <span class="text-error">● Chê (20%)</span>
-                </div>
+            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+                <h3 class="font-headline font-bold mb-4">Nhãn Cảm Xúc Tổng Hợp</h3>
+                <div class="h-[250px]"><canvas id="chartSentimentDoughnut"></canvas></div>
+                <p class="text-[11px] text-on-surface-variant mt-2">Chỉ tính 9.326 review có nhãn tổng hợp hợp lệ.</p>
             </div>
         </div>
 
-        <!-- Secondary Row: Rating Dist & Best Sellers -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
-            <!-- Rating Bars (1/3 width) -->
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 flex flex-col">
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="material-symbols-outlined text-tertiary">star_half</span>
-                    <h3 class="font-headline font-bold text-base text-on-surface">Phân Bố Số Sao Đánh Giá</h3>
-                </div>
-                <div class="h-[220px] w-full relative">
-                    <canvas id="chartRatingDist"></canvas>
-                </div>
+            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+                <h3 class="font-headline font-bold mb-4">Phân Bố Rating Listing</h3>
+                <div class="h-[230px]"><canvas id="chartRatingDist"></canvas></div>
             </div>
-
-            <!-- Best Sellers Table (2/3 width) -->
-            <div class="lg:col-span-2 bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 flex flex-col">
+            <div class="lg:col-span-2 bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary">local_fire_department</span>
-                        <h3 class="font-headline font-bold text-base text-on-surface">Top Sản Phẩm Bán Chạy Nhất</h3>
-                    </div>
-                    <span class="text-xs text-on-surface-variant">Thống kê theo lượt mua thực tế</span>
+                    <h3 class="font-headline font-bold">Top Theo Lượt Bán Tích Lũy</h3>
+                    <span class="text-xs text-on-surface-variant">Đơn vị tiền: MYR</span>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-surface-container text-on-surface-variant font-bold border-b border-outline-variant/30">
-                            <tr>
-                                <th class="py-2.5 px-3">Mã SP</th>
-                                <th class="py-2.5 px-3">Tên Sản Phẩm</th>
-                                <th class="py-2.5 px-3">Ngành Hàng</th>
-                                <th class="py-2.5 px-3">Giá Bán</th>
-                                <th class="py-2.5 px-3">Bán/Tháng</th>
-                                <th class="py-2.5 px-3">Rating</th>
-                                <th class="py-2.5 px-3">Tiềm Năng</th>
-                            </tr>
-                        </thead>
-                        <tbody id="top-products-tbody" class="divide-y divide-outline-variant/20 font-medium">
-                            <tr><td colspan="7" class="py-4 text-center text-on-surface-variant">Đang nạp dữ liệu...</td></tr>
-                        </tbody>
+                        <thead class="bg-surface-container"><tr><th class="p-2">Mã</th><th class="p-2">Sản phẩm</th><th class="p-2">Ngành</th><th class="p-2">Giá</th><th class="p-2">Đã bán</th><th class="p-2">Rating</th><th class="p-2">Nhịp bán quan sát</th></tr></thead>
+                        <tbody id="top-products-tbody" class="divide-y divide-outline-variant/20"><tr><td colspan="7" class="p-4 text-center">Đang tải...</td></tr></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ================================================================= -->
-    <!-- TAB 2: PHÂN TÍCH CẢM XÚC & SOCIAL MINING (STITCH NLP LAB) -->
-    <!-- ================================================================= -->
     <div class="tab-pane" id="tab-sentiment">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-6">
-            <div>
-                <h2 class="font-headline font-bold text-2xl text-on-surface tracking-tight">Phân Tích Cảm Xúc &amp; Khai Phá MXH (NLP)</h2>
-                <p class="text-sm text-on-surface-variant">Xử lý ngôn ngữ tự nhiên tiếng Việt, từ điển Teencode E-Commerce và mô hình phân loại <strong>Multinomial Naive Bayes</strong></p>
-            </div>
+        <div class="mb-6">
+            <h2 class="font-headline font-bold text-2xl">Phân Tích Cảm Xúc Và ABSA Tiếng Việt</h2>
+            <p class="text-sm text-on-surface-variant">TF-IDF + Logistic Regression trên 11.700 review Shopee có tám nhãn khía cạnh do người gán.</p>
         </div>
-
-        <!-- Sample Comment Pills -->
-        <div class="bg-surface-container-low p-3.5 rounded-xl border border-outline-variant/30 mb-6">
-            <span class="text-xs font-bold text-primary flex items-center gap-1.5 mb-2">
-                <span class="material-symbols-outlined text-sm">format_quote</span> Thử nhanh các bình luận mẫu (chứa nhiều tiếng lóng Teencode):
-            </span>
-            <div class="flex flex-wrap gap-2" id="sample-comments-container">
-                <!-- Loaded dynamically -->
-            </div>
+        <div class="bg-surface-container-low p-3 rounded-xl mb-5">
+            <p class="text-xs font-bold text-primary mb-2">Review mẫu từ bộ dữ liệu</p>
+            <div class="flex flex-wrap gap-2" id="sample-comments-container"></div>
         </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter mb-gutter">
-            <!-- Left: Comment Input & Processing -->
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 flex flex-col gap-4">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">edit_note</span>
-                    <h3 class="font-headline font-bold text-base text-on-surface">Nhập Đánh Giá / Bình Luận Tiếng Việt</h3>
-                </div>
-                
-                <textarea id="sentiment-input-text" class="w-full bg-surface-container-low border border-outline-variant/40 rounded-xl p-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-y min-h-[100px]" placeholder="Nhập bình luận Shopee, TikTok Shop hoặc Facebook vào đây...">sp dùng siêu ok nha mn, shop giao hàng hỏa tốc trong 2h, đóng gói cẩn thận 5 sao ❤️💯</textarea>
-                
-                <button type="button" onclick="submitSentimentAnalysis()" class="w-full py-3 bg-gradient-to-r from-primary to-primary-container hover:opacity-95 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-md shadow-primary/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
-                    <span class="material-symbols-outlined text-lg">psychology</span>
-                    <span>Phân Tích Cảm Xúc Bằng Thuật Toán Naive Bayes</span>
-                </button>
-
-                <!-- Cleaned Teencode Output -->
-                <div class="bg-secondary/5 border border-secondary/20 rounded-xl p-3.5 mt-1">
-                    <span class="text-xs font-bold text-secondary flex items-center gap-1 mb-1">
-                        <span class="material-symbols-outlined text-xs">auto_fix_high</span> Văn Bản Đã Được Chuẩn Hóa Teencode:
-                    </span>
-                    <p class="text-xs font-medium text-on-surface italic" id="sentiment-cleaned-display">Chưa phân tích...</p>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
+            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+                <textarea id="sentiment-input-text" class="w-full bg-surface-container-low border rounded-xl p-3 text-sm min-h-[130px]" placeholder="Nhập review tiếng Việt...">Giày đẹp, đi êm và shop giao hàng nhanh.</textarea>
+                <button type="button" onclick="submitSentimentAnalysis()" class="mt-3 w-full bg-primary text-white rounded-lg py-2.5 text-sm font-bold">Phân tích</button>
+                <div class="mt-4 bg-surface-container-low rounded-lg p-3">
+                    <p class="text-[11px] font-bold">Văn bản sau chuẩn hóa</p>
+                    <p class="text-xs mt-1" id="sentiment-cleaned-display">Chưa phân tích</p>
                 </div>
             </div>
-
-            <!-- Right: Result & Score Gauge -->
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 flex flex-col justify-between">
+            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary">speed</span>
-                        <h3 class="font-headline font-bold text-base text-on-surface">Kết Quả Phân Tích Cảm Xúc</h3>
-                    </div>
-                    <span class="px-3 py-1 bg-surface-container text-xs font-bold rounded-full text-on-surface-variant" id="sent-score-val">Điểm: +0.85</span>
+                    <span id="sent-badge-label" class="px-4 py-1.5 rounded-full font-bold bg-surface-container">Chưa phân tích</span>
+                    <span id="sent-score-val" class="text-xs font-semibold">Xác suất mô hình: —</span>
                 </div>
-
-                <!-- Main Sentiment Badge & Gauge -->
-                <div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30 my-4 text-center">
-                    <div class="inline-block px-5 py-1.5 rounded-full font-headline font-black text-lg mb-3" id="sent-badge-label" style="background:#dcfce7; color:#15803d;">
-                        Tích Cực (Khen)
-                    </div>
-                    <div class="w-full bg-surface-container h-2.5 rounded-full overflow-hidden mb-2">
-                        <div id="sent-gauge-fill" class="h-full bg-gradient-to-r from-error via-tertiary-fixed-dim to-[#00b050] transition-all duration-500" style="width: 90%;"></div>
-                    </div>
-                    <div class="flex justify-between text-[11px] font-semibold text-on-surface-variant">
-                        <span class="text-error">-1.0 (Rất Chê)</span>
-                        <span>0.0 (Trung Lập)</span>
-                        <span class="text-[#00b050]">+1.0 (Rất Khen)</span>
-                    </div>
+                <div class="h-2 bg-surface-container rounded-full mt-4 overflow-hidden"><div id="sent-gauge-fill" class="h-full bg-primary" style="width:0%"></div></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-5 text-xs">
+                    <div><strong>Từ tích cực theo lexicon</strong><div id="sent-pos-pills" class="flex flex-wrap gap-1 mt-2"></div></div>
+                    <div><strong>Từ tiêu cực theo lexicon</strong><div id="sent-neg-pills" class="flex flex-wrap gap-1 mt-2"></div></div>
                 </div>
-
-                <!-- Extracted Keywords Highlight -->
-                <div class="flex flex-col gap-2 text-xs">
-                    <div class="flex items-center gap-2">
-                        <span class="w-28 font-bold text-[#00b050] flex items-center gap-1"><span class="material-symbols-outlined text-xs">thumb_up</span> Khen ngợi:</span>
-                        <div class="flex flex-wrap gap-1" id="sent-pos-pills"><span class="px-2 py-0.5 bg-[#00b050]/10 text-[#00b050] rounded-full font-semibold">tốt</span></div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-28 font-bold text-error flex items-center gap-1"><span class="material-symbols-outlined text-xs">thumb_down</span> Phàn nàn:</span>
-                        <div class="flex flex-wrap gap-1 text-on-surface-variant" id="sent-neg-pills"><span>Không phát hiện</span></div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-28 font-bold text-secondary flex items-center gap-1"><span class="material-symbols-outlined text-xs">label</span> Khía cạnh:</span>
-                        <div class="flex flex-wrap gap-1" id="sent-aspect-pills"><span class="px-2 py-0.5 bg-secondary/10 text-secondary rounded-full font-semibold">Vận chuyển</span></div>
-                    </div>
-                </div>
+                <div class="mt-5"><strong class="text-xs">Kết quả tám mô hình khía cạnh</strong><div id="sent-aspect-pills" class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2"></div></div>
             </div>
         </div>
-
-        <!-- Word Cloud Section -->
-        <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">cloud</span>
-                    <h3 class="font-headline font-bold text-base text-on-surface">Word Cloud - Xu Hướng Thảo Luận Mạng Xã Hội</h3>
-                </div>
-                <div class="flex gap-2">
-                    <button class="wc-filter-btn px-3 py-1 text-xs font-semibold rounded-full bg-primary text-white" onclick="loadWordCloud('all')">Tất Cả</button>
-                    <button class="wc-filter-btn px-3 py-1 text-xs font-semibold rounded-full bg-surface-container text-on-surface-variant" onclick="loadWordCloud('pos')">Chỉ Từ Khen</button>
-                    <button class="wc-filter-btn px-3 py-1 text-xs font-semibold rounded-full bg-surface-container text-on-surface-variant" onclick="loadWordCloud('neg')">Chỉ Từ Chê</button>
-                </div>
-            </div>
-            <div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 flex flex-wrap items-center justify-center gap-3 min-h-[160px]" id="wordcloud-container">
-                <!-- Loaded dynamically -->
-            </div>
+        <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 mt-gutter">
+            <div class="flex gap-2 mb-4"><button class="wc-filter-btn px-3 py-1 rounded-full text-xs bg-primary text-white" onclick="loadWordCloud('all', this)">Tất cả</button><button class="wc-filter-btn px-3 py-1 rounded-full text-xs bg-surface-container" onclick="loadWordCloud('pos', this)">Tích cực</button><button class="wc-filter-btn px-3 py-1 rounded-full text-xs bg-surface-container" onclick="loadWordCloud('neg', this)">Tiêu cực</button></div>
+            <div id="wordcloud-container" class="bg-surface-container-low p-5 rounded-xl flex flex-wrap gap-2 min-h-[150px]"></div>
         </div>
     </div>
 
-    <!-- ================================================================= -->
-    <!-- TAB 3: DỰ BÁO DOANH SỐ & TIỀM NĂNG (RANDOM FOREST / XGBOOST) -->
-    <!-- ================================================================= -->
     <div class="tab-pane" id="tab-forecaster">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-6">
-            <div>
-                <h2 class="font-headline font-bold text-2xl text-on-surface tracking-tight">Dự Báo Doanh Số &amp; Tiềm Năng Tăng Trưởng</h2>
-                <p class="text-sm text-on-surface-variant">Áp dụng thuật toán <strong>Random Forest &amp; XGBoost</strong> để dự đoán số lượng bán ra và giải thích Feature Importance</p>
-            </div>
+        <div class="mb-6">
+            <h2 class="font-headline font-bold text-2xl">Ước Lượng Nhịp Bán Quan Sát</h2>
+            <p class="text-sm text-on-surface-variant">Hồi quy trên 2.263 sản phẩm có ít nhất hai ngày snapshot; không phải dự báo tăng trưởng hay doanh số tương lai.</p>
         </div>
-
-        <!-- Fast Sample Loader -->
-        <div class="bg-surface-container-low p-3.5 rounded-xl border border-outline-variant/30 mb-6">
-            <span class="text-xs font-bold text-primary flex items-center gap-1.5 mb-2">
-                <span class="material-symbols-outlined text-sm">bolt</span> Chọn nhanh sản phẩm mẫu để test dự báo:
-            </span>
-            <div class="flex flex-wrap gap-2" id="sample-products-container">
-                <!-- Loaded dynamically -->
-            </div>
-        </div>
-
+        <div class="bg-surface-container-low p-3 rounded-xl mb-5"><p class="text-xs font-bold text-primary mb-2">Nạp nhanh listing thật</p><div id="sample-products-container" class="flex flex-wrap gap-2"></div></div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
-            <!-- Input Form -->
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 flex flex-col gap-3.5">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">tune</span>
-                    <h3 class="font-headline font-bold text-base text-on-surface">Thông Số Đầu Vào Của Sản Phẩm</h3>
+            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+                <label class="text-xs font-bold">product_id, item_id hoặc URL Shopee Malaysia</label>
+                <div class="flex gap-2 mt-1"><input id="p-url" class="flex-1 bg-surface-container-low border rounded-lg p-2.5 text-xs" placeholder="MY_100024270_1710706663"><button onclick="loadProductReference()" class="px-3 bg-secondary text-white rounded-lg text-xs font-bold">Nạp</button></div>
+                <p id="p-lookup-status" class="text-[11px] text-on-surface-variant mt-1">Tra cứu trong snapshot cục bộ; không crawl trực tiếp.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                    <label class="text-xs font-bold">Ngành hàng<select id="p-category" class="block w-full mt-1 bg-surface-container-low border rounded-lg p-2"><option value="Automotive">Automotive</option><option value="Health & Beauty">Health &amp; Beauty</option><option value="Home & Living">Home &amp; Living</option><option value="Mobile & Accessories">Mobile &amp; Accessories</option><option value="Women Clothes">Women Clothes</option><option value="Men Clothes">Men Clothes</option></select></label>
+                    <label class="text-xs font-bold">Vị trí shop<select id="p-location" class="block w-full mt-1 bg-surface-container-low border rounded-lg p-2"><option value="Không rõ">Không rõ</option><option value="KL City, Kuala Lumpur">KL City, Kuala Lumpur</option></select></label>
+                    <label class="text-xs font-bold">Giá (MYR)<input type="number" id="p-price" class="block w-full mt-1 bg-surface-container-low border rounded-lg p-2" value="10.74" min="0.01" step="0.01"></label>
+                    <label class="text-xs font-bold">Giảm giá (%)<input type="number" id="p-discount" class="block w-full mt-1 bg-surface-container-low border rounded-lg p-2" value="8" min="0" max="100" step="0.01"></label>
+                    <label class="text-xs font-bold">Lượt yêu thích<input type="number" id="p-favs" class="block w-full mt-1 bg-surface-container-low border rounded-lg p-2" value="172" min="0"></label>
+                    <label class="text-xs font-bold">Lượt bán tích lũy<input type="number" id="p-hist-sold" class="block w-full mt-1 bg-surface-container-low border rounded-lg p-2" value="37" min="0"></label>
+                    <label class="text-xs font-bold">Rating<input type="number" id="p-rating" class="block w-full mt-1 bg-surface-container-low border rounded-lg p-2" value="4.9" min="1" max="5" step="0.1"></label>
+                    <label class="text-xs font-bold">Số lượt rating<input type="number" id="p-rating-count" class="block w-full mt-1 bg-surface-container-low border rounded-lg p-2" value="37" min="0"></label>
+                    <label class="text-xs font-bold">Số snapshot<input type="number" id="p-snapshot-count" class="block w-full mt-1 bg-surface-container-low border rounded-lg p-2" value="2" min="1"></label>
                 </div>
-
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-bold text-on-surface-variant">Link Sản Phẩm Shopee / Mã SP:</label>
-                    <input type="text" id="p-url" class="bg-surface-container-low border border-outline-variant/40 rounded-lg p-2.5 text-xs font-medium focus:border-primary outline-none" value="https://shopee.vn/product-sp-00892"/>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2.5">
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-on-surface-variant">Ngành Hàng:</label>
-                        <select id="p-category" class="bg-surface-container-low border border-outline-variant/40 rounded-lg p-2 text-xs font-medium">
-                            <option value="Điện Thoại & Phụ Kiện" selected>Điện Thoại &amp; Phụ Kiện</option>
-                            <option value="Thời Trang Nam/Nữ">Thời Trang Nam/Nữ</option>
-                            <option value="Máy Tính & Laptop">Máy Tính &amp; Laptop</option>
-                            <option value="Mỹ Phẩm & Làm Đẹp">Mỹ Phẩm &amp; Làm Đẹp</option>
-                            <option value="Nhà Cửa & Đời Sống">Nhà Cửa &amp; Đời Sống</option>
-                            <option value="Thiết Bị Điện Gia Dụng">Thiết Bị Điện Gia Dụng</option>
-                            <option value="Mẹ & Bé">Mẹ &amp; Bé</option>
-                            <option value="Bách Hóa Online">Bách Hóa Online</option>
-                            <option value="Thể Thao & Du Lịch">Thể Thao &amp; Du Lịch</option>
-                        </select>
-                    </div>
-
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-on-surface-variant">Loại Shop:</label>
-                        <select id="p-shop-type" class="bg-surface-container-low border border-outline-variant/40 rounded-lg p-2 text-xs font-medium">
-                            <option value="Shopee Mall">Shopee Mall</option>
-                            <option value="Shop Yêu Thích+" selected>Shop Yêu Thích+</option>
-                            <option value="Shop Yêu Thích">Shop Yêu Thích</option>
-                            <option value="Shop Thường">Shop Thường</option>
-                        </select>
-                    </div>
-
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-on-surface-variant">Khu Vực:</label>
-                        <select id="p-location" class="bg-surface-container-low border border-outline-variant/40 rounded-lg p-2 text-xs font-medium">
-                            <option value="TP. Hồ Chí Minh" selected>TP. Hồ Chí Minh</option>
-                            <option value="Hà Nội">Hà Nội</option>
-                            <option value="Đà Nẵng">Đà Nẵng</option>
-                            <option value="Bình Dương">Bình Dương</option>
-                            <option value="Nước Ngoài (Trung Quốc)">Nước Ngoài (TQ)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2.5">
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-on-surface-variant">Giá Bán (VNĐ):</label>
-                        <input type="number" id="p-price" class="bg-surface-container-low border border-outline-variant/40 rounded-lg p-2 text-xs font-medium" value="285000" step="1000"/>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-on-surface-variant">Giảm Giá (%):</label>
-                        <input type="number" id="p-discount" class="bg-surface-container-low border border-outline-variant/40 rounded-lg p-2 text-xs font-medium" value="25"/>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-on-surface-variant">Mega Sale:</label>
-                        <select id="p-megasale" class="bg-surface-container-low border border-outline-variant/40 rounded-lg p-2 text-xs font-medium">
-                            <option value="1" selected>Có (Chạy Sale)</option>
-                            <option value="0">Không (Ngày thường)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2.5">
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-on-surface-variant">Lượt Xem:</label>
-                        <input type="number" id="p-views" class="bg-surface-container-low border border-outline-variant/40 rounded-lg p-2 text-xs font-medium" value="18500"/>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-on-surface-variant">Lượt Thích:</label>
-                        <input type="number" id="p-favs" class="bg-surface-container-low border border-outline-variant/40 rounded-lg p-2 text-xs font-medium" value="1200"/>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-on-surface-variant">Đã Bán Trước Đây:</label>
-                        <input type="number" id="p-hist-sold" class="bg-surface-container-low border border-outline-variant/40 rounded-lg p-2 text-xs font-medium" value="3400"/>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2.5">
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-on-surface-variant">Điểm Rating:</label>
-                        <input type="number" id="p-rating" class="bg-surface-container-low border border-outline-variant/40 rounded-lg p-2 text-xs font-medium" value="4.8" step="0.1"/>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-on-surface-variant">Giao Đúng Hạn (%):</label>
-                        <input type="number" id="p-ship-rate" class="bg-surface-container-low border border-outline-variant/40 rounded-lg p-2 text-xs font-medium" value="97.5" step="0.1"/>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-on-surface-variant">Chat Hỗ Trợ (%):</label>
-                        <input type="number" id="p-chat-rate" class="bg-surface-container-low border border-outline-variant/40 rounded-lg p-2 text-xs font-medium" value="98.0" step="0.1"/>
-                    </div>
-                </div>
-
-                <button type="button" onclick="submitProductPrediction()" class="w-full py-3 bg-gradient-to-r from-primary to-primary-container hover:opacity-95 active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-md shadow-primary/20 transition-all flex items-center justify-center gap-2 cursor-pointer mt-1">
-                    <span class="material-symbols-outlined text-lg">online_prediction</span>
-                    <span>Thực Hiện Dự Đoán Bằng Machine Learning</span>
-                </button>
+                <button onclick="submitProductPrediction()" class="mt-4 w-full bg-primary text-white rounded-lg py-2.5 text-sm font-bold">Ước lượng</button>
             </div>
-
-            <!-- Prediction Result Display -->
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 flex flex-col justify-between" id="forecast-result-box">
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="material-symbols-outlined text-primary">analytics</span>
-                    <h3 class="font-headline font-bold text-base text-on-surface">Kết Quả Dự Báo Từ Mô Hình</h3>
-                </div>
-
-                <div id="res-placeholder" class="py-12 flex flex-col items-center justify-center text-on-surface-variant gap-2">
-                    <span class="material-symbols-outlined text-4xl text-outline-variant">calculate</span>
-                    <p class="text-xs">Bấm <strong>"Thực Hiện Dự Đoán"</strong> để xem kết quả tính toán của AI.</p>
-                </div>
-
-                <div id="res-actual-content" class="hidden flex flex-col gap-3.5">
-                    <!-- Growth Badge -->
-                    <div class="bg-surface-container p-4 rounded-xl text-center border border-outline-variant/30">
-                        <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Đánh Giá Tiềm Năng:</span>
-                        <h2 class="font-headline font-black text-2xl text-primary my-1" id="res-growth-label">Tiềm Năng Cao</h2>
-                        <span class="inline-block px-3 py-0.5 bg-[#00b050]/15 text-[#00b050] text-xs font-bold rounded-full" id="res-confidence">Độ tin cậy: 95.8%</span>
-                    </div>
-
-                    <!-- Metrics Grid -->
-                    <div class="grid grid-cols-3 gap-2 text-center text-xs">
-                        <div class="bg-surface-container-low p-2.5 rounded-lg border border-outline-variant/30">
-                            <span class="text-on-surface-variant block text-[11px]">Sức Bán Dự Kiến</span>
-                            <strong class="text-primary font-bold text-sm" id="res-monthly-sold">1,240 SP</strong>
-                        </div>
-                        <div class="bg-surface-container-low p-2.5 rounded-lg border border-outline-variant/30">
-                            <span class="text-on-surface-variant block text-[11px]">Doanh Thu Dự Kiến</span>
-                            <strong class="text-[#00b050] font-bold text-sm" id="res-monthly-revenue">264.9M ₫</strong>
-                        </div>
-                        <div class="bg-surface-container-low p-2.5 rounded-lg border border-outline-variant/30">
-                            <span class="text-on-surface-variant block text-[11px]">Mức Độ Rủi Ro</span>
-                            <strong class="text-tertiary font-bold text-sm" id="res-risk-level">Thấp (An Toàn)</strong>
-                        </div>
-                    </div>
-
-                    <!-- Feature Importance Bars -->
-                    <div>
-                        <span class="text-xs font-bold text-on-surface block mb-2">Trọng Số Yếu Tố Quyết Định (Feature Importance):</span>
-                        <div class="flex flex-col gap-1.5" id="res-feature-bars">
-                            <!-- Loaded dynamically -->
-                        </div>
-                    </div>
-
-                    <!-- Strategic Advice -->
-                    <div class="bg-surface-container p-3 rounded-lg border border-outline-variant/30">
-                        <span class="text-xs font-bold text-tertiary flex items-center gap-1 mb-1">
-                            <span class="material-symbols-outlined text-xs">lightbulb</span> Lời Khuyên Chiến Lược Dành Cho Gian Hàng:
-                        </span>
-                        <ul class="text-xs text-on-surface-variant flex flex-col gap-1 pl-4 list-disc" id="res-recommendations">
-                            <!-- Loaded dynamically -->
-                        </ul>
-                    </div>
+            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+                <div id="res-placeholder" class="py-12 text-center text-on-surface-variant">Nạp một listing hoặc nhập thông số để chạy mô hình.</div>
+                <div id="res-actual-content" class="hidden">
+                    <p class="text-xs text-on-surface-variant">Phân vị trong tập tốc độ quan sát</p><h3 id="res-performance-band" class="font-headline text-xl font-black text-primary mt-1"></h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 text-center"><div class="bg-surface-container-low rounded-lg p-3"><p class="text-[11px]">SP/ngày</p><strong id="res-daily-rate"></strong></div><div class="bg-surface-container-low rounded-lg p-3"><p class="text-[11px]">Nhịp 30 ngày</p><strong id="res-30d-rate"></strong></div><div class="bg-surface-container-low rounded-lg p-3"><p class="text-[11px]">Giá trị gộp 30 ngày</p><strong id="res-30d-value"></strong></div></div>
+                    <p id="res-method-note" class="text-xs text-on-surface-variant mt-4"></p>
+                    <h4 class="text-xs font-bold mt-5 mb-2">Feature importance toàn cục</h4><div id="res-feature-bars" class="space-y-2"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ================================================================= -->
-    <!-- TAB 4: RỦI RO & HOÀN HÀNG (GRADIENT BOOSTING) -->
-    <!-- ================================================================= -->
     <div class="tab-pane" id="tab-risk">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-6">
-            <div>
-                <h2 class="font-headline font-bold text-2xl text-on-surface tracking-tight">Giám Sát Rủi Ro &amp; Khiếu Nại Hoàn Hàng</h2>
-                <p class="text-sm text-on-surface-variant">Phát hiện sớm nguy cơ giao hàng trễ, đơn hàng bị bom, khiếu nại chất lượng bằng <strong>Gradient Boosting</strong></p>
-            </div>
+        <div class="mb-6"><h2 class="font-headline font-bold text-2xl">Chất Lượng Và Độ Phủ Dữ Liệu Listing</h2><p class="text-sm text-on-surface-variant">Cảnh báo dựa trên trường quan sát được; không suy diễn rủi ro vận hành hoặc hoàn hàng.</p></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mb-gutter">
+            <div class="bg-surface rounded-xl p-card-padding card-shadow border"><p class="text-xs">Có tốc độ bán</p><h3 id="quality-count-velocity" class="text-xl font-bold mt-1">—</h3></div>
+            <div class="bg-surface rounded-xl p-card-padding card-shadow border"><p class="text-xs">Không có tốc độ bán</p><h3 id="quality-count-no-velocity" class="text-xl font-bold mt-1">—</h3></div>
+            <div class="bg-surface rounded-xl p-card-padding card-shadow border"><p class="text-xs">Thiếu rating</p><h3 id="quality-count-rating" class="text-xl font-bold mt-1">—</h3></div>
+            <div class="bg-surface rounded-xl p-card-padding card-shadow border"><p class="text-xs">Thiếu vị trí shop</p><h3 id="quality-count-location" class="text-xl font-bold mt-1">—</h3></div>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-gutter">
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-[#00b050]/40 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-[#00b050]/15 flex items-center justify-center text-[#00b050]">
-                    <span class="material-symbols-outlined text-2xl">verified_user</span>
-                </div>
-                <div>
-                    <span class="text-xs text-on-surface-variant font-medium">Sản Phẩm An Toàn</span>
-                    <h3 class="font-headline font-bold text-xl text-on-surface" id="risk-count-low">942 SP (78.5%)</h3>
-                    <span class="text-[11px] text-[#00b050] font-semibold">Tỷ lệ trả hàng &lt; 3%</span>
-                </div>
-            </div>
-
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-tertiary-fixed-dim/40 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-tertiary-fixed/30 flex items-center justify-center text-tertiary">
-                    <span class="material-symbols-outlined text-2xl">notification_important</span>
-                </div>
-                <div>
-                    <span class="text-xs text-on-surface-variant font-medium">Cần Chú Ý Theo Dõi</span>
-                    <h3 class="font-headline font-bold text-xl text-on-surface" id="risk-count-med">198 SP (16.5%)</h3>
-                    <span class="text-[11px] text-tertiary font-semibold">Giao chậm hoặc đánh giá &lt; 4.2★</span>
-                </div>
-            </div>
-
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-error/40 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-error/15 flex items-center justify-center text-error">
-                    <span class="material-symbols-outlined text-2xl">error</span>
-                </div>
-                <div>
-                    <span class="text-xs text-on-surface-variant font-medium">Báo Động Đỏ</span>
-                    <h3 class="font-headline font-bold text-xl text-error" id="risk-count-high">60 SP (5.0%)</h3>
-                    <span class="text-[11px] text-error font-semibold">Nguy cơ cao bị hoàn tiền</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
-            <div class="flex items-center gap-2 mb-4">
-                <span class="material-symbols-outlined text-primary">rule</span>
-                <h3 class="font-headline font-bold text-base text-on-surface">Bảng Cảnh Báo &amp; Hành Động Khắc Phục Khuyến Nghị</h3>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                    <thead class="bg-surface-container text-on-surface-variant font-bold border-b border-outline-variant/30">
-                        <tr>
-                            <th class="py-2.5 px-3">Mức Nguy Hiểm</th>
-                            <th class="py-2.5 px-3">Nguyên Nhân Gốc Rễ</th>
-                            <th class="py-2.5 px-3">Chỉ Số Báo Động</th>
-                            <th class="py-2.5 px-3">Hậu Quả Nếu Không Xử Lý</th>
-                            <th class="py-2.5 px-3">Giải Pháp Khắc Phục Ngay</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-outline-variant/20 font-medium">
-                        <tr>
-                            <td class="py-3 px-3"><span class="px-2 py-0.5 bg-error/10 text-error rounded font-bold">Rất Cao</span></td>
-                            <td class="py-3 px-3">Khách trả hàng &gt; 12% do hàng bị móp méo va đập</td>
-                            <td class="py-3 px-3">Return Rate: 14.8% | Rating: 3.4★</td>
-                            <td class="py-3 px-3">Bị Shopee hạ thứ hạng hiển thị, mất huy hiệu Shop Yêu Thích</td>
-                            <td class="py-3 px-3">Bọc thêm 3 lớp xốp khí chống va đập, đổi sang nhà vận chuyển hỏa tốc.</td>
-                        </tr>
-                        <tr>
-                            <td class="py-3 px-3"><span class="px-2 py-0.5 bg-error/10 text-error rounded font-bold">Rất Cao</span></td>
-                            <td class="py-3 px-3">Nghi vấn hàng nhái so với hình ảnh quảng cáo</td>
-                            <td class="py-3 px-3">Tiêu cực MXH: 48% | Đánh giá xấu: 22%</td>
-                            <td class="py-3 px-3">Nguy cơ bị khóa shop và khách hàng khiếu nại bồi thường</td>
-                            <td class="py-3 px-3">Cập nhật ngay ảnh thật chụp 100% không qua filter, xuất trình hóa đơn chính hãng.</td>
-                        </tr>
-                        <tr>
-                            <td class="py-3 px-3"><span class="px-2 py-0.5 bg-tertiary-fixed/30 text-tertiary rounded font-bold">Trung Bình</span></td>
-                            <td class="py-3 px-3">Chuẩn bị hàng chậm trễ trong các đợt Mega Sale</td>
-                            <td class="py-3 px-3">Giao đúng hạn: 86.2% | Mất 5.8 ngày</td>
-                            <td class="py-3 px-3">Khách chờ quá lâu nên bấm hủy đơn hàng</td>
-                            <td class="py-3 px-3">Bố trí thêm nhân viên đóng gói ca đêm trong các ngày Sale 9.9, 11.11, 12.12.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 overflow-x-auto">
+            <table class="w-full text-left text-xs"><thead class="bg-surface-container"><tr><th class="p-2">Trạng thái</th><th class="p-2">Vấn đề quan sát</th><th class="p-2">Listing</th><th class="p-2">Giá / Rating</th><th class="p-2">Cách dùng</th></tr></thead><tbody id="quality-alerts-tbody" class="divide-y divide-outline-variant/20"></tbody></table>
         </div>
     </div>
 
-    <!-- ================================================================= -->
-    <!-- TAB 5: COMBO GIỎ HÀNG (APRIORI) -->
-    <!-- ================================================================= -->
     <div class="tab-pane" id="tab-basket">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-6">
-            <div>
-                <h2 class="font-headline font-bold text-2xl text-on-surface tracking-tight">Khai Phá Luật Kết Hợp Giỏ Hàng (Apriori Algorithm)</h2>
-                <p class="text-sm text-on-surface-variant">Tự động tìm kiếm các sản phẩm thường xuyên được mua cùng nhau để thiết lập Combo khuyến mãi Cross-Selling</p>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-gutter">
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
-                <span class="text-xs font-bold text-primary block mb-1">Độ Phổ Biến (Support)</span>
-                <p class="text-xs text-on-surface-variant">Tần suất xuất hiện đồng thời cả 2 món trên toàn bộ các đơn hàng.</p>
-            </div>
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
-                <span class="text-xs font-bold text-secondary block mb-1">Độ Tin Cậy (Confidence)</span>
-                <p class="text-xs text-on-surface-variant">Xác suất khách mua thêm món B khi đã chọn mua món A.</p>
-            </div>
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
-                <span class="text-xs font-bold text-[#00b050] block mb-1">Sức Hút Tương Quan (Lift)</span>
-                <p class="text-xs text-on-surface-variant">Mua A làm tăng khả năng mua B lên gấp bao nhiêu lần so với bình thường.</p>
-            </div>
-        </div>
-
-        <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
-            <div class="flex items-center gap-2 mb-4">
-                <span class="material-symbols-outlined text-primary">shopping_basket</span>
-                <h3 class="font-headline font-bold text-base text-on-surface">Top Các Luật Kết Hợp Mua Kèm Có Sức Hút Cao Nhất</h3>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                    <thead class="bg-surface-container text-on-surface-variant font-bold border-b border-outline-variant/30">
-                        <tr>
-                            <th class="py-2.5 px-3">Nếu Khách Mua Món Này</th>
-                            <th class="py-2.5 px-3">Sẽ Rất Dễ Mua Thêm Món Này</th>
-                            <th class="py-2.5 px-3">Support (%)</th>
-                            <th class="py-2.5 px-3">Confidence (%)</th>
-                            <th class="py-2.5 px-3">Tăng Gấp Mấy Lần? (Lift)</th>
-                            <th class="py-2.5 px-3">Hành Động Khuyến Nghị Cho Shop</th>
-                        </tr>
-                    </thead>
-                    <tbody id="apriori-rules-tbody" class="divide-y divide-outline-variant/20 font-medium">
-                        <!-- Loaded dynamically -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <div class="mb-6"><h2 class="font-headline font-bold text-2xl">Luật Kết Hợp Giỏ Hàng</h2><p class="text-sm text-on-surface-variant">Apriori trên 261 đơn hoàn thành đã bỏ mọi thông tin người mua; ngưỡng support 1,5% và confidence 15%.</p></div>
+        <div class="bg-surface rounded-xl p-card-padding card-shadow border overflow-x-auto"><table class="w-full text-left text-xs"><thead class="bg-surface-container"><tr><th class="p-2">Tiền đề</th><th class="p-2">Hệ quả</th><th class="p-2">Support</th><th class="p-2">Confidence</th><th class="p-2">Lift</th><th class="p-2">Số đơn cùng xuất hiện</th></tr></thead><tbody id="apriori-rules-tbody" class="divide-y divide-outline-variant/20"></tbody></table></div>
     </div>
 
-    <!-- ================================================================= -->
-    <!-- TAB 6: GOM CỤM SẢN PHẨM (K-MEANS & 2D PCA) -->
-    <!-- ================================================================= -->
     <div class="tab-pane" id="tab-clustering">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-6">
-            <div>
-                <h2 class="font-headline font-bold text-2xl text-on-surface tracking-tight">Phân Khúc Sản Phẩm Bằng K-Means &amp; 2D PCA</h2>
-                <p class="text-sm text-on-surface-variant">Học máy không giám sát <strong>K-Means (K=4)</strong> kết hợp phép chiếu không gian <strong>PCA</strong> để tự động chia 1,200 sản phẩm thành 4 nhóm</p>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
-            <!-- 2D PCA Scatter Chart -->
-            <div class="lg:col-span-2 bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 flex flex-col">
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="material-symbols-outlined text-primary">scatter_plot</span>
-                    <h3 class="font-headline font-bold text-base text-on-surface">Bản Đồ Phân Bổ Không Gian 2 Chiều (PCA)</h3>
-                </div>
-                <div class="h-[360px] w-full relative">
-                    <canvas id="chartKmeansScatter"></canvas>
-                </div>
-            </div>
-
-            <!-- Cluster Profiles -->
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 flex flex-col gap-3">
-                <div class="flex items-center gap-2 mb-1">
-                    <span class="material-symbols-outlined text-primary">category</span>
-                    <h3 class="font-headline font-bold text-base text-on-surface">Đặc Trưng 4 Nhóm Cụm</h3>
-                </div>
-                <div class="flex flex-col gap-2.5" id="cluster-profiles-container">
-                    <!-- Loaded dynamically -->
-                </div>
-            </div>
-        </div>
+        <div class="mb-6"><h2 class="font-headline font-bold text-2xl">Phân Cụm Sản Phẩm K-Means Và PCA</h2><p class="text-sm text-on-surface-variant">Bốn cụm trên toàn bộ 16.563 listing; PCA chỉ phục vụ trực quan hóa mẫu điểm.</p></div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter"><div class="lg:col-span-2 bg-surface rounded-xl p-card-padding card-shadow border"><div class="h-[380px]"><canvas id="chartKmeansScatter"></canvas></div></div><div class="bg-surface rounded-xl p-card-padding card-shadow border"><h3 class="font-bold mb-3">Profile cụm</h3><div id="cluster-profiles-container" class="space-y-3"></div></div></div>
     </div>
 
-    <!-- ================================================================= -->
-    <!-- TAB 7: ĐẤU TRƯỜNG SO SÁNH MÔ HÌNH (BENCHMARK) -->
-    <!-- ================================================================= -->
     <div class="tab-pane" id="tab-benchmark">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-6">
-            <div>
-                <h2 class="font-headline font-bold text-2xl text-on-surface tracking-tight">Đấu Trường So Sánh Độ Chuẩn Xác Các Mô Hình ML</h2>
-                <p class="text-sm text-on-surface-variant">Đánh giá thực nghiệm các thuật toán: <strong>Multinomial Naive Bayes, Decision Tree, Random Forest, XGBoost</strong></p>
-            </div>
-        </div>
-
-        <!-- Benchmark Table -->
-        <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 mb-gutter">
-            <div class="flex items-center gap-2 mb-4">
-                <span class="material-symbols-outlined text-primary">military_tech</span>
-                <h3 class="font-headline font-bold text-base text-on-surface">Bảng So Sánh Hiệu Suất Trên Tập Dữ Liệu Kiểm Thử (Test Set)</h3>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                    <thead class="bg-surface-container text-on-surface-variant font-bold border-b border-outline-variant/30">
-                        <tr>
-                            <th class="py-2.5 px-3">Bài Toán Khai Thác</th>
-                            <th class="py-2.5 px-3">Thuật Toán Áp Dụng</th>
-                            <th class="py-2.5 px-3">Độ Chính Xác (Accuracy)</th>
-                            <th class="py-2.5 px-3">Precision (Macro)</th>
-                            <th class="py-2.5 px-3">Recall (Macro)</th>
-                            <th class="py-2.5 px-3">F1-Score (Tổng Hợp)</th>
-                            <th class="py-2.5 px-3">Đánh Giá Thực Nghiệm</th>
-                        </tr>
-                    </thead>
-                    <tbody id="benchmark-tbody" class="divide-y divide-outline-variant/20 font-medium">
-                        <!-- Loaded dynamically -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Confusion Matrix & ROC Curves -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 flex flex-col items-center">
-                <div class="w-full flex items-center gap-2 mb-4">
-                    <span class="material-symbols-outlined text-primary">grid_on</span>
-                    <h3 class="font-headline font-bold text-base text-on-surface">Ma Trận Nhầm Lẫn (Confusion Matrix - Naive Bayes)</h3>
-                </div>
-                <div id="cm-display-box" class="w-full flex flex-col items-center">
-                    <!-- Loaded dynamically -->
-                </div>
-            </div>
-
-            <div class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30 flex flex-col">
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="material-symbols-outlined text-primary">ssid_chart</span>
-                    <h3 class="font-headline font-bold text-base text-on-surface">Đường Cong ROC &amp; Điểm ROC-AUC</h3>
-                </div>
-                <div class="h-[280px] w-full relative">
-                    <canvas id="chartRocCurve"></canvas>
-                </div>
-            </div>
-        </div>
+        <div class="mb-6"><h2 class="font-headline font-bold text-2xl">Đánh Giá Mô Hình</h2><p class="text-sm text-on-surface-variant">Sentiment giữ nguyên test gốc; hồi quy tốc độ bán dùng holdout seed 42.</p></div>
+        <div class="bg-surface rounded-xl p-card-padding card-shadow border overflow-x-auto mb-gutter"><table class="w-full text-left text-xs"><thead class="bg-surface-container"><tr><th class="p-2">Bài toán</th><th class="p-2">Mô hình</th><th class="p-2">Accuracy / R²</th><th class="p-2">Macro-F1 / MAE</th><th class="p-2">Weighted-F1 / RMSE</th><th class="p-2">Tập test</th></tr></thead><tbody id="benchmark-tbody" class="divide-y divide-outline-variant/20"></tbody></table></div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter"><div class="bg-surface rounded-xl p-card-padding card-shadow border"><h3 class="font-bold mb-3">Ma trận nhầm lẫn sentiment</h3><div id="cm-display-box" class="overflow-x-auto"></div></div><div class="bg-surface rounded-xl p-card-padding card-shadow border"><h3 class="font-bold mb-3">ROC one-vs-rest</h3><div class="h-[300px]"><canvas id="chartRocCurve"></canvas></div></div></div>
     </div>
-
 </div>
 {% endblock %}

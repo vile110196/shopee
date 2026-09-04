@@ -1,47 +1,71 @@
 @echo off
+setlocal
 chcp 65001 >nul
-title HE THONG KHAI THAC DU LIEU E-COMMERCE SHOPEE - UIT
+cd /d "%~dp0"
+title SHOPEE ANALYTICS LAB - UIT
 
 echo ===============================================================================
-echo   TRUONG DAI HOC CONG NGHE THONG TIN - DHQG TP.HCM (UIT)
-echo   DO AN: KHAI THAC DU LIEU & TRUYEN THONG XA HOI E-COMMERCE SHOPEE
-echo   NHOM THUC HIEN:
-echo   1. Tran Dinh Huy      - MSSV: 24730103 (Nhom truong)
-echo   2. Le Thanh Truc Vi   - MSSV: 24730150 (NLP & Teencode)
-echo   3. Vu Hoang Thien An  - MSSV: 24730155 (Gom cum & Luat ket hop)
-echo   4. Duong Phuong Anh   - MSSV: 24730156 (Danh gia Mo hinh & UI)
+echo   SHOPEE ANALYTICS LAB - KHAI THAC DU LIEU VA TRUYEN THONG XA HOI
 echo ===============================================================================
 echo.
 
-:: Kiem tra Python
-set PYTHON_CMD=python
-where python >nul 2>nul
-if %errorlevel% neq 0 (
-    if exist "C:\Users\randy\AppData\Local\Programs\Python\Python311\python.exe" (
-        set PYTHON_CMD="C:\Users\randy\AppData\Local\Programs\Python\Python311\python.exe"
-    ) else if exist "C:\Python311\python.exe" (
-        set PYTHON_CMD="C:\Python311\python.exe"
-    ) else (
-        echo [!] Khong tim thay Python tren he thong. Vui long cai dat Python 3.9 tro len.
-        pause
-        exit /b
-    )
+set "BOOTSTRAP_PY="
+where py >nul 2>nul
+if not errorlevel 1 (
+    py -3.11 -c "import sys" >nul 2>nul
+    if not errorlevel 1 set "BOOTSTRAP_PY=py -3.11"
 )
 
-echo [1/3] Kiem tra du lieu va mo hinh Machine Learning...
-if not exist "models\model_benchmarks.json" (
-    echo [!] Chua co mo hinh da huan luyen. Dang tien hanh chay pipeline huan luyen...
-    %PYTHON_CMD% model_training.py
+if not defined BOOTSTRAP_PY (
+    where python >nul 2>nul
+    if not errorlevel 1 set "BOOTSTRAP_PY=python"
 )
 
-echo [2/3] Khoi dong May chu Web Flask tai http://127.0.0.1:5000...
-echo [3/3] He thong se tu dong mo trinh duyet Web trong giay lat...
-echo.
-echo ===============================================================================
-echo   UNG DUNG DANG CHAY. DE DUNG MAY CHU, NHAN TO HOP PHIM: Ctrl + C
-echo ===============================================================================
-echo.
+if not defined BOOTSTRAP_PY (
+    echo [LOI] Khong tim thay Python 3.11 tro len trong PATH.
+    pause
+    exit /b 1
+)
 
-%PYTHON_CMD% app.py
+if not exist ".venv\Scripts\python.exe" (
+    echo [1/4] Tao moi truong ao .venv...
+    %BOOTSTRAP_PY% -m venv .venv
+    if errorlevel 1 goto :fail
+) else (
+    echo [1/4] Da tim thay moi truong ao .venv.
+)
 
+set "VENV_PY=%CD%\.venv\Scripts\python.exe"
+
+echo [2/4] Kiem tra thu vien Python...
+"%VENV_PY%" -c "import flask, joblib, numpy, pandas, sklearn, scipy; assert sklearn.__version__ == '1.9.0'" >nul 2>nul
+if errorlevel 1 (
+    echo       Dang cai dat requirements.txt, lan dau co the mat vai phut...
+    "%VENV_PY%" -m pip install --disable-pip-version-check -r requirements.txt
+    if errorlevel 1 goto :fail
+)
+
+echo [3/4] Kiem tra ba bo du lieu Kaggle...
+if not exist "data\provenance.json" (
+    echo       Chua co du lieu; dang tai va kiem checksum cac ban version 1...
+    "%VENV_PY%" import_public_data.py --download
+    if errorlevel 1 goto :fail
+)
+
+echo       Kiem tra du lieu va artifact mo hinh...
+"%VENV_PY%" -c "import app; print('      Du lieu va mo hinh hop le.')"
+if errorlevel 1 goto :fail
+
+echo [4/4] Khoi dong http://127.0.0.1:5000 ...
+echo       Nhan Ctrl+C de dung may chu.
+echo.
+"%VENV_PY%" app.py
+if errorlevel 1 goto :fail
+
+exit /b 0
+
+:fail
+echo.
+echo [LOI] Khoi dong that bai. Xem thong bao ngay phia tren.
 pause
+exit /b 1

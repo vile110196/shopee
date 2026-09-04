@@ -1,15 +1,9 @@
-/**
- * =============================================================================
- * SHOPEE DATA MINING - JAVASCRIPT ENGINE (STITCH UI)
- * Authors: Le Thanh Truc Vi, Tran Dinh Huy, Vu Hoang Thien An, Duong Phuong Anh
- * =============================================================================
- */
-
 let charts = {};
 let sampleProductsData = [];
 
-document.addEventListener("DOMContentLoaded", function() {
-    initStitchTabs();
+document.addEventListener("DOMContentLoaded", () => {
+    initTabs();
+    if (!document.getElementById("tab-overview")) return;
     loadOverviewStats();
     loadSampleProducts();
     loadSampleComments();
@@ -19,678 +13,430 @@ document.addEventListener("DOMContentLoaded", function() {
     loadModelBenchmarks();
 });
 
-// =============================================================================
-// 1. STITCH TAB NAVIGATION
-// =============================================================================
-function initStitchTabs() {
-    const tabLinks = document.querySelectorAll(".stitch-nav-item");
-    const tabPanes = document.querySelectorAll(".tab-pane");
-    const breadcrumb = document.getElementById("stitch-breadcrumb-text");
-
-    const tabNames = {
-        "tab-overview": "Dashboard Tổng Quan & Social Mining",
-        "tab-sentiment": "Phân Tích Cảm Xúc MXH (Naive Bayes)",
-        "tab-forecaster": "Dự Báo Doanh Số (Random Forest & XGBoost)",
-        "tab-risk": "Giám Sát Rủi Ro & Hoàn Hàng",
-        "tab-basket": "Gợi Ý Combo Giỏ Hàng (Apriori)",
-        "tab-clustering": "Phân Khúc Sản Phẩm (K-Means & PCA)",
-        "tab-benchmark": "Đấu Trường So Sánh Mô Hình ML"
-    };
-
-    tabLinks.forEach(link => {
-        link.addEventListener("click", function() {
-            const targetTab = this.getAttribute("data-tab");
-
-            tabLinks.forEach(l => {
-                l.classList.remove("active");
-                l.classList.add("text-on-surface-variant");
-            });
-            tabPanes.forEach(p => p.classList.remove("active"));
-
-            this.classList.add("active");
-            this.classList.remove("text-on-surface-variant");
-
-            const targetPane = document.getElementById(targetTab);
-            if (targetPane) {
-                targetPane.classList.add("active");
-            }
-
-            if (breadcrumb && tabNames[targetTab]) {
-                breadcrumb.textContent = tabNames[targetTab];
-            }
-        });
-    });
+function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>'"]/g, char => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
+    })[char]);
 }
 
-// =============================================================================
-// 2. TAB 1: OVERVIEW DASHBOARD & CHARTS
-// =============================================================================
+function formatNumber(value, digits = 0) {
+    const number = Number(value);
+    return Number.isFinite(number)
+        ? number.toLocaleString("vi-VN", { minimumFractionDigits: digits, maximumFractionDigits: digits })
+        : "—";
+}
+
+function readNumber(id, fallback) {
+    const element = document.getElementById(id);
+    const number = Number(element?.value);
+    return Number.isFinite(number) ? number : fallback;
+}
+
+function setText(id, value) {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+}
+
+function initTabs() {
+    const links = document.querySelectorAll(".stitch-nav-item");
+    const panes = document.querySelectorAll(".tab-pane");
+    const breadcrumb = document.getElementById("stitch-breadcrumb-text");
+    const names = {
+        "tab-overview": "Dashboard Tổng Quan",
+        "tab-sentiment": "Phân Tích Cảm Xúc Và ABSA",
+        "tab-forecaster": "Ước Lượng Nhịp Bán",
+        "tab-risk": "Chất Lượng Dữ Liệu",
+        "tab-basket": "Luật Kết Hợp Apriori",
+        "tab-clustering": "Phân Cụm K-Means Và PCA",
+        "tab-benchmark": "Đánh Giá Mô Hình"
+    };
+    const activate = target => {
+        const pane = document.getElementById(target);
+        if (!pane) return false;
+        panes.forEach(item => item.classList.remove("active"));
+        links.forEach(item => item.classList.remove("active"));
+        pane.classList.add("active");
+        const link = Array.from(links).find(item => item.dataset.tab === target);
+        if (link) link.classList.add("active");
+        if (breadcrumb) breadcrumb.textContent = names[target] || target;
+        return true;
+    };
+    links.forEach(link => link.addEventListener("click", event => {
+        if (!activate(link.dataset.tab)) return;
+        event.preventDefault();
+        window.history.replaceState(null, "", `#${link.dataset.tab}`);
+    }));
+    if (window.location.hash) activate(window.location.hash.slice(1));
+}
+
 async function loadOverviewStats() {
     try {
         const response = await fetch("/api/overview_stats");
         const data = await response.json();
-
-        if (data.status === "success") {
-            const kpis = data.kpis;
-            document.getElementById("kpi-products").textContent = kpis.total_products + " SP";
-            document.getElementById("kpi-reviews").textContent = kpis.total_reviews + " Bình luận";
-            document.getElementById("kpi-sales").textContent = kpis.total_monthly_sales;
-            document.getElementById("kpi-rating").textContent = kpis.avg_rating + " / 5.0 ★";
-
-            renderCategorySalesChart(data.category_sales);
-            renderSentimentDoughnutChart(data.sentiment_dist);
-            renderRatingDistChart(data.rating_dist);
-            renderTopProductsTable(data.top_products);
-        }
+        if (!response.ok || data.status !== "success") throw new Error(data.message || "Không tải được dashboard");
+        setText("kpi-sales", data.kpis.historical_sold);
+        setText("kpi-products", `${formatNumber(data.kpis.total_products)} SP`);
+        setText("kpi-reviews", `${formatNumber(data.kpis.total_reviews)} review`);
+        setText("kpi-rating", `${data.kpis.avg_rating} / 5 ★`);
+        renderCategoryChart(data.category_sales);
+        renderSentimentChart(data.sentiment_dist);
+        renderRatingChart(data.rating_dist);
+        renderTopProducts(data.top_products);
+        renderQuality(data.quality_dist, data.listing_alerts);
     } catch (error) {
-        console.error("Lỗi khi tải Overview stats:", error);
+        console.error(error);
     }
 }
 
-function renderCategorySalesChart(catData) {
-    const ctx = document.getElementById("chartCategorySales");
-    if (!ctx) return;
-
-    if (charts["categorySales"]) charts["categorySales"].destroy();
-
-    charts["categorySales"] = new Chart(ctx, {
+function renderCategoryChart(source) {
+    const canvas = document.getElementById("chartCategorySales");
+    if (!canvas) return;
+    charts.category?.destroy();
+    const labels = source.labels.slice(0, 12);
+    const values = source.values.slice(0, 12);
+    charts.category = new Chart(canvas, {
         type: "bar",
-        data: {
-            labels: catData.labels,
-            datasets: [{
-                label: "Doanh Số Bán (SP/tháng)",
-                data: catData.values,
-                backgroundColor: [
-                    "#b22204", "#d63c1e", "#005bbd", "#00b050", "#ffb94c",
-                    "#7e5300", "#ba1a1a", "#4f92fe", "#9e6a00"
-                ],
-                borderRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                x: {
-                    ticks: { color: "#5b403b", font: { size: 11, family: "Inter", weight: "600" } },
-                    grid: { display: false }
-                },
-                y: {
-                    ticks: { color: "#8f7069", font: { size: 11, family: "Inter" } },
-                    grid: { color: "#e3beb6", drawBorder: false }
-                }
-            }
-        }
+        data: { labels, datasets: [{ label: "Lượt bán tích lũy", data: values, backgroundColor: "#b22204", borderRadius: 5 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { maxRotation: 45, minRotation: 25 } } } }
     });
 }
 
-function renderSentimentDoughnutChart(sentData) {
-    const ctx = document.getElementById("chartSentimentDoughnut");
-    if (!ctx) return;
-
-    if (charts["sentimentDoughnut"]) charts["sentimentDoughnut"].destroy();
-
-    charts["sentimentDoughnut"] = new Chart(ctx, {
+function renderSentimentChart(source) {
+    const canvas = document.getElementById("chartSentimentDoughnut");
+    if (!canvas) return;
+    charts.sentiment?.destroy();
+    charts.sentiment = new Chart(canvas, {
         type: "doughnut",
         data: {
-            labels: ["Khen Ngợi (Tích Cực)", "Bình Thường (Trung Lập)", "Chê / Khiếu Nại (Tiêu Cực)"],
-            datasets: [{
-                data: [sentData.pos, sentData.neu, sentData.neg],
-                backgroundColor: ["#00b050", "#ffb94c", "#ba1a1a"],
-                borderWidth: 3,
-                borderColor: "#fff8f6"
-            }]
+            labels: ["Tích cực", "Trung lập", "Tiêu cực"],
+            datasets: [{ data: [source.pos, source.neu, source.neg], backgroundColor: ["#00b050", "#ffb94c", "#ba1a1a"], borderWidth: 2 }]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
-            cutout: "72%"
-        }
+        options: { responsive: true, maintainAspectRatio: false, cutout: "68%", plugins: { legend: { position: "bottom" } } }
     });
 }
 
-function renderRatingDistChart(ratingData) {
-    const ctx = document.getElementById("chartRatingDist");
-    if (!ctx) return;
-
-    if (charts["ratingDist"]) charts["ratingDist"].destroy();
-
-    charts["ratingDist"] = new Chart(ctx, {
+function renderRatingChart(source) {
+    const canvas = document.getElementById("chartRatingDist");
+    if (!canvas) return;
+    charts.rating?.destroy();
+    charts.rating = new Chart(canvas, {
         type: "bar",
-        data: {
-            labels: ratingData.labels,
-            datasets: [{
-                label: "Số Lượng Đánh Giá",
-                data: ratingData.values,
-                backgroundColor: ["#ba1a1a", "#d63c1e", "#ffb94c", "#4f92fe", "#00b050"],
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: "y",
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { ticks: { color: "#8f7069" }, grid: { color: "#e3beb6" } },
-                y: { ticks: { color: "#271815", font: { weight: "700", family: "Inter" } }, grid: { display: false } }
-            }
-        }
+        data: { labels: source.labels, datasets: [{ data: source.values, backgroundColor: ["#ba1a1a", "#d63c1e", "#ffb94c", "#4f92fe", "#00b050"], borderRadius: 4 }] },
+        options: { responsive: true, maintainAspectRatio: false, indexAxis: "y", plugins: { legend: { display: false } } }
     });
 }
 
-function renderTopProductsTable(topProducts) {
-    const tbody = document.getElementById("top-products-tbody");
-    if (!tbody) return;
-
-    if (!topProducts || topProducts.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="py-4 text-center text-on-surface-variant">Không có dữ liệu</td></tr>`;
-        return;
-    }
-
-    tbody.innerHTML = topProducts.map(p => `
-        <tr class="hover:bg-surface-container-low transition-colors">
-            <td class="py-2.5 px-3 font-mono text-primary font-bold">${p.product_id}</td>
-            <td class="py-2.5 px-3 font-bold text-on-surface">${p.product_name.length > 32 ? p.product_name.substring(0, 32) + "..." : p.product_name}</td>
-            <td class="py-2.5 px-3 text-on-surface-variant">${p.category}</td>
-            <td class="py-2.5 px-3 font-bold text-primary">${p.price.toLocaleString("vi-VN")} ₫</td>
-            <td class="py-2.5 px-3 font-bold text-on-surface">${p.monthly_sold.toLocaleString("vi-VN")} SP</td>
-            <td class="py-2.5 px-3 font-bold text-tertiary">★ ${p.rating_star}</td>
-            <td class="py-2.5 px-3"><span class="px-2 py-0.5 bg-[#00b050]/15 text-[#00b050] rounded-full text-[11px] font-bold">${p.growth_potential}</span></td>
-        </tr>
-    `).join("");
+function renderTopProducts(products) {
+    const body = document.getElementById("top-products-tbody");
+    if (!body) return;
+    body.innerHTML = products.map(product => `
+        <tr>
+            <td class="p-2 font-mono text-primary">${escapeHtml(product.product_id)}</td>
+            <td class="p-2 font-semibold"><a href="${escapeHtml(product.product_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(product.product_name.slice(0, 55))}</a></td>
+            <td class="p-2">${escapeHtml(product.category)}</td>
+            <td class="p-2">RM ${formatNumber(product.price, 2)}</td>
+            <td class="p-2 font-bold">${formatNumber(product.historical_sold)}</td>
+            <td class="p-2">${product.rating_star == null ? "—" : `★ ${formatNumber(product.rating_star, 1)}`}</td>
+            <td class="p-2">${product.daily_sold_rate == null ? "Không đủ snapshot" : `${formatNumber(product.daily_sold_rate, 3)} SP/ngày`}</td>
+        </tr>`).join("");
 }
 
-// =============================================================================
-// 3. TAB 2: SENTIMENT ANALYSIS & WORD CLOUD
-// =============================================================================
+function renderQuality(quality, alerts) {
+    setText("quality-count-velocity", formatNumber(quality.with_velocity));
+    setText("quality-count-no-velocity", formatNumber(quality.without_velocity));
+    setText("quality-count-rating", formatNumber(quality.missing_rating));
+    setText("quality-count-location", formatNumber(quality.missing_location));
+    const body = document.getElementById("quality-alerts-tbody");
+    if (!body) return;
+    body.innerHTML = alerts.map(alert => `
+        <tr>
+            <td class="p-2"><span class="px-2 py-1 bg-tertiary-fixed/40 text-tertiary rounded font-bold">${escapeHtml(alert.quality_level)}</span></td>
+            <td class="p-2">${alert.issues.map(escapeHtml).join("; ")}</td>
+            <td class="p-2"><strong>${escapeHtml(alert.product_id)}</strong><br>${escapeHtml(alert.product_name.slice(0, 70))}</td>
+            <td class="p-2">RM ${formatNumber(alert.price, 2)} / ${alert.rating_star == null ? "—" : formatNumber(alert.rating_star, 1)} ★</td>
+            <td class="p-2 text-on-surface-variant">${escapeHtml(alert.recommended_action)}</td>
+        </tr>`).join("");
+}
+
 async function loadSampleComments() {
     try {
-        const response = await fetch("/api/sample_comments");
-        const data = await response.json();
-        if (data.status === "success" && data.samples) {
-            const container = document.getElementById("sample-comments-container");
-            if (!container) return;
-
-            container.innerHTML = data.samples.map(c => `
-                <button type="button" class="px-3 py-1 bg-surface rounded-full border border-outline-variant/40 hover:border-primary hover:bg-surface-container text-xs font-medium text-on-surface transition-all cursor-pointer shadow-sm" onclick="populateSampleComment('${encodeURIComponent(c.text)}')">
-                    ${c.type}: "${c.text.substring(0, 26)}..."
-                </button>
-            `).join("");
-        }
-    } catch (e) {
-        console.error("Lỗi khi tải sample comments:", e);
+        const data = await (await fetch("/api/sample_comments")).json();
+        const container = document.getElementById("sample-comments-container");
+        if (!container || data.status !== "success") return;
+        container.innerHTML = data.samples.map(sample => `
+            <button class="px-3 py-1 bg-surface rounded-full border text-xs" data-comment="${encodeURIComponent(sample.text)}">${escapeHtml(sample.type)}: ${escapeHtml(sample.text.slice(0, 35))}…</button>
+        `).join("");
+        container.querySelectorAll("button").forEach(button => button.addEventListener("click", () => {
+            document.getElementById("sentiment-input-text").value = decodeURIComponent(button.dataset.comment);
+            submitSentimentAnalysis();
+        }));
+    } catch (error) {
+        console.error(error);
     }
-}
-
-function populateSampleComment(encodedText) {
-    const text = decodeURIComponent(encodedText);
-    document.getElementById("sentiment-input-text").value = text;
-    submitSentimentAnalysis();
 }
 
 async function submitSentimentAnalysis() {
-    const text = document.getElementById("sentiment-input-text").value.trim();
+    const text = document.getElementById("sentiment-input-text")?.value.trim();
     if (!text) return;
-
     try {
         const response = await fetch("/api/analyze_sentiment", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: text })
+            body: JSON.stringify({ text })
         });
-        const res = await response.json();
-
-        if (res.status === "success") {
-            document.getElementById("sentiment-cleaned-display").textContent = res.cleaned_text;
-
-            const badge = document.getElementById("sent-badge-label");
-            badge.textContent = res.sentiment_label;
-            if (res.sentiment_label === "Tích cực") {
-                badge.style.background = "#dcfce7";
-                badge.style.color = "#15803d";
-            } else if (res.sentiment_label === "Tiêu cực") {
-                badge.style.background = "#ffdad6";
-                badge.style.color = "#ba1a1a";
-            } else {
-                badge.style.background = "#ffddb2";
-                badge.style.color = "#7e5300";
-            }
-
-            const percentWidth = Math.max(5, Math.min(95, ((res.sentiment_score + 1.0) / 2.0) * 100));
-            document.getElementById("sent-gauge-fill").style.width = `${percentWidth}%`;
-            document.getElementById("sent-score-val").textContent = `Điểm: ${res.sentiment_score >= 0 ? "+" : ""}${res.sentiment_score} (Độ tin cậy: ${res.confidence_percent}%)`;
-
-            const posContainer = document.getElementById("sent-pos-pills");
-            if (res.positive_keywords && res.positive_keywords.length > 0) {
-                posContainer.innerHTML = res.positive_keywords.map(kw => `<span class="px-2 py-0.5 bg-[#00b050]/15 text-[#00b050] rounded-full font-bold text-[11px]">${kw}</span>`).join("");
-            } else {
-                posContainer.innerHTML = `<span class="text-on-surface-variant text-[11px]">Không phát hiện</span>`;
-            }
-
-            const negContainer = document.getElementById("sent-neg-pills");
-            if (res.negative_keywords && res.negative_keywords.length > 0) {
-                negContainer.innerHTML = res.negative_keywords.map(kw => `<span class="px-2 py-0.5 bg-error/15 text-error rounded-full font-bold text-[11px]">${kw}</span>`).join("");
-            } else {
-                negContainer.innerHTML = `<span class="text-on-surface-variant text-[11px]">Không phát hiện</span>`;
-            }
-
-            const aspectContainer = document.getElementById("sent-aspect-pills");
-            if (res.aspects && res.aspects.length > 0) {
-                aspectContainer.innerHTML = res.aspects.map(asp => `<span class="px-2 py-0.5 bg-secondary/15 text-secondary rounded-full font-bold text-[11px]">${asp}</span>`).join("");
-            }
-        }
-    } catch (e) {
-        console.error("Lỗi khi phân tích cảm xúc:", e);
-    }
-}
-
-async function loadWordCloud(sentimentFilter) {
-    const buttons = document.querySelectorAll(".wc-filter-btn");
-    buttons.forEach(b => {
-        b.classList.remove("bg-primary", "text-white");
-        b.classList.add("bg-surface-container", "text-on-surface-variant");
-    });
-    if (event && event.target) {
-        event.target.classList.remove("bg-surface-container", "text-on-surface-variant");
-        event.target.classList.add("bg-primary", "text-white");
-    }
-
-    try {
-        const response = await fetch(`/api/wordcloud?sentiment=${sentimentFilter}`);
         const data = await response.json();
-
-        if (data.status === "success" && data.words) {
-            const container = document.getElementById("wordcloud-container");
-            if (!container) return;
-
-            const colors = ["#b22204", "#005bbd", "#00b050", "#7e5300", "#4f92fe", "#ba1a1a"];
-            const bgColors = ["#ffe9e5", "#d7e2ff", "#dcfce7", "#ffddb2", "#f0f9ff", "#ffdad6"];
-
-            container.innerHTML = data.words.map((w, idx) => {
-                const fontSize = Math.min(22, Math.max(12, Math.floor(w.weight * 0.2) + 12));
-                const color = colors[idx % colors.length];
-                const bg = bgColors[idx % bgColors.length];
-                return `<span class="wc-word-pill font-headline" style="font-size: ${fontSize}px; color: ${color}; background: ${bg};">${w.text} (${w.weight})</span>`;
-            }).join("");
-        }
-    } catch (e) {
-        console.error("Lỗi khi tải word cloud:", e);
+        if (!response.ok || data.status !== "success") throw new Error(data.message || "Phân tích thất bại");
+        setText("sentiment-cleaned-display", data.cleaned_text);
+        const badge = document.getElementById("sent-badge-label");
+        badge.textContent = data.sentiment_label;
+        badge.className = `px-4 py-1.5 rounded-full font-bold ${data.sentiment_label === "Tích cực" ? "bg-green-100 text-green-700" : data.sentiment_label === "Tiêu cực" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`;
+        setText("sent-score-val", `Xác suất mô hình: ${data.confidence_percent}% · Lexicon: ${data.lexicon_score}`);
+        document.getElementById("sent-gauge-fill").style.width = `${Math.max(0, Math.min(100, data.confidence_percent))}%`;
+        renderKeywordPills("sent-pos-pills", data.positive_keywords, "bg-green-100 text-green-700");
+        renderKeywordPills("sent-neg-pills", data.negative_keywords, "bg-red-100 text-red-700");
+        document.getElementById("sent-aspect-pills").innerHTML = data.aspects.map(aspect => `
+            <div class="bg-surface-container-low rounded-lg p-2">
+                <strong>${escapeHtml(aspect.name)}</strong>: ${escapeHtml(aspect.label)}
+                <span class="text-on-surface-variant">(${aspect.confidence_percent}%)</span>
+            </div>`).join("");
+    } catch (error) {
+        console.error(error);
     }
 }
 
-// =============================================================================
-// 4. TAB 3: PRODUCT FORECASTER (SALES & GROWTH ML)
-// =============================================================================
+function renderKeywordPills(id, words, classes) {
+    const container = document.getElementById(id);
+    if (!container) return;
+    container.innerHTML = words?.length
+        ? words.map(word => `<span class="px-2 py-0.5 rounded ${classes}">${escapeHtml(word)}</span>`).join("")
+        : '<span class="text-on-surface-variant">Không phát hiện</span>';
+}
+
+async function loadWordCloud(filter, clickedButton = null) {
+    document.querySelectorAll(".wc-filter-btn").forEach(button => {
+        button.classList.remove("bg-primary", "text-white");
+        button.classList.add("bg-surface-container");
+    });
+    if (clickedButton) {
+        clickedButton.classList.add("bg-primary", "text-white");
+        clickedButton.classList.remove("bg-surface-container");
+    }
+    try {
+        const data = await (await fetch(`/api/wordcloud?sentiment=${encodeURIComponent(filter)}`)).json();
+        const container = document.getElementById("wordcloud-container");
+        if (!container || data.status !== "success") return;
+        const maximum = Math.max(...data.words.map(word => word.weight), 1);
+        container.innerHTML = data.words.map(word => {
+            const size = 12 + Math.round(word.weight / maximum * 12);
+            return `<span class="px-2 py-1 rounded bg-primary/10 text-primary" style="font-size:${size}px">${escapeHtml(word.text)} <small>${word.weight}</small></span>`;
+        }).join("");
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 async function loadSampleProducts() {
     try {
-        const response = await fetch("/api/sample_products");
-        const data = await response.json();
-        if (data.status === "success" && data.samples) {
-            sampleProductsData = data.samples;
-            const container = document.getElementById("sample-products-container");
-            if (!container) return;
-
-            container.innerHTML = data.samples.slice(0, 5).map((p, idx) => `
-                <button type="button" class="px-3 py-1 bg-surface rounded-full border border-outline-variant/40 hover:border-primary hover:bg-surface-container text-xs font-semibold text-on-surface transition-all cursor-pointer shadow-sm flex items-center gap-1" onclick="populateSampleProduct(${idx})">
-                    <span class="material-symbols-outlined text-primary text-xs">local_offer</span>
-                    <span>${p.category.split(" ")[0]} (${p.price.toLocaleString("vi-VN")}₫)</span>
-                </button>
-            `).join("");
-        }
-    } catch (e) {
-        console.error("Lỗi khi tải sample products:", e);
+        const data = await (await fetch("/api/sample_products")).json();
+        if (data.status !== "success") return;
+        sampleProductsData = data.samples;
+        const container = document.getElementById("sample-products-container");
+        if (!container) return;
+        container.innerHTML = data.samples.slice(0, 6).map((product, index) => `
+            <button class="px-3 py-1 bg-surface border rounded-full text-xs" onclick="populateSampleProduct(${index})">${escapeHtml(product.category)} · RM ${formatNumber(product.price, 2)}</button>
+        `).join("");
+    } catch (error) {
+        console.error(error);
     }
+}
+
+function setSelectValue(id, value) {
+    const select = document.getElementById(id);
+    if (!select) return;
+    const safeValue = value || "Không rõ";
+    if (!Array.from(select.options).some(option => option.value === safeValue)) {
+        select.add(new Option(safeValue, safeValue));
+    }
+    select.value = safeValue;
 }
 
 function populateSampleProduct(index) {
-    const p = sampleProductsData[index];
-    if (!p) return;
-
-    document.getElementById("p-url").value = `https://shopee.vn/product-${p.product_id}`;
-    document.getElementById("p-category").value = p.category;
-    document.getElementById("p-shop-type").value = p.shop_type;
-    document.getElementById("p-location").value = p.shop_location;
-    document.getElementById("p-price").value = p.price;
-    document.getElementById("p-discount").value = p.discount_rate;
-    document.getElementById("p-megasale").value = p.is_megasale;
-    document.getElementById("p-views").value = p.view_count;
-    document.getElementById("p-favs").value = p.favorite_count;
-    document.getElementById("p-hist-sold").value = p.historical_sold;
-    document.getElementById("p-rating").value = p.rating_star;
-    document.getElementById("p-ship-rate").value = p.ship_on_time_rate;
-    document.getElementById("p-chat-rate").value = p.chat_response_rate;
-
+    const product = sampleProductsData[index];
+    if (!product) return;
+    populateProductFields(product);
     submitProductPrediction();
+}
+
+function populateProductFields(product) {
+    document.getElementById("p-url").value = product.product_url || product.product_id;
+    setSelectValue("p-category", product.category);
+    setSelectValue("p-location", product.shop_location || "Không rõ");
+    document.getElementById("p-price").value = product.price ?? 10.74;
+    document.getElementById("p-discount").value = product.discount_rate ?? 8;
+    document.getElementById("p-favs").value = product.favorite_count ?? 172;
+    document.getElementById("p-hist-sold").value = product.historical_sold ?? 37;
+    document.getElementById("p-rating").value = product.rating_star ?? 4.9;
+    document.getElementById("p-rating-count").value = product.rating_count ?? 37;
+    document.getElementById("p-snapshot-count").value = product.snapshot_count ?? 1;
+}
+
+async function loadProductReference() {
+    const reference = document.getElementById("p-url").value.trim();
+    const status = document.getElementById("p-lookup-status");
+    if (!reference) return;
+    try {
+        const response = await fetch(`/api/product_lookup?reference=${encodeURIComponent(reference)}`);
+        const data = await response.json();
+        if (!response.ok || data.status !== "success") throw new Error(data.message || "Không tìm thấy");
+        populateProductFields(data.product);
+        status.textContent = `Đã nạp ${data.product.product_id} từ snapshot.`;
+        status.className = "text-[11px] text-green-700 mt-1";
+    } catch (error) {
+        status.textContent = error.message;
+        status.className = "text-[11px] text-error mt-1";
+    }
 }
 
 async function submitProductPrediction() {
     const payload = {
+        product_url: document.getElementById("p-url").value.trim(),
         category: document.getElementById("p-category").value,
-        shop_type: document.getElementById("p-shop-type").value,
         shop_location: document.getElementById("p-location").value,
-        price: parseFloat(document.getElementById("p-price").value) || 200000,
-        discount_rate: parseFloat(document.getElementById("p-discount").value) || 0,
-        is_megasale: parseInt(document.getElementById("p-megasale").value) || 0,
-        view_count: parseInt(document.getElementById("p-views").value) || 5000,
-        favorite_count: parseInt(document.getElementById("p-favs").value) || 200,
-        historical_sold: parseInt(document.getElementById("p-hist-sold").value) || 500,
-        rating_star: parseFloat(document.getElementById("p-rating").value) || 4.5,
-        ship_on_time_rate: parseFloat(document.getElementById("p-ship-rate").value) || 95.0,
-        chat_response_rate: parseFloat(document.getElementById("p-chat-rate").value) || 90.0,
-        shipping_fee: 22000,
-        avg_delivery_days: 2.5
+        price: readNumber("p-price", 10.74),
+        discount_rate: readNumber("p-discount", 8),
+        favorite_count: readNumber("p-favs", 172),
+        historical_sold: readNumber("p-hist-sold", 37),
+        rating_star: readNumber("p-rating", 4.9),
+        rating_count: readNumber("p-rating-count", 37),
+        snapshot_count: readNumber("p-snapshot-count", 2)
     };
-
     try {
         const response = await fetch("/api/predict_product", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
-        const res = await response.json();
-
-        if (res.status === "success") {
-            const pred = res.prediction;
-
-            document.getElementById("res-placeholder").classList.add("hidden");
-            document.getElementById("res-actual-content").classList.remove("hidden");
-
-            document.getElementById("res-growth-label").textContent = pred.growth_potential;
-            document.getElementById("res-confidence").textContent = `Độ tin cậy: ${pred.confidence_percent}%`;
-            document.getElementById("res-monthly-sold").textContent = pred.predicted_monthly_sold;
-            document.getElementById("res-monthly-revenue").textContent = pred.estimated_monthly_revenue;
-            document.getElementById("res-risk-level").textContent = pred.risk_level;
-
-            const featContainer = document.getElementById("res-feature-bars");
-            featContainer.innerHTML = pred.feature_impacts.map(f => `
-                <div class="feat-bar-row">
-                    <span class="feat-name">${f.name}</span>
-                    <div class="feat-track">
-                        <div class="feat-fill" style="width: ${f.score}%;"></div>
-                    </div>
-                    <span class="feat-val">${f.impact}</span>
-                </div>
-            `).join("");
-
-            const recContainer = document.getElementById("res-recommendations");
-            recContainer.innerHTML = pred.recommendations.map(r => `<li>${r}</li>`).join("");
-
-            if (pred.growth_potential === "Tiềm Năng Cao" && typeof confetti === "function") {
-                confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 } });
-            }
-        }
-    } catch (e) {
-        console.error("Lỗi khi dự đoán sản phẩm:", e);
+        const data = await response.json();
+        if (!response.ok || data.status !== "success") throw new Error(data.message || "Ước lượng thất bại");
+        const prediction = data.prediction;
+        document.getElementById("res-placeholder").classList.add("hidden");
+        document.getElementById("res-actual-content").classList.remove("hidden");
+        setText("res-performance-band", prediction.performance_band);
+        setText("res-daily-rate", formatNumber(prediction.estimated_daily_sold_rate, 3));
+        setText("res-30d-rate", `${formatNumber(prediction.estimated_30d_sales_pace, 1)} SP`);
+        setText("res-30d-value", `RM ${formatNumber(prediction.estimated_30d_gross_value_myr, 2)}`);
+        setText("res-method-note", prediction.method_note);
+        document.getElementById("res-feature-bars").innerHTML = prediction.feature_impacts.map(feature => `
+            <div class="grid grid-cols-[130px_1fr_55px] gap-2 items-center text-xs">
+                <span>${escapeHtml(feature.name)}</span><div class="h-2 bg-surface-container rounded-full overflow-hidden"><div class="h-full bg-primary" style="width:${feature.score}%"></div></div><span>${feature.importance_percent}%</span>
+            </div>`).join("");
+    } catch (error) {
+        const status = document.getElementById("p-lookup-status");
+        status.textContent = error.message;
+        status.className = "text-[11px] text-error mt-1";
     }
 }
 
-// =============================================================================
-// 5. TAB 5: APRIORI MARKET BASKET RULES
-// =============================================================================
 async function loadAprioriRules() {
     try {
-        const response = await fetch("/api/market_basket");
-        const data = await response.json();
-
-        if (data.status === "success" && data.rules) {
-            const tbody = document.getElementById("apriori-rules-tbody");
-            if (!tbody) return;
-
-            tbody.innerHTML = data.rules.slice(0, 10).map(r => `
-                <tr class="hover:bg-surface-container-low transition-colors">
-                    <td class="py-2.5 px-3 font-bold text-primary">${r.antecedent}</td>
-                    <td class="py-2.5 px-3 font-bold text-secondary">${r.consequent}</td>
-                    <td class="py-2.5 px-3 font-medium text-on-surface">${r.support}%</td>
-                    <td class="py-2.5 px-3 font-bold text-on-surface">${r.confidence}%</td>
-                    <td class="py-2.5 px-3"><span class="px-2 py-0.5 bg-[#00b050]/15 text-[#00b050] rounded-full font-bold text-[11px]">Gấp ${r.lift}x</span></td>
-                    <td class="py-2.5 px-3 text-[11px] text-on-surface-variant font-medium">Tạo Combo giảm giá bán kèm để tăng AOV.</td>
-                </tr>
-            `).join("");
-        }
-    } catch (e) {
-        console.error("Lỗi khi tải Apriori rules:", e);
+        const data = await (await fetch("/api/market_basket")).json();
+        const body = document.getElementById("apriori-rules-tbody");
+        if (!body || data.status !== "success") return;
+        body.innerHTML = data.rules.length ? data.rules.map(rule => `
+            <tr><td class="p-2 font-semibold">${escapeHtml(rule.antecedent)}</td><td class="p-2 font-semibold">${escapeHtml(rule.consequent)}</td><td class="p-2">${rule.support}%</td><td class="p-2">${rule.confidence}%</td><td class="p-2 font-bold">${rule.lift}</td><td class="p-2">${rule.cooccurrence_orders}/${rule.completed_order_count}</td></tr>
+        `).join("") : '<tr><td colspan="6" class="p-4 text-center">Không có luật đạt ngưỡng.</td></tr>';
+    } catch (error) {
+        console.error(error);
     }
 }
 
-// =============================================================================
-// 6. TAB 6: K-MEANS CLUSTERING & 2D PCA
-// =============================================================================
 async function loadClusteringData() {
     try {
-        const response = await fetch("/api/clustering");
-        const data = await response.json();
-
-        if (data.status === "success" && data.clustering) {
-            const clustering = data.clustering;
-
-            const profContainer = document.getElementById("cluster-profiles-container");
-            if (profContainer) {
-                const colors = ["#b22204", "#005bbd", "#00b050", "#7e5300"];
-                profContainer.innerHTML = Object.keys(clustering.cluster_profiles).map(cid => {
-                    const cp = clustering.cluster_profiles[cid];
-                    return `
-                        <div class="bg-surface-container-low p-2.5 rounded-lg border border-outline-variant/30 text-xs" style="border-left: 3.5px solid ${colors[cid]};">
-                            <div class="font-bold text-on-surface mb-0.5" style="color: ${colors[cid]};">${cp.name}</div>
-                            <div class="text-[11px] text-on-surface-variant">
-                                Số lượng: <strong>${cp.count} SP</strong> | Giá TB: <strong>${cp.avg_price.toLocaleString("vi-VN")} ₫</strong> | Bán TB: <strong>${cp.avg_monthly_sold} SP/tháng</strong>
-                            </div>
-                        </div>
-                    `;
-                }).join("");
-            }
-
-            renderKmeansScatterChart(clustering.sample_points);
+        const data = await (await fetch("/api/clustering")).json();
+        if (data.status !== "success") return;
+        const clustering = data.clustering;
+        const container = document.getElementById("cluster-profiles-container");
+        if (container) {
+            container.innerHTML = Object.values(clustering.cluster_profiles).map(profile => `
+                <div class="bg-surface-container-low rounded-lg p-3 text-xs">
+                    <strong class="text-primary">${escapeHtml(profile.name)}</strong>
+                    <p class="mt-1">${formatNumber(profile.count)} SP · Giá TB RM ${formatNumber(profile.avg_price, 2)}</p>
+                    <p>Đã bán TB ${formatNumber(profile.avg_historical_sold, 1)} · Phủ velocity ${(profile.velocity_coverage * 100).toFixed(1)}%</p>
+                </div>`).join("");
         }
-    } catch (e) {
-        console.error("Lỗi khi tải Clustering data:", e);
+        renderClusterChart(clustering.sample_points);
+    } catch (error) {
+        console.error(error);
     }
 }
 
-function renderKmeansScatterChart(samplePoints) {
-    const ctx = document.getElementById("chartKmeansScatter");
-    if (!ctx) return;
-
-    if (charts["kmeansScatter"]) charts["kmeansScatter"].destroy();
-
-    const clusterColors = ["#b22204", "#005bbd", "#00b050", "#ffb94c"];
-    const datasets = [0, 1, 2, 3].map(cid => {
-        const points = samplePoints.filter(p => p.cluster === cid).map(p => ({
-            x: p.pca_x,
-            y: p.pca_y,
-            name: p.product_name,
-            price: p.price,
-            sold: p.monthly_sold
-        }));
-
-        const names = [
-            "Cụm 1: Best-Seller",
-            "Cụm 2: Hàng Mới Tiềm Năng",
-            "Cụm 3: Hàng Phổ Thông",
-            "Cụm 4: Cần Tối Ưu Vận Hành"
-        ];
-
+function renderClusterChart(points) {
+    const canvas = document.getElementById("chartKmeansScatter");
+    if (!canvas) return;
+    charts.cluster?.destroy();
+    const colors = ["#b22204", "#005bbd", "#00b050", "#ffb94c"];
+    const datasets = [0, 1, 2, 3].map(cluster => {
+        const members = points.filter(point => point.cluster === cluster);
         return {
-            label: names[cid],
-            data: points,
-            backgroundColor: clusterColors[cid],
-            pointRadius: 6,
-            pointHoverRadius: 9
+            label: members[0]?.cluster_name || `Cụm ${cluster}`,
+            data: members.map(point => ({ x: point.pca_x, y: point.pca_y, ...point })),
+            backgroundColor: colors[cluster], pointRadius: 5, pointHoverRadius: 8
         };
     });
-
-    charts["kmeansScatter"] = new Chart(ctx, {
+    charts.cluster = new Chart(canvas, {
         type: "scatter",
-        data: { datasets: datasets },
+        data: { datasets },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: "bottom", labels: { color: "#271815", font: { size: 11, family: "Inter", weight: "600" } } },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const raw = context.raw;
-                            return `${raw.name} | Giá: ${raw.price.toLocaleString("vi-VN")}₫ | Bán: ${raw.sold} SP`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: { title: { display: true, text: "Trục 1: Sức Bán & Lượt Quan Tâm Của Khách (PCA 1)", color: "#5b403b", font: { weight: "600", family: "Inter" } }, ticks: { color: "#8f7069" }, grid: { color: "#e3beb6" } },
-                y: { title: { display: true, text: "Trục 2: Mức Giá & Điểm Đánh Giá (PCA 2)", color: "#5b403b", font: { weight: "600", family: "Inter" } }, ticks: { color: "#8f7069" }, grid: { color: "#e3beb6" } }
-            }
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: "bottom" }, tooltip: { callbacks: { label: context => `${context.raw.product_name} · RM ${formatNumber(context.raw.price, 2)} · đã bán ${formatNumber(context.raw.historical_sold)}` } } },
+            scales: { x: { title: { display: true, text: "PCA 1" } }, y: { title: { display: true, text: "PCA 2" } } }
         }
     });
 }
 
-// =============================================================================
-// 7. TAB 7: MODEL BENCHMARK ARENA
-// =============================================================================
 async function loadModelBenchmarks() {
     try {
-        const response = await fetch("/api/model_benchmarks");
-        const data = await response.json();
-
-        if (data.status === "success" && data.benchmarks) {
-            const bm = data.benchmarks;
-            const tbody = document.getElementById("benchmark-tbody");
-            if (!tbody) return;
-
-            const rows = [];
-
-            if (bm.sentiment_models) {
-                Object.keys(bm.sentiment_models).forEach(name => {
-                    const m = bm.sentiment_models[name];
-                    rows.push(`
-                        <tr class="hover:bg-surface-container-low transition-colors">
-                            <td class="py-2.5 px-3"><span class="px-2 py-0.5 bg-primary/10 text-primary rounded-full text-[11px] font-bold">NLP Cảm Xúc</span></td>
-                            <td class="py-2.5 px-3 font-bold text-on-surface">${name}</td>
-                            <td class="py-2.5 px-3 font-semibold">${(m.accuracy * 100).toFixed(1)}%</td>
-                            <td class="py-2.5 px-3 font-semibold">${(m.precision * 100).toFixed(1)}%</td>
-                            <td class="py-2.5 px-3 font-semibold">${(m.recall * 100).toFixed(1)}%</td>
-                            <td class="py-2.5 px-3 font-bold text-[#00b050]">${(m.f1_score * 100).toFixed(1)}%</td>
-                            <td class="py-2.5 px-3"><span class="px-2 py-0.5 bg-[#00b050]/15 text-[#00b050] rounded-full text-[11px] font-bold">Rất Chuẩn Xác</span></td>
-                        </tr>
-                    `);
-                });
-            }
-
-            if (bm.growth_models) {
-                Object.keys(bm.growth_models).forEach(name => {
-                    const m = bm.growth_models[name];
-                    rows.push(`
-                        <tr class="hover:bg-surface-container-low transition-colors">
-                            <td class="py-2.5 px-3"><span class="px-2 py-0.5 bg-secondary/10 text-secondary rounded-full text-[11px] font-bold">Dự Báo Tiềm Năng</span></td>
-                            <td class="py-2.5 px-3 font-bold text-on-surface">${name}</td>
-                            <td class="py-2.5 px-3 font-semibold">${(m.accuracy * 100).toFixed(1)}%</td>
-                            <td class="py-2.5 px-3 font-semibold">${(m.precision * 100).toFixed(1)}%</td>
-                            <td class="py-2.5 px-3 font-semibold">${(m.recall * 100).toFixed(1)}%</td>
-                            <td class="py-2.5 px-3 font-bold text-[#00b050]">${(m.f1_score * 100).toFixed(1)}%</td>
-                            <td class="py-2.5 px-3"><span class="px-2 py-0.5 bg-[#00b050]/15 text-[#00b050] rounded-full text-[11px] font-bold">Rất Chuẩn Xác</span></td>
-                        </tr>
-                    `);
-                });
-            }
-
-            tbody.innerHTML = rows.join("");
-
-            renderConfusionMatrixHeatmap(bm.sentiment_models["Multinomial Naive Bayes"]);
-            renderRocCurvesChart(bm.sentiment_models["Multinomial Naive Bayes"]);
-        }
-    } catch (e) {
-        console.error("Lỗi khi tải Model benchmarks:", e);
+        const data = await (await fetch("/api/model_benchmarks")).json();
+        if (data.status !== "success") return;
+        const benchmark = data.benchmarks;
+        const rows = [];
+        Object.entries(benchmark.sentiment_models || {}).forEach(([name, metric]) => rows.push(`
+            <tr><td class="p-2">Sentiment tổng quát</td><td class="p-2 font-bold">${escapeHtml(name)}</td><td class="p-2">${(metric.accuracy * 100).toFixed(2)}%</td><td class="p-2">${(metric.macro_f1 * 100).toFixed(2)}%</td><td class="p-2">${(metric.f1_score * 100).toFixed(2)}%</td><td class="p-2">${metric.test_samples}</td></tr>
+        `));
+        Object.entries(benchmark.aspect_models || {}).forEach(([name, metric]) => rows.push(`
+            <tr><td class="p-2">ABSA: ${escapeHtml(name.replace("_sentiment", ""))}</td><td class="p-2 font-bold">Logistic Regression</td><td class="p-2">${(metric.accuracy * 100).toFixed(2)}%</td><td class="p-2">${(metric.macro_f1 * 100).toFixed(2)}%</td><td class="p-2">${(metric.f1_score * 100).toFixed(2)}%</td><td class="p-2">${metric.test_samples}</td></tr>
+        `));
+        const sales = benchmark.sales_velocity_regressor;
+        Object.entries(sales.models || {}).forEach(([name, metric]) => rows.push(`
+            <tr><td class="p-2">Tốc độ bán/ngày</td><td class="p-2 font-bold">${escapeHtml(name)}</td><td class="p-2">R² ${metric.r2}</td><td class="p-2">MAE ${metric.mae}</td><td class="p-2">RMSE ${metric.rmse}</td><td class="p-2">${sales.test_samples}</td></tr>
+        `));
+        document.getElementById("benchmark-tbody").innerHTML = rows.join("");
+        const selected = benchmark.sentiment_models[benchmark.selected_sentiment_model];
+        renderConfusionMatrix(selected);
+        renderRoc(selected);
+    } catch (error) {
+        console.error(error);
     }
 }
 
-function renderConfusionMatrixHeatmap(nbModel) {
-    const box = document.getElementById("cm-display-box");
-    if (!box || !nbModel || !nbModel.confusion_matrix) return;
-
-    const cm = nbModel.confusion_matrix;
-    const labels = nbModel.labels || ["Tích cực", "Trung lập", "Tiêu cực"];
-
-    box.innerHTML = `
-        <table class="cm-table">
-            <thead>
-                <tr>
-                    <th>Thực tế \\ Máy Đoán</th>
-                    ${labels.map(l => `<th>Đoán: ${l}</th>`).join("")}
-                </tr>
-            </thead>
-            <tbody>
-                ${labels.map((actualLabel, r) => `
-                    <tr>
-                        <th><strong>Thực tế: ${actualLabel}</strong></th>
-                        ${cm[r].map((val, c) => `
-                            <td class="${r === c ? 'cm-cell-high' : (val === 0 ? 'cm-cell-zero' : '')}">
-                                ${val}
-                            </td>
-                        `).join("")}
-                    </tr>
-                `).join("")}
-            </tbody>
-        </table>
-        <small class="text-on-surface-variant text-xs mt-2 text-center">Ma trận nhầm lẫn đạt độ chính xác 100% trên tập dữ liệu kiểm thử (Test Set).</small>
-    `;
+function renderConfusionMatrix(metric) {
+    const container = document.getElementById("cm-display-box");
+    if (!container || !metric) return;
+    container.innerHTML = `<table class="w-full text-xs text-center"><thead><tr><th class="p-2">Thực tế \\ Dự đoán</th>${metric.labels.map(label => `<th class="p-2">${escapeHtml(label)}</th>`).join("")}</tr></thead><tbody>${metric.labels.map((label, row) => `<tr><th class="p-2">${escapeHtml(label)}</th>${metric.confusion_matrix[row].map((value, column) => `<td class="p-2 ${row === column ? "bg-green-100 font-bold" : "bg-surface-container-low"}">${value}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
 }
 
-function renderRocCurvesChart(nbModel) {
-    const ctx = document.getElementById("chartRocCurve");
-    if (!ctx || !nbModel || !nbModel.roc_data) return;
-
-    if (charts["rocCurve"]) charts["rocCurve"].destroy();
-
-    const colors = {
-        "Tích cực": "#00b050",
-        "Trung lập": "#ffb94c",
-        "Tiêu cực": "#ba1a1a"
-    };
-
-    const datasets = Object.keys(nbModel.roc_data).map(lbl => {
-        const r = nbModel.roc_data[lbl];
-        const points = r.fpr.map((x, i) => ({ x: x, y: r.tpr[i] }));
-        return {
-            label: `Lớp ${lbl} (Điểm AUC = ${r.auc})`,
-            data: points,
-            borderColor: colors[lbl] || "#005bbd",
-            borderWidth: 2.5,
-            fill: false,
-            tension: 0.1,
-            showLine: true
-        };
-    });
-
-    datasets.push({
-        label: "Đường Ngẫu Nhiên (AUC = 0.50)",
-        data: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
-        borderColor: "#8f7069",
-        borderDash: [5, 5],
-        borderWidth: 1.5,
-        fill: false,
-        pointRadius: 0,
-        showLine: true
-    });
-
-    charts["rocCurve"] = new Chart(ctx, {
-        type: "scatter",
-        data: { datasets: datasets },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: "bottom", labels: { color: "#271815", font: { size: 11, family: "Inter", weight: "600" } } }
-            },
-            scales: {
-                x: { min: 0, max: 1, title: { display: true, text: "Tỷ Lệ Đoán Nhầm (False Positive Rate)", color: "#5b403b", font: { family: "Inter", weight: "600" } }, ticks: { color: "#8f7069" }, grid: { color: "#e3beb6" } },
-                y: { min: 0, max: 1.05, title: { display: true, text: "Tỷ Lệ Đoán Đúng (True Positive Rate)", color: "#5b403b", font: { family: "Inter", weight: "600" } }, ticks: { color: "#8f7069" }, grid: { color: "#e3beb6" } }
-            }
-        }
+function renderRoc(metric) {
+    const canvas = document.getElementById("chartRocCurve");
+    if (!canvas || !metric) return;
+    charts.roc?.destroy();
+    const colors = { "Tích cực": "#00b050", "Trung lập": "#ffb94c", "Tiêu cực": "#ba1a1a" };
+    const datasets = Object.entries(metric.roc_data || {}).map(([label, values]) => ({
+        label: `${label} (AUC ${values.auc})`,
+        data: values.fpr.map((x, index) => ({ x, y: values.tpr[index] })),
+        borderColor: colors[label] || "#005bbd", pointRadius: 1, fill: false
+    }));
+    charts.roc = new Chart(canvas, {
+        type: "line", data: { datasets },
+        options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: "linear", min: 0, max: 1, title: { display: true, text: "False Positive Rate" } }, y: { min: 0, max: 1, title: { display: true, text: "True Positive Rate" } } } }
     });
 }

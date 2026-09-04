@@ -13,3 +13,9 @@ ENV/
 # OS specific
 .DS_Store
 Thumbs.db
+
+# StateM runtime state (the runbook itself remains versioned)
+.statem/
+
+# Download cache for published datasets; processed CSV + provenance stay versioned
+data/external/

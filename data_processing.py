@@ -15,7 +15,9 @@ import os
 import sys
 import re
 import json
+import hashlib
 import random
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from typing import Dict, List, Tuple, Any
@@ -340,17 +342,25 @@ def calculate_lexicon_sentiment_score(text: str) -> Tuple[float, str, List[str],
 
 
 # =============================================================================
-# 3. TẠO BỘ DỮ LIỆU CHUẨN THỰC TẾ SHOPEE E-COMMERCE & SOCIAL MEDIA
+# 3. TẠO BỘ DỮ LIỆU MÔ PHỎNG SHOPEE E-COMMERCE & SOCIAL MEDIA
 # =============================================================================
 
 def generate_shopee_datasets(output_dir: str = "data") -> Dict[str, pd.DataFrame]:
     """
-    Sinh bộ dữ liệu thương mại điện tử Shopee & Truyền thông MXH đa chiều:
-    1. shopee_products.csv: Dữ liệu vận hành 1,200 sản phẩm với các chỉ số kinh doanh.
-    2. shopee_reviews.csv: Dữ liệu 3,500 đánh giá & thảo luận MXH (Shopee, TikTok Shop, FB).
-    3. shopee_transactions.csv: 1,500 giao dịch giỏ hàng để khai phá luật kết hợp Apriori.
+    API cũ bị khóa để tránh ghi đè ba CSV Kaggle bằng dữ liệu mô phỏng.
+
+    Dùng ``import_public_data.py --download`` để dựng dữ liệu hiện hành.
     """
-    os.makedirs(output_dir, exist_ok=True)
+    raise RuntimeError(
+        "Đã vô hiệu hóa generator mô phỏng. "
+        "Chạy import_public_data.py --download để nhập ba bộ Kaggle đã ghim phiên bản."
+    )
+
+    # Phần triển khai cũ bên dưới chỉ được giữ để truy vết lịch sử mã nguồn và không thể chạy.
+    output_path = Path(output_dir)
+    if not output_path.is_absolute():
+        output_path = Path(__file__).resolve().parent / output_path
+    output_path.mkdir(parents=True, exist_ok=True)
     random.seed(42)
     np.random.seed(42)
     
@@ -470,7 +480,7 @@ def generate_shopee_datasets(output_dir: str = "data") -> Dict[str, pd.DataFrame
         })
         
     df_products = pd.DataFrame(product_rows)
-    df_products.to_csv(os.path.join(output_dir, "shopee_products.csv"), index=False, encoding="utf-8-sig")
+    df_products.to_csv(output_path / "shopee_products.csv", index=False, encoding="utf-8-sig")
     
     # -------------------------------------------------------------------------
     # B. TẠO DỮ LIỆU ĐÁNH GIÁ & BÌNH LUẬN TRUYỀN THÔNG XÃ HỘI (3,500 reviews)
@@ -564,7 +574,7 @@ def generate_shopee_datasets(output_dir: str = "data") -> Dict[str, pd.DataFrame
         })
         
     df_reviews = pd.DataFrame(review_rows)
-    df_reviews.to_csv(os.path.join(output_dir, "shopee_reviews.csv"), index=False, encoding="utf-8-sig")
+    df_reviews.to_csv(output_path / "shopee_reviews.csv", index=False, encoding="utf-8-sig")
     
     # -------------------------------------------------------------------------
     # C. TẠO DỮ LIỆU GIAO DỊCH GIỎ HÀNG (MARKET BASKET CHO APRIORI)
@@ -594,20 +604,43 @@ def generate_shopee_datasets(output_dir: str = "data") -> Dict[str, pd.DataFrame
             k = random.randint(2, 4)
             items = random.sample(all_single_items, k)
             
+        unique_items = list(dict.fromkeys(items))
         transaction_rows.append({
             "transaction_id": f"TRX_{t_id:05d}",
-            "items": ", ".join(list(set(items))),
-            "item_count": len(set(items)),
+            "items": ", ".join(unique_items),
+            "item_count": len(unique_items),
             "payment_method": random.choice(["ShopeePay", "COD (Tiền mặt)", "Thẻ Tín Dụng/Ghi Nợ", "SPayLater (Mua trước trả sau)"])
         })
         
     df_transactions = pd.DataFrame(transaction_rows)
-    df_transactions.to_csv(os.path.join(output_dir, "shopee_transactions.csv"), index=False, encoding="utf-8-sig")
+    df_transactions.to_csv(output_path / "shopee_transactions.csv", index=False, encoding="utf-8-sig")
+
+    data_files = (
+        "shopee_products.csv",
+        "shopee_reviews.csv",
+        "shopee_transactions.csv",
+    )
+    provenance = {
+        "source_type": "synthetic_seeded_demo",
+        "seed": 42,
+        "generated_by": "data_processing.generate_shopee_datasets",
+        "records": {
+            "products": len(df_products),
+            "reviews": len(df_reviews),
+            "transactions": len(df_transactions),
+        },
+        "sha256": {
+            name: hashlib.sha256((output_path / name).read_bytes()).hexdigest()
+            for name in data_files
+        },
+    }
+    with (output_path / "provenance.json").open("w", encoding="utf-8") as handle:
+        json.dump(provenance, handle, ensure_ascii=False, indent=2)
     
-    print(f"-> Đã tạo thành công bộ dữ liệu tại '{output_dir}/':")
-    print(f"   + {len(df_products)} sản phẩm ({os.path.join(output_dir, 'shopee_products.csv')})")
-    print(f"   + {len(df_reviews)} đánh giá & MXH ({os.path.join(output_dir, 'shopee_reviews.csv')})")
-    print(f"   + {len(df_transactions)} giao dịch giỏ hàng ({os.path.join(output_dir, 'shopee_transactions.csv')})")
+    print(f"-> Đã tạo thành công bộ dữ liệu mô phỏng tại '{output_path}':")
+    print(f"   + {len(df_products)} sản phẩm ({output_path / 'shopee_products.csv'})")
+    print(f"   + {len(df_reviews)} đánh giá & MXH ({output_path / 'shopee_reviews.csv'})")
+    print(f"   + {len(df_transactions)} giao dịch giỏ hàng ({output_path / 'shopee_transactions.csv'})")
     
     return {
         "products": df_products,

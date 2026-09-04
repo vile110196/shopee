@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Cơ sở lý thuyết - Shopee Analytics Lab{% endblock %}
+{% block breadcrumb %}Cơ Sở Lý Thuyết{% endblock %}
+
+{% block content %}
+<article class="max-w-5xl mx-auto flex flex-col gap-5">
+    <header class="bg-surface rounded-xl p-7 card-shadow border border-outline-variant/30">
+        <p class="text-xs font-bold uppercase tracking-wider text-primary">Tài liệu kỹ thuật</p>
+        <h1 class="font-headline font-black text-3xl mt-2">Cơ sở lý thuyết các thuật toán trong hệ thống</h1>
+        <p class="text-sm text-on-surface-variant mt-2">Công thức, giả định và cách đọc kết quả đúng với code hiện hành.</p>
+    </header>
+
+    <section class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+        <h2 class="font-headline font-bold text-xl">1. KDD và tiền xử lý văn bản</h2>
+        <p class="text-sm text-on-surface-variant leading-6 mt-2">KDD gồm selection, preprocessing, transformation, data mining và evaluation. Pipeline văn bản chuyển chữ thường, thay emoji và teencode, bỏ URL/email/ký tự rác, rút gọn ký tự lặp rồi tách từ.</p>
+        <div class="mt-3 rounded-lg bg-surface-container-low p-3 text-sm"><strong>TF-IDF:</strong> tfidf(t,d) = tf(t,d) × log(N / df(t)). Trọng số tăng khi từ xuất hiện nhiều trong tài liệu nhưng hiếm trong toàn bộ tập.</div>
+    </section>
+
+    <section class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+        <h2 class="font-headline font-bold text-xl">2. Phân loại cảm xúc</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 text-sm text-on-surface-variant">
+            <div class="bg-surface-container-low rounded-lg p-3"><strong class="text-on-surface">Multinomial Naive Bayes</strong><p class="mt-1">Chọn lớp ĉ = argmax<sub>c</sub> P(c)∏P(xᵢ|c). Giả định độc lập có điều kiện đơn giản nhưng phù hợp vector TF-IDF thưa.</p></div>
+            <div class="bg-surface-container-low rounded-lg p-3"><strong class="text-on-surface">Logistic Regression</strong><p class="mt-1">Ước lượng xác suất đa lớp bằng softmax; class weight cân bằng giúp giảm ảnh hưởng mất cân bằng nhãn.</p></div>
+        </div>
+        <p class="text-sm text-on-surface-variant leading-6 mt-3">Sentiment tổng quát có ba lớp. Tám bài toán ABSA dùng bốn lớp riêng: không đề cập, tiêu cực, tích cực và trung lập; kết quả khía cạnh trên API là dự đoán mô hình, không phải dò từ khóa.</p>
+    </section>
+
+    <section class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+        <h2 class="font-headline font-bold text-xl">3. Random Forest và Extra Trees cho tốc độ bán</h2>
+        <p class="text-sm text-on-surface-variant leading-6 mt-2">Biến đích là số sản phẩm bán tăng thêm mỗi ngày giữa các snapshot của cùng shop_id + item_id. Mô hình học log1p(tốc độ), sau đó dùng expm1 để trả về SP/ngày. Random Forest lấy trung bình nhiều cây bootstrap; Extra Trees tăng ngẫu nhiên hóa ngưỡng chia. Mô hình được chọn theo MAE trên holdout seed 42.</p>
+        <div class="mt-3 rounded-lg bg-surface-container-low p-3 text-sm"><strong>Feature importance:</strong> tỷ lệ giảm impurity do một thuộc tính tạo ra trên toàn ensemble. Nó mô tả trọng số toàn cục, không chứng minh nhân quả và không cho biết hướng tác động của từng dự đoán.</div>
+    </section>
+
+    <section class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+        <h2 class="font-headline font-bold text-xl">4. Độ đo đánh giá</h2>
+        <div class="overflow-x-auto mt-3">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-surface-container"><tr><th class="p-2">Độ đo</th><th class="p-2">Công thức / ý nghĩa</th></tr></thead>
+                <tbody class="divide-y divide-outline-variant/20 text-on-surface-variant">
+                    <tr><td class="p-2 font-bold text-on-surface">Precision</td><td class="p-2">TP / (TP + FP): trong các mẫu dự đoán dương, tỷ lệ đúng.</td></tr>
+                    <tr><td class="p-2 font-bold text-on-surface">Recall</td><td class="p-2">TP / (TP + FN): trong các mẫu dương thật, tỷ lệ tìm được.</td></tr>
+                    <tr><td class="p-2 font-bold text-on-surface">F1</td><td class="p-2">2PR / (P + R): trung bình điều hòa của Precision và Recall.</td></tr>
+                    <tr><td class="p-2 font-bold text-on-surface">ROC-AUC</td><td class="p-2">Diện tích dưới đường TPR theo FPR; 0,5 tương đương xếp hạng ngẫu nhiên.</td></tr>
+                    <tr><td class="p-2 font-bold text-on-surface">RMSE</td><td class="p-2">√mean((y − ŷ)²): phạt mạnh sai số lớn, cùng đơn vị với biến đích.</td></tr>
+                    <tr><td class="p-2 font-bold text-on-surface">MAE</td><td class="p-2">mean(|y − ŷ|): độ lệch tuyệt đối trung bình, ít nhạy với ngoại lệ hơn RMSE.</td></tr>
+                    <tr><td class="p-2 font-bold text-on-surface">R²</td><td class="p-2">1 − SSE/SST: tỷ lệ biến thiên được giải thích so với dự đoán bằng trung bình.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+        <h2 class="font-headline font-bold text-xl">5. K-Means và PCA</h2>
+        <p class="text-sm text-on-surface-variant leading-6 mt-2"><strong>K-Means</strong> tối thiểu hóa J = Σᵢ min<sub>k</sub> ||xᵢ − μₖ||². Thiếu số được điền bằng median; các trường lệch phải được log1p và cả tám đặc trưng được StandardScaler trước khi gom cụm. ID cụm không có nghĩa cố định; hệ thống gán tên sau khi đọc profile trung bình.</p>
+        <p class="text-sm text-on-surface-variant leading-6 mt-2"><strong>PCA</strong> tìm các hướng trực giao có phương sai lớn nhất. Hai thành phần đầu chỉ dùng để vẽ; mất mát thông tin được thể hiện qua explained variance ratio.</p>
+    </section>
+
+    <section class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+        <h2 class="font-headline font-bold text-xl">6. Apriori và luật kết hợp</h2>
+        <ul class="mt-2 list-disc pl-5 text-sm text-on-surface-variant leading-7">
+            <li><strong>Support(A→B)</strong> = count(A∪B) / N.</li>
+            <li><strong>Confidence(A→B)</strong> = support(A∪B) / support(A).</li>
+            <li><strong>Lift(A→B)</strong> = confidence(A→B) / support(B).</li>
+            <li>Lift &gt; 1 cho thấy đồng xuất hiện cao hơn mức độc lập; không chứng minh A gây ra B.</li>
+        </ul>
+    </section>
+
+    <section class="bg-surface rounded-xl p-card-padding card-shadow border border-outline-variant/30">
+        <h2 class="font-headline font-bold text-xl">7. Rò rỉ dữ liệu và cách đọc benchmark</h2>
+        <p class="text-sm text-on-surface-variant leading-6 mt-2">ABSA Vietnamese có split train, validation và test do nguồn công bố. Code giữ test làm tập đánh giá, loại câu có nhãn xung đột, ưu tiên bản test khi một <code>cleaned_comment</code> xuất hiện chéo split và chỉ dùng train+validation để chọn mô hình. Metric luôn đi cùng kích thước test và provenance.</p>
+    </section>
+</article>
+{% endblock %}
