@@ -95,7 +95,7 @@ FEATURE_LABELS = {
     "rating_count": "Số lượt đánh giá",
     "historical_sold": "Lượt bán tích lũy",
     "favorite_count": "Lượt yêu thích",
-    "snapshot_count": "Số snapshot",
+    "snapshot_count": "Số lần ghi nhận",
 }
 ASPECT_DISPLAY_NAMES = {
     "price_sentiment": "Giá",
@@ -103,7 +103,7 @@ ASPECT_DISPLAY_NAMES = {
     "outlook_sentiment": "Hình thức",
     "quality_sentiment": "Chất lượng",
     "size_sentiment": "Kích cỡ",
-    "shop_service_sentiment": "Dịch vụ shop",
+    "shop_service_sentiment": "Dịch vụ của shop",
     "general_sentiment": "Trải nghiệm chung",
     "others_sentiment": "Khác",
 }
@@ -287,7 +287,7 @@ def _listing_quality_alerts(limit: int = 8) -> list[dict[str, Any]]:
                 "price": round(float(row["price"]), 2),
                 "rating_star": _native(row["rating_star"]),
                 "rating_count": int(row["rating_count"]),
-                "recommended_action": "Đối chiếu lại listing gốc trước khi dùng cho phân tích.",
+                "recommended_action": "Đối chiếu lại bản ghi sản phẩm gốc trước khi dùng cho phân tích.",
             }
         )
     return alerts
@@ -390,7 +390,7 @@ def api_overview_stats():
             }
         )
     except Exception as exc:
-        app.logger.exception("Lỗi tổng hợp dashboard")
+        app.logger.exception("Lỗi tổng hợp trang tổng quan")
         return jsonify({"status": "error", "message": str(exc)}), 500
 
 
@@ -401,7 +401,7 @@ def api_product_lookup():
         return jsonify({"status": "error", "message": "Thiếu mã item, product_id hoặc URL Shopee"}), 400
     row = _find_product(reference)
     if row is None:
-        return jsonify({"status": "error", "message": "Không tìm thấy sản phẩm trong snapshot công khai"}), 404
+        return jsonify({"status": "error", "message": "Không tìm thấy sản phẩm trong dữ liệu công khai"}), 404
     return jsonify({"status": "success", "product": _product_payload(row)})
 
 
@@ -411,7 +411,7 @@ def api_predict_product():
     try:
         data = request.get_json(silent=True) or {}
         if not isinstance(data, dict):
-            raise ValueError("Nội dung JSON phải là object")
+            raise ValueError("Nội dung JSON phải là một đối tượng")
 
         defaults = feature_encoders["numeric_medians"]
         default_category = next(iter(feature_encoders["category"]))
@@ -452,7 +452,7 @@ def api_predict_product():
                     "feature_impacts": _sales_feature_impacts(),
                     "sales_model": feature_encoders["selected_sales_model"],
                     "training_rows": feature_encoders["observed_target_rows"],
-                    "method_note": "Ước lượng mô tả từ delta tổng bán giữa snapshot; không phải dự báo nhân quả hoặc cam kết doanh số tương lai.",
+                    "method_note": "Ước lượng từ mức tăng tổng lượt bán giữa các lần ghi nhận; không phải dự báo nhân quả hoặc cam kết doanh số tương lai.",
                     "input_reference": str(data.get("product_url") or data.get("product_id") or "").strip(),
                 },
             }
@@ -512,11 +512,11 @@ def api_analyze_sentiment():
                 "positive_keywords": positive,
                 "negative_keywords": negative,
                 "aspects": aspects,
-                "aspect_method": "Tám bộ phân loại Logistic Regression huấn luyện từ nhãn ABSA do người gán.",
+                "aspect_method": "Tám mô hình Logistic Regression (hồi quy logistic) được huấn luyện từ nhãn ABSA do con người gán.",
             }
         )
     except Exception:
-        app.logger.exception("Lỗi phân tích sentiment")
+        app.logger.exception("Lỗi phân tích cảm xúc")
         return jsonify({"status": "error", "message": "Không thể phân tích nội dung"}), 500
 
 

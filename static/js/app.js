@@ -2,6 +2,7 @@ let charts = {};
 let sampleProductsData = [];
 
 document.addEventListener("DOMContentLoaded", () => {
+    initSidebar();
     initTabs();
     if (!document.getElementById("tab-overview")) return;
     loadOverviewStats();
@@ -12,6 +13,36 @@ document.addEventListener("DOMContentLoaded", () => {
     loadClusteringData();
     loadModelBenchmarks();
 });
+
+function initSidebar() {
+    const openButton = document.getElementById("sidebar-open");
+    const closeButton = document.getElementById("sidebar-close");
+    const backdrop = document.getElementById("sidebar-backdrop");
+    const sidebar = document.getElementById("app-sidebar");
+    if (!sidebar) return;
+
+    const setOpen = isOpen => {
+        document.body.classList.toggle("sidebar-is-open", isOpen);
+        openButton?.setAttribute("aria-expanded", String(isOpen));
+        backdrop?.setAttribute("aria-hidden", String(!isOpen));
+        if (isOpen) closeButton?.focus();
+    };
+
+    openButton?.addEventListener("click", () => setOpen(true));
+    closeButton?.addEventListener("click", () => setOpen(false));
+    backdrop?.addEventListener("click", () => setOpen(false));
+    sidebar.querySelectorAll("a").forEach(link => {
+        link.addEventListener("click", () => {
+            if (window.innerWidth < 1024) setOpen(false);
+        });
+    });
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && document.body.classList.contains("sidebar-is-open")) {
+            setOpen(false);
+            openButton?.focus();
+        }
+    });
+}
 
 function escapeHtml(value) {
     return String(value ?? "").replace(/[&<>'"]/g, char => ({
@@ -42,23 +73,32 @@ function initTabs() {
     const panes = document.querySelectorAll(".tab-pane");
     const breadcrumb = document.getElementById("stitch-breadcrumb-text");
     const names = {
-        "tab-overview": "Dashboard Tổng Quan",
-        "tab-sentiment": "Phân Tích Cảm Xúc Và ABSA",
-        "tab-forecaster": "Ước Lượng Nhịp Bán",
-        "tab-risk": "Chất Lượng Dữ Liệu",
-        "tab-basket": "Luật Kết Hợp Apriori",
-        "tab-clustering": "Phân Cụm K-Means Và PCA",
-        "tab-benchmark": "Đánh Giá Mô Hình"
+        "tab-overview": "Tổng quan dữ liệu",
+        "tab-sentiment": "Cảm xúc và khía cạnh",
+        "tab-forecaster": "Ước lượng nhịp bán",
+        "tab-risk": "Chất lượng dữ liệu",
+        "tab-basket": "Sản phẩm mua cùng",
+        "tab-clustering": "Phân cụm sản phẩm",
+        "tab-benchmark": "Đánh giá mô hình"
     };
     const activate = target => {
         const pane = document.getElementById(target);
         if (!pane) return false;
         panes.forEach(item => item.classList.remove("active"));
-        links.forEach(item => item.classList.remove("active"));
+        links.forEach(item => {
+            item.classList.remove("active");
+            item.removeAttribute("aria-current");
+        });
         pane.classList.add("active");
         const link = Array.from(links).find(item => item.dataset.tab === target);
-        if (link) link.classList.add("active");
+        if (link) {
+            link.classList.add("active");
+            link.setAttribute("aria-current", "page");
+        }
         if (breadcrumb) breadcrumb.textContent = names[target] || target;
+        if (window.MathJax?.typesetPromise) {
+            window.MathJax.typesetPromise([pane]).catch(error => console.error(error));
+        }
         return true;
     };
     links.forEach(link => link.addEventListener("click", event => {
@@ -73,10 +113,10 @@ async function loadOverviewStats() {
     try {
         const response = await fetch("/api/overview_stats");
         const data = await response.json();
-        if (!response.ok || data.status !== "success") throw new Error(data.message || "Không tải được dashboard");
+        if (!response.ok || data.status !== "success") throw new Error(data.message || "Không tải được trang tổng quan");
         setText("kpi-sales", data.kpis.historical_sold);
-        setText("kpi-products", `${formatNumber(data.kpis.total_products)} SP`);
-        setText("kpi-reviews", `${formatNumber(data.kpis.total_reviews)} review`);
+        setText("kpi-products", `${formatNumber(data.kpis.total_products)} sản phẩm`);
+        setText("kpi-reviews", `${formatNumber(data.kpis.total_reviews)} đánh giá`);
         setText("kpi-rating", `${data.kpis.avg_rating} / 5 ★`);
         renderCategoryChart(data.category_sales);
         renderSentimentChart(data.sentiment_dist);
@@ -96,7 +136,7 @@ function renderCategoryChart(source) {
     const values = source.values.slice(0, 12);
     charts.category = new Chart(canvas, {
         type: "bar",
-        data: { labels, datasets: [{ label: "Lượt bán tích lũy", data: values, backgroundColor: "#b22204", borderRadius: 5 }] },
+        data: { labels, datasets: [{ label: "Lượt bán tích lũy", data: values, backgroundColor: "#ee4d2d", borderRadius: 5 }] },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { maxRotation: 45, minRotation: 25 } } } }
     });
 }
@@ -137,7 +177,7 @@ function renderTopProducts(products) {
             <td class="p-2">RM ${formatNumber(product.price, 2)}</td>
             <td class="p-2 font-bold">${formatNumber(product.historical_sold)}</td>
             <td class="p-2">${product.rating_star == null ? "—" : `★ ${formatNumber(product.rating_star, 1)}`}</td>
-            <td class="p-2">${product.daily_sold_rate == null ? "Không đủ snapshot" : `${formatNumber(product.daily_sold_rate, 3)} SP/ngày`}</td>
+            <td class="p-2">${product.daily_sold_rate == null ? "Chưa đủ lần ghi nhận" : `${formatNumber(product.daily_sold_rate, 3)} sản phẩm/ngày`}</td>
         </tr>`).join("");
 }
 
@@ -190,7 +230,7 @@ async function submitSentimentAnalysis() {
         const badge = document.getElementById("sent-badge-label");
         badge.textContent = data.sentiment_label;
         badge.className = `px-4 py-1.5 rounded-full font-bold ${data.sentiment_label === "Tích cực" ? "bg-green-100 text-green-700" : data.sentiment_label === "Tiêu cực" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`;
-        setText("sent-score-val", `Xác suất mô hình: ${data.confidence_percent}% · Lexicon: ${data.lexicon_score}`);
+        setText("sent-score-val", `Xác suất mô hình: ${data.confidence_percent}% · Điểm từ điển: ${data.lexicon_score}`);
         document.getElementById("sent-gauge-fill").style.width = `${Math.max(0, Math.min(100, data.confidence_percent))}%`;
         renderKeywordPills("sent-pos-pills", data.positive_keywords, "bg-green-100 text-green-700");
         renderKeywordPills("sent-neg-pills", data.negative_keywords, "bg-red-100 text-red-700");
@@ -289,7 +329,7 @@ async function loadProductReference() {
         const data = await response.json();
         if (!response.ok || data.status !== "success") throw new Error(data.message || "Không tìm thấy");
         populateProductFields(data.product);
-        status.textContent = `Đã nạp ${data.product.product_id} từ snapshot.`;
+        status.textContent = `Đã nạp ${data.product.product_id} từ dữ liệu ghi nhận.`;
         status.className = "text-[11px] text-green-700 mt-1";
     } catch (error) {
         status.textContent = error.message;
@@ -323,7 +363,7 @@ async function submitProductPrediction() {
         document.getElementById("res-actual-content").classList.remove("hidden");
         setText("res-performance-band", prediction.performance_band);
         setText("res-daily-rate", formatNumber(prediction.estimated_daily_sold_rate, 3));
-        setText("res-30d-rate", `${formatNumber(prediction.estimated_30d_sales_pace, 1)} SP`);
+        setText("res-30d-rate", `${formatNumber(prediction.estimated_30d_sales_pace, 1)} sản phẩm`);
         setText("res-30d-value", `RM ${formatNumber(prediction.estimated_30d_gross_value_myr, 2)}`);
         setText("res-method-note", prediction.method_note);
         document.getElementById("res-feature-bars").innerHTML = prediction.feature_impacts.map(feature => `
@@ -337,14 +377,91 @@ async function submitProductPrediction() {
     }
 }
 
+function friendlyBasketName(rawName) {
+    const name = String(rawName ?? "").replace(/\s+/g, " ").trim();
+    if (/^sterofoam extra$/i.test(name)) return "Hộp xốp bổ sung";
+    if (!/pempek/i.test(name)) return name;
+
+    let base = /tenggiri/i.test(name) ? "Pempek cá thu AlKindi" : "Pempek Palembang AlKindi";
+    if (/steril/i.test(name)) base += " tiệt trùng";
+    const details = [];
+    const count = name.match(/(\d+)\s*pcs/i);
+    if (count) details.push(`gói ${count[1]} cái`);
+    const size = name.match(/size\s*(mini|medium)/i);
+    if (size) details.push(size[1].toLowerCase() === "mini" ? "cỡ mini" : "cỡ vừa");
+    const variants = [];
+    if (/lenjer/i.test(name)) variants.push("thanh");
+    if (/kulit/i.test(name)) variants.push("da cá");
+    if (/telur/i.test(name)) variants.push("trứng");
+    if (/adaan/i.test(name)) variants.push("viên chiên");
+    if (variants.length) details.push(`loại ${variants.join("/")}`);
+    return details.length ? `${base} — ${details.join(", ")}` : base;
+}
+
+function basketProductCell(rawName) {
+    return `
+        <strong>${escapeHtml(friendlyBasketName(rawName))}</strong>
+        <details class="mt-1 text-[10px] text-on-surface-variant">
+            <summary class="cursor-pointer">Xem tên gốc trong dữ liệu</summary>
+            <span>${escapeHtml(rawName)}</span>
+        </details>`;
+}
+
 async function loadAprioriRules() {
     try {
         const data = await (await fetch("/api/market_basket")).json();
         const body = document.getElementById("apriori-rules-tbody");
         if (!body || data.status !== "success") return;
-        body.innerHTML = data.rules.length ? data.rules.map(rule => `
-            <tr><td class="p-2 font-semibold">${escapeHtml(rule.antecedent)}</td><td class="p-2 font-semibold">${escapeHtml(rule.consequent)}</td><td class="p-2">${rule.support}%</td><td class="p-2">${rule.confidence}%</td><td class="p-2 font-bold">${rule.lift}</td><td class="p-2">${rule.cooccurrence_orders}/${rule.completed_order_count}</td></tr>
-        `).join("") : '<tr><td colspan="6" class="p-4 text-center">Không có luật đạt ngưỡng.</td></tr>';
+        if (!data.rules.length) {
+            body.innerHTML = '<tr><td colspan="6" class="p-4 text-center">Không có cặp sản phẩm đạt ngưỡng.</td></tr>';
+            return;
+        }
+
+        // Tương thích cả với tiến trình Flask đang giữ JSON cũ trong RAM: suy ra các
+        // trường diễn giải từ support/confidence nếu server chưa được khởi động lại.
+        const rules = data.rules.map(rule => ({
+            ...rule,
+            antecedent_orders: rule.antecedent_orders
+                ?? Math.round(rule.cooccurrence_orders / (rule.confidence / 100)),
+            actionable: rule.actionable ?? rule.lift > 1,
+            association_level: rule.association_level
+                ?? (rule.lift >= 2 ? "Liên hệ mạnh" : rule.lift > 1 ? "Có xu hướng đi kèm" : "Không nên gợi ý mua cùng")
+        }));
+        const strongest = rules.find(rule => rule.actionable) || rules[0];
+        const example = document.getElementById("apriori-example");
+        if (example) {
+            example.innerHTML = `
+                <strong class="text-on-surface">Ví dụ đọc dòng đầu:</strong>
+                Trong <strong>${strongest.antecedent_orders} đơn</strong> có “${escapeHtml(friendlyBasketName(strongest.antecedent))}”,
+                có <strong>${strongest.cooccurrence_orders} đơn</strong> mua thêm “${escapeHtml(friendlyBasketName(strongest.consequent))}”
+                — tức <strong>${strongest.confidence}%</strong>. Hai món cùng xuất hiện trong
+                <strong>${strongest.cooccurrence_orders}/${strongest.completed_order_count} đơn (${strongest.support}%)</strong>;
+                Lift <strong>${strongest.lift}</strong> nghĩa là mức đi kèm cao gấp khoảng ${strongest.lift} lần so với khi xem hai món độc lập.`;
+        }
+
+        body.innerHTML = rules.map(rule => {
+            const useful = rule.actionable;
+            const badgeClass = rule.lift >= 2
+                ? "bg-green-100 text-green-800"
+                : useful
+                    ? "bg-blue-100 text-blue-800"
+                    : "bg-red-100 text-red-800";
+            const interpretation = useful
+                ? `${rule.cooccurrence_orders}/${rule.antecedent_orders} đơn có A cũng có B; mức đi kèm cao hơn kỳ vọng độc lập.`
+                : `${rule.cooccurrence_orders}/${rule.antecedent_orders} đơn có A cũng có B, nhưng lift dưới 1 nên không dùng để gợi ý mua cùng.`;
+            const associationLabel = useful
+                ? rule.association_level
+                : "Không nên gợi ý mua cùng";
+            return `
+                <tr class="${useful ? "" : "bg-surface-container-low/60"}">
+                    <td class="p-3 align-top">${basketProductCell(rule.antecedent)}</td>
+                    <td class="p-3 align-top">${basketProductCell(rule.consequent)}</td>
+                    <td class="p-3 align-top"><strong>${rule.cooccurrence_orders}/${rule.completed_order_count} đơn</strong><br><span class="text-on-surface-variant">${rule.support}% tổng số đơn</span></td>
+                    <td class="p-3 align-top"><strong>${rule.cooccurrence_orders}/${rule.antecedent_orders} đơn</strong><br><span class="text-on-surface-variant">${rule.confidence}% đơn có A</span></td>
+                    <td class="p-3 align-top"><span class="inline-block px-2 py-1 rounded font-bold ${badgeClass}">${escapeHtml(associationLabel)}</span><br><span class="inline-block mt-1 font-semibold">Lift ${rule.lift}</span></td>
+                    <td class="p-3 align-top text-on-surface-variant">${escapeHtml(interpretation)}</td>
+                </tr>`;
+        }).join("");
     } catch (error) {
         console.error(error);
     }
@@ -360,8 +477,8 @@ async function loadClusteringData() {
             container.innerHTML = Object.values(clustering.cluster_profiles).map(profile => `
                 <div class="bg-surface-container-low rounded-lg p-3 text-xs">
                     <strong class="text-primary">${escapeHtml(profile.name)}</strong>
-                    <p class="mt-1">${formatNumber(profile.count)} SP · Giá TB RM ${formatNumber(profile.avg_price, 2)}</p>
-                    <p>Đã bán TB ${formatNumber(profile.avg_historical_sold, 1)} · Phủ velocity ${(profile.velocity_coverage * 100).toFixed(1)}%</p>
+                    <p class="mt-1">${formatNumber(profile.count)} sản phẩm · Giá trung bình RM ${formatNumber(profile.avg_price, 2)}</p>
+                    <p>Đã bán trung bình ${formatNumber(profile.avg_historical_sold, 1)} · Có nhịp bán ${(profile.velocity_coverage * 100).toFixed(1)}%</p>
                 </div>`).join("");
         }
         renderClusterChart(clustering.sample_points);
@@ -374,7 +491,7 @@ function renderClusterChart(points) {
     const canvas = document.getElementById("chartKmeansScatter");
     if (!canvas) return;
     charts.cluster?.destroy();
-    const colors = ["#b22204", "#005bbd", "#00b050", "#ffb94c"];
+    const colors = ["#ee4d2d", "#1769aa", "#039855", "#f79009"];
     const datasets = [0, 1, 2, 3].map(cluster => {
         const members = points.filter(point => point.cluster === cluster);
         return {
@@ -394,6 +511,20 @@ function renderClusterChart(points) {
     });
 }
 
+function aspectDisplayName(key) {
+    const names = {
+        price_sentiment: "Giá",
+        shipping_sentiment: "Giao hàng",
+        outlook_sentiment: "Hình thức",
+        quality_sentiment: "Chất lượng",
+        size_sentiment: "Kích cỡ",
+        shop_service_sentiment: "Dịch vụ của shop",
+        general_sentiment: "Trải nghiệm chung",
+        others_sentiment: "Khía cạnh khác"
+    };
+    return names[key] || key;
+}
+
 async function loadModelBenchmarks() {
     try {
         const data = await (await fetch("/api/model_benchmarks")).json();
@@ -401,14 +532,14 @@ async function loadModelBenchmarks() {
         const benchmark = data.benchmarks;
         const rows = [];
         Object.entries(benchmark.sentiment_models || {}).forEach(([name, metric]) => rows.push(`
-            <tr><td class="p-2">Sentiment tổng quát</td><td class="p-2 font-bold">${escapeHtml(name)}</td><td class="p-2">${(metric.accuracy * 100).toFixed(2)}%</td><td class="p-2">${(metric.macro_f1 * 100).toFixed(2)}%</td><td class="p-2">${(metric.f1_score * 100).toFixed(2)}%</td><td class="p-2">${metric.test_samples}</td></tr>
+            <tr><td class="p-2">Cảm xúc tổng quát</td><td class="p-2 font-bold">${escapeHtml(name)}</td><td class="p-2">${(metric.accuracy * 100).toFixed(2)}%</td><td class="p-2">${(metric.macro_f1 * 100).toFixed(2)}%</td><td class="p-2">${(metric.f1_score * 100).toFixed(2)}%</td><td class="p-2">${metric.test_samples}</td></tr>
         `));
         Object.entries(benchmark.aspect_models || {}).forEach(([name, metric]) => rows.push(`
-            <tr><td class="p-2">ABSA: ${escapeHtml(name.replace("_sentiment", ""))}</td><td class="p-2 font-bold">Logistic Regression</td><td class="p-2">${(metric.accuracy * 100).toFixed(2)}%</td><td class="p-2">${(metric.macro_f1 * 100).toFixed(2)}%</td><td class="p-2">${(metric.f1_score * 100).toFixed(2)}%</td><td class="p-2">${metric.test_samples}</td></tr>
+            <tr><td class="p-2">Khía cạnh: ${escapeHtml(aspectDisplayName(name))}</td><td class="p-2 font-bold">Logistic Regression</td><td class="p-2">${(metric.accuracy * 100).toFixed(2)}%</td><td class="p-2">${(metric.macro_f1 * 100).toFixed(2)}%</td><td class="p-2">${(metric.f1_score * 100).toFixed(2)}%</td><td class="p-2">${metric.test_samples}</td></tr>
         `));
         const sales = benchmark.sales_velocity_regressor;
         Object.entries(sales.models || {}).forEach(([name, metric]) => rows.push(`
-            <tr><td class="p-2">Tốc độ bán/ngày</td><td class="p-2 font-bold">${escapeHtml(name)}</td><td class="p-2">R² ${metric.r2}</td><td class="p-2">MAE ${metric.mae}</td><td class="p-2">RMSE ${metric.rmse}</td><td class="p-2">${sales.test_samples}</td></tr>
+            <tr><td class="p-2">Nhịp bán quan sát</td><td class="p-2 font-bold">${escapeHtml(name)}</td><td class="p-2">R² ${metric.r2}</td><td class="p-2">MAE ${metric.mae}</td><td class="p-2">RMSE ${metric.rmse}</td><td class="p-2">${sales.test_samples}</td></tr>
         `));
         document.getElementById("benchmark-tbody").innerHTML = rows.join("");
         const selected = benchmark.sentiment_models[benchmark.selected_sentiment_model];
@@ -429,7 +560,7 @@ function renderRoc(metric) {
     const canvas = document.getElementById("chartRocCurve");
     if (!canvas || !metric) return;
     charts.roc?.destroy();
-    const colors = { "Tích cực": "#00b050", "Trung lập": "#ffb94c", "Tiêu cực": "#ba1a1a" };
+    const colors = { "Tích cực": "#039855", "Trung lập": "#f79009", "Tiêu cực": "#b42318" };
     const datasets = Object.entries(metric.roc_data || {}).map(([label, values]) => ({
         label: `${label} (AUC ${values.auc})`,
         data: values.fpr.map((x, index) => ({ x, y: values.tpr[index] })),
@@ -437,6 +568,6 @@ function renderRoc(metric) {
     }));
     charts.roc = new Chart(canvas, {
         type: "line", data: { datasets },
-        options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: "linear", min: 0, max: 1, title: { display: true, text: "False Positive Rate" } }, y: { min: 0, max: 1, title: { display: true, text: "True Positive Rate" } } } }
+        options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: "linear", min: 0, max: 1, title: { display: true, text: "Tỷ lệ dương tính giả" } }, y: { min: 0, max: 1, title: { display: true, text: "Tỷ lệ dương tính đúng" } } } }
     });
 }

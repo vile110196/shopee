@@ -560,8 +560,21 @@ def mine_association_rules_apriori(
                     "confidence": round(float(confidence * 100), 2),
                     "lift": round(float(lift), 3),
                     "cooccurrence_orders": int(count),
+                    "antecedent_orders": int(item_counts[antecedent]),
+                    "consequent_orders": int(item_counts[consequent]),
                     "completed_order_count": int(total),
-                    "insight": "Đây là liên hệ đồng xuất hiện trong mẫu đơn, không phải quan hệ nhân quả.",
+                    "association_level": (
+                        "Liên hệ mạnh"
+                        if lift >= 2
+                        else "Có xu hướng đi kèm"
+                        if lift > 1
+                        else "Không nên gợi ý mua cùng"
+                    ),
+                    "actionable": bool(lift > 1),
+                    "insight": (
+                        f"{count}/{item_counts[antecedent]} đơn có sản phẩm A cũng có B; "
+                        f"cặp này xuất hiện trong {count}/{total} đơn hoàn thành."
+                    ),
                 }
             )
     rules.sort(key=lambda rule: (rule["lift"], rule["confidence"], rule["support"]), reverse=True)

@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Báo cáo nghiệm thu - Shopee Analytics Lab{% endblock %}
-{% block breadcrumb %}Báo Cáo Nghiệm Thu{% endblock %}
+{% block title %}Báo cáo kỹ thuật — Shopee Analytics Lab{% endblock %}
+{% block breadcrumb %}Báo cáo kỹ thuật{% endblock %}
 
 {% block head_extra %}
 <style>
-    .report-section { break-inside: avoid; }
-    @media print { aside, header, footer { display:none!important; } main { max-width:none!important; padding:0!important; } }
+    @media print {
+        .report-cover { border: 2px solid #182230 !important; }
+        a { color: #182230 !important; text-decoration: none !important; }
+    }
 </style>
 {% endblock %}
 
@@ -16,84 +18,193 @@
 {% set aspects = benchmarks.get('aspect_models', {}) %}
 {% set sales = benchmarks.get('sales_velocity_regressor', {}) %}
 {% set basket = benchmarks.get('market_basket', {}) %}
+{% set aspect_names = {
+    'price_sentiment': 'Giá',
+    'shipping_sentiment': 'Giao hàng',
+    'outlook_sentiment': 'Hình thức',
+    'quality_sentiment': 'Chất lượng',
+    'size_sentiment': 'Kích cỡ',
+    'shop_service_sentiment': 'Dịch vụ của shop',
+    'general_sentiment': 'Trải nghiệm chung',
+    'others_sentiment': 'Khía cạnh khác'
+} %}
 
-<article class="max-w-5xl mx-auto flex flex-col gap-6">
-    <header class="bg-surface rounded-xl p-7 card-shadow border text-center">
-        <p class="text-xs font-bold uppercase tracking-[0.2em] text-primary">Trường Đại học Công nghệ Thông tin - ĐHQG TP.HCM</p>
-        <h1 class="font-headline font-black text-3xl mt-3">Báo cáo nghiệm thu kỹ thuật</h1>
-        <p class="text-on-surface-variant mt-2">Hệ thống khai thác dữ liệu và phân tích truyền thông E-Commerce Shopee</p>
-        <div class="mt-5 inline-flex rounded-lg bg-green-100 px-4 py-2 text-xs font-semibold text-green-800">Ba nguồn Kaggle công khai, ghim phiên bản và kiểm SHA-256 trước khi xử lý</div>
+<article class="mx-auto flex max-w-5xl flex-col gap-5">
+    <header class="report-cover card-shadow rounded-2xl border border-outline-variant/70 bg-surface p-5 text-center sm:p-8">
+        <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-primary">Trường Đại học Công nghệ Thông tin — ĐHQG TP.HCM</p>
+        <h1 class="mt-3 font-headline text-2xl font-extrabold tracking-tight sm:text-3xl">Báo cáo nghiệm thu kỹ thuật</h1>
+        <p class="mx-auto mt-2 max-w-2xl text-sm leading-6 text-on-surface-variant">
+            Hệ thống khai thác dữ liệu và phân tích thương mại điện tử Shopee
+        </p>
+        <div class="mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700">
+            <span class="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true"></span>
+            Ba nguồn Kaggle công khai đã được cố định phiên bản và kiểm tra SHA-256
+        </div>
     </header>
 
-    <section class="report-section bg-surface rounded-xl p-card-padding card-shadow border">
-        <h2 class="font-headline font-bold text-xl mb-3">1. Nguồn và phạm vi dữ liệu</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-            <div class="bg-surface-container-low rounded-lg p-3"><strong class="text-xl text-primary block">{{ dataset_summary.products }}</strong><span class="text-xs">sản phẩm duy nhất</span></div>
-            <div class="bg-surface-container-low rounded-lg p-3"><strong class="text-xl text-primary block">{{ dataset_summary.reviews }}</strong><span class="text-xs">review ABSA</span></div>
-            <div class="bg-surface-container-low rounded-lg p-3"><strong class="text-xl text-primary block">{{ dataset_summary.transactions }}</strong><span class="text-xs">đơn đã ẩn danh</span></div>
-            <div class="bg-surface-container-low rounded-lg p-3"><strong class="text-xl text-primary block">{{ dataset_summary.velocity_products }}</strong><span class="text-xs">SP có sales velocity</span></div>
+    <section class="report-section card-shadow rounded-2xl border border-outline-variant/70 bg-surface p-card-padding">
+        <h2 class="font-headline text-xl font-bold">1. Nguồn và phạm vi dữ liệu</h2>
+        <div class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div class="rounded-xl bg-surface-container-low p-3 text-center">
+                <strong class="block text-xl text-primary">{{ dataset_summary.products }}</strong>
+                <span class="text-xs text-on-surface-variant">sản phẩm duy nhất</span>
+            </div>
+            <div class="rounded-xl bg-surface-container-low p-3 text-center">
+                <strong class="block text-xl text-primary">{{ dataset_summary.reviews }}</strong>
+                <span class="text-xs text-on-surface-variant">đánh giá ABSA</span>
+            </div>
+            <div class="rounded-xl bg-surface-container-low p-3 text-center">
+                <strong class="block text-xl text-primary">{{ dataset_summary.transactions }}</strong>
+                <span class="text-xs text-on-surface-variant">đơn hàng đã ẩn danh</span>
+            </div>
+            <div class="rounded-xl bg-surface-container-low p-3 text-center">
+                <strong class="block text-xl text-primary">{{ dataset_summary.velocity_products }}</strong>
+                <span class="text-xs text-on-surface-variant">sản phẩm có nhịp bán</span>
+            </div>
         </div>
-        <ul class="list-disc pl-5 text-sm text-on-surface-variant leading-7 mt-4">
-            <li><a class="text-primary underline" href="{{ provenance.sources.product_analytics.homepage }}">Shopee Sales Apr–May 2023</a>: {{ provenance.sources.product_analytics.raw_snapshot_rows }} snapshot, tiền MYR.</li>
-            <li><a class="text-primary underline" href="{{ provenance.sources.review_and_aspect_analytics.homepage }}">ABSA Vietnamese</a>: train/validation/test và tám khía cạnh do người gán.</li>
-            <li><a class="text-primary underline" href="{{ provenance.sources.market_basket.homepage }}">Shopee Seller Transaction</a>: chỉ giữ trường cần cho giỏ hàng; định danh người mua bị loại.</li>
+        <ul class="mt-4 list-disc space-y-1 pl-5 text-sm leading-6 text-on-surface-variant">
+            <li><a class="font-semibold text-primary underline" href="{{ provenance.sources.product_analytics.homepage }}">Shopee Sales Apr–May 2023</a>: {{ provenance.sources.product_analytics.raw_snapshot_rows }} lần ghi nhận sản phẩm; giá tiền theo MYR.</li>
+            <li><a class="font-semibold text-primary underline" href="{{ provenance.sources.review_and_aspect_analytics.homepage }}">ABSA Vietnamese</a>: ba tập huấn luyện, kiểm định và kiểm tra; tám khía cạnh do con người gán nhãn.</li>
+            <li><a class="font-semibold text-primary underline" href="{{ provenance.sources.market_basket.homepage }}">Shopee Seller Transaction</a>: chỉ giữ các trường cần cho phân tích giỏ hàng; thông tin người mua đã bị loại.</li>
         </ul>
-        <p class="mt-3 text-xs text-error font-semibold">Ba nguồn độc lập, không có khóa chung; hệ thống không tuyên bố nối review hoặc đơn hàng vào listing sản phẩm.</p>
+        <p class="mt-3 rounded-lg bg-red-50 p-3 text-xs font-semibold leading-5 text-error">
+            Ba nguồn độc lập và không có khóa chung. Hệ thống không ghép đánh giá hoặc đơn hàng của nguồn này với sản phẩm của nguồn khác.
+        </p>
     </section>
 
-    <section class="report-section bg-surface rounded-xl p-card-padding card-shadow border">
-        <h2 class="font-headline font-bold text-xl mb-3">2. Tiền xử lý và khả năng tái lập</h2>
-        <ol class="list-decimal pl-5 text-sm text-on-surface-variant leading-7">
-            <li>Downloader dùng Kaggle public API, ghim version 1 và kiểm hash archive lẫn CSV nguồn.</li>
-            <li>Sản phẩm được gom theo <code>shop_id + item_id</code>; tốc độ bán chỉ tính từ delta không âm giữa các ngày snapshot.</li>
-            <li>Review giữ split gốc, chuẩn hóa văn bản, loại câu xung đột và trùng chéo train/test.</li>
-            <li>Giao dịch dùng allowlist cột; order ID được băm và raw cache chứa PII bị xóa sau import.</li>
-            <li>Hash ba CSV trong benchmark phải khớp <code>data/provenance.json</code> trước khi app dùng artifact.</li>
+    <section class="report-section card-shadow rounded-2xl border border-outline-variant/70 bg-surface p-card-padding">
+        <h2 class="font-headline text-xl font-bold">2. Tiền xử lý và khả năng tái lập</h2>
+        <ol class="mt-3 list-decimal space-y-1 pl-5 text-sm leading-6 text-on-surface-variant">
+            <li>Trình tải dữ liệu dùng API công khai của Kaggle, cố định phiên bản 1 và kiểm tra SHA-256 của cả gói tải lẫn tệp CSV nguồn.</li>
+            <li>Sản phẩm được nhóm theo <code>shop_id + item_id</code>; nhịp bán chỉ nhận mức tăng không âm giữa hai ngày ghi nhận hợp lệ.</li>
+            <li>Đánh giá giữ nguyên tập dữ liệu gốc, chuẩn hóa văn bản, loại câu có nhãn xung đột và loại bản ghi trùng giữa tập huấn luyện với tập kiểm tra.</li>
+            <li>Dữ liệu giao dịch chỉ giữ danh sách cột cho phép; mã đơn được băm và bản đệm chứa thông tin nhận dạng cá nhân được xóa sau khi nhập.</li>
+            <li>Ứng dụng chỉ dùng tệp mô hình khi dấu băm của ba CSV khớp với <code>data/provenance.json</code>.</li>
         </ol>
     </section>
 
-    <section class="report-section bg-surface rounded-xl p-card-padding card-shadow border">
-        <h2 class="font-headline font-bold text-xl mb-3">3. Sentiment tổng quát</h2>
-        <p class="text-sm text-on-surface-variant mb-3">Huấn luyện trên {{ meta.get('sentiment_train_samples') }} câu train+validation độc lập; đánh giá trên {{ meta.get('sentiment_test_samples') }} câu thuộc test gốc. Artifact triển khai chọn <strong>{{ benchmarks.get('selected_sentiment_model') }}</strong>.</p>
-        <div class="overflow-x-auto"><table class="w-full text-left text-xs"><thead class="bg-surface-container"><tr><th class="p-2">Mô hình</th><th class="p-2">Accuracy</th><th class="p-2">Weighted F1</th><th class="p-2">Macro F1</th><th class="p-2">Test</th></tr></thead><tbody class="divide-y">
-            {% for name, value in sentiment.items() %}<tr><td class="p-2 font-semibold">{{ name }}</td><td class="p-2">{{ '%.2f'|format(value.accuracy * 100) }}%</td><td class="p-2">{{ '%.2f'|format(value.f1_score * 100) }}%</td><td class="p-2 font-bold">{{ '%.2f'|format(value.macro_f1 * 100) }}%</td><td class="p-2">{{ value.test_samples }}</td></tr>{% endfor %}
-        </tbody></table></div>
-    </section>
-
-    <section class="report-section bg-surface rounded-xl p-card-padding card-shadow border">
-        <h2 class="font-headline font-bold text-xl mb-3">4. Phân tích tám khía cạnh ABSA</h2>
-        <div class="overflow-x-auto"><table class="w-full text-left text-xs"><thead class="bg-surface-container"><tr><th class="p-2">Khía cạnh</th><th class="p-2">Accuracy</th><th class="p-2">Macro F1</th><th class="p-2">Số mẫu test</th></tr></thead><tbody class="divide-y">
-            {% for name, value in aspects.items() %}<tr><td class="p-2 font-semibold">{{ name }}</td><td class="p-2">{{ '%.2f'|format(value.accuracy * 100) }}%</td><td class="p-2 font-bold">{{ '%.2f'|format(value.macro_f1 * 100) }}%</td><td class="p-2">{{ value.test_samples }}</td></tr>{% endfor %}
-        </tbody></table></div>
-        <p class="text-xs text-on-surface-variant mt-3">Mỗi mô hình phân biệt bốn mã: không đề cập, tiêu cực, tích cực và trung lập.</p>
-    </section>
-
-    <section class="report-section bg-surface rounded-xl p-card-padding card-shadow border">
-        <h2 class="font-headline font-bold text-xl mb-3">5. Hồi quy tốc độ bán quan sát</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {% for name, value in sales.get('models', {}).items() %}<div class="bg-surface-container-low rounded-lg p-3 text-sm"><strong>{{ name }}</strong><p class="mt-1 text-on-surface-variant">R² {{ value.r2 }}, MAE {{ value.mae }} SP/ngày, RMSE {{ value.rmse }} SP/ngày.</p></div>{% endfor %}
+    <section class="report-section card-shadow rounded-2xl border border-outline-variant/70 bg-surface p-card-padding">
+        <h2 class="font-headline text-xl font-bold">3. Phân loại cảm xúc tổng quát</h2>
+        <p class="mt-2 text-sm leading-6 text-on-surface-variant">
+            Hệ thống huấn luyện trên {{ meta.get('sentiment_train_samples') }} câu thuộc tập huấn luyện và kiểm định, sau đó đánh giá độc lập trên {{ meta.get('sentiment_test_samples') }} câu của tập kiểm tra gốc. Mô hình được chọn theo Macro-F1 là <strong class="text-on-surface">{{ benchmarks.get('selected_sentiment_model') }}</strong>.
+        </p>
+        <div class="mt-3 overflow-x-auto rounded-xl border border-outline-variant/60">
+            <table class="w-full min-w-[620px] text-left text-xs">
+                <thead class="bg-surface-container">
+                    <tr>
+                        <th class="p-3">Mô hình</th>
+                        <th class="p-3">Độ chính xác</th>
+                        <th class="p-3">Weighted-F1</th>
+                        <th class="p-3">Macro-F1</th>
+                        <th class="p-3">Số mẫu kiểm tra</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/60">
+                    {% for name, value in sentiment.items() %}
+                    <tr>
+                        <td class="p-3 font-semibold">{{ name }}</td>
+                        <td class="p-3">{{ '%.2f'|format(value.accuracy * 100) }}%</td>
+                        <td class="p-3">{{ '%.2f'|format(value.f1_score * 100) }}%</td>
+                        <td class="p-3 font-bold text-primary">{{ '%.2f'|format(value.macro_f1 * 100) }}%</td>
+                        <td class="p-3">{{ value.test_samples }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-        <p class="text-sm text-on-surface-variant mt-3">Mô hình chọn theo MAE: <strong>{{ sales.get('selected_model') }}</strong>. R² thấp được giữ nguyên vì biến quan sát hiện có chỉ giải thích một phần nhịp bán; hệ thống không đổi tên kết quả thành “tiềm năng tăng trưởng”.</p>
     </section>
 
-    <section class="report-section bg-surface rounded-xl p-card-padding card-shadow border">
-        <h2 class="font-headline font-bold text-xl mb-3">6. K-Means, PCA và Apriori</h2>
-        <ul class="list-disc pl-5 text-sm text-on-surface-variant leading-7">
-            <li>K-Means chạy trên tám trường quan sát của {{ dataset_summary.products }} listing; thiếu số được điền median, trường lệch phải dùng log1p rồi StandardScaler.</li>
-            <li>PCA chỉ tạo tọa độ hai chiều để vẽ; tên cụm được đặt sau khi đọc profile, không gán nghĩa cố định cho cluster ID.</li>
-            <li>Apriori tạo {{ basket.get('rules_count') }} luật từ {{ basket.get('completed_orders') }} đơn hoàn thành ở support ≥ {{ basket.get('min_support') * 100 }}% và confidence ≥ {{ basket.get('min_confidence') * 100 }}%.</li>
-            <li>Lift biểu diễn đồng xuất hiện, không chứng minh quan hệ nhân quả hoặc hiệu quả combo.</li>
-        </ul>
+    <section class="report-section card-shadow rounded-2xl border border-outline-variant/70 bg-surface p-card-padding">
+        <h2 class="font-headline text-xl font-bold">4. Phân tích cảm xúc theo tám khía cạnh</h2>
+        <div class="mt-3 overflow-x-auto rounded-xl border border-outline-variant/60">
+            <table class="w-full min-w-[540px] text-left text-xs">
+                <thead class="bg-surface-container">
+                    <tr>
+                        <th class="p-3">Khía cạnh</th>
+                        <th class="p-3">Độ chính xác</th>
+                        <th class="p-3">Macro-F1</th>
+                        <th class="p-3">Số mẫu kiểm tra</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/60">
+                    {% for name, value in aspects.items() %}
+                    <tr>
+                        <td class="p-3 font-semibold">{{ aspect_names.get(name, name) }}</td>
+                        <td class="p-3">{{ '%.2f'|format(value.accuracy * 100) }}%</td>
+                        <td class="p-3 font-bold text-primary">{{ '%.2f'|format(value.macro_f1 * 100) }}%</td>
+                        <td class="p-3">{{ value.test_samples }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="mt-3 text-xs leading-5 text-on-surface-variant">
+            Mỗi mô hình phân biệt bốn trạng thái: không đề cập, tiêu cực, tích cực và trung lập.
+        </p>
     </section>
 
-    <section class="report-section bg-surface rounded-xl p-card-padding card-shadow border">
-        <h2 class="font-headline font-bold text-xl mb-3">7. Giới hạn kết luận</h2>
-        <ul class="list-disc pl-5 text-sm text-on-surface-variant leading-7">
-            {% for limitation in provenance.limitations %}<li>{{ limitation }}</li>{% endfor %}
-            <li>Dữ liệu công khai có thể có ngoại lệ và thiếu trường; cảnh báo dashboard là kiểm tra chất lượng dữ liệu, không phải mô hình rủi ro kinh doanh.</li>
-            <li>Feature importance là trọng số toàn cục của ensemble cây, không phải tác động nhân quả cho từng listing.</li>
+    <section class="report-section card-shadow rounded-2xl border border-outline-variant/70 bg-surface p-card-padding">
+        <h2 class="font-headline text-xl font-bold">5. Hồi quy nhịp bán quan sát</h2>
+        <div class="math-block">
+            \[
+                v_i=\frac{s_{i,\mathrm{last}}-s_{i,\mathrm{first}}}
+                {d_{i,\mathrm{last}}-d_{i,\mathrm{first}}},
+                \qquad
+                \operatorname{MAE}=\frac{1}{n}\sum_{i=1}^{n}|v_i-\hat v_i|
+            \]
+        </div>
+        <p class="mt-2 text-xs leading-5 text-on-surface-variant">
+            \(v_i\) là số sản phẩm bán tăng thêm mỗi ngày giữa hai lần ghi nhận hợp lệ. Mô hình học \(\log(1+v_i)\), nhưng các độ đo bên dưới được tính sau khi đổi dự đoán về đơn vị sản phẩm/ngày.
+        </p>
+        <div class="mt-3 grid gap-3 md:grid-cols-2">
+            {% for name, value in sales.get('models', {}).items() %}
+            <div class="rounded-xl border border-outline-variant/60 bg-surface-container-low p-4 text-sm">
+                <strong>{{ name }}</strong>
+                <p class="mt-1 leading-6 text-on-surface-variant">
+                    \(R^2\) = {{ value.r2 }} · MAE = {{ value.mae }} · RMSE = {{ value.rmse }} sản phẩm/ngày
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+        <p class="mt-3 text-sm leading-6 text-on-surface-variant">
+            Mô hình có MAE thấp nhất là <strong class="text-on-surface">{{ sales.get('selected_model') }}</strong>. Giá trị \(R^2\) thấp được báo cáo nguyên trạng: các biến hiện có chỉ giải thích một phần biến thiên của nhịp bán.
+        </p>
+    </section>
+
+    <section class="report-section card-shadow rounded-2xl border border-outline-variant/70 bg-surface p-card-padding">
+        <h2 class="font-headline text-xl font-bold">6. Phân cụm, trực quan hóa và luật mua cùng</h2>
+        <ul class="mt-3 list-disc space-y-1 pl-5 text-sm leading-6 text-on-surface-variant">
+            <li>K-Means chạy trên tám đặc trưng quan sát của {{ dataset_summary.products }} sản phẩm; giá trị thiếu được điền bằng trung vị, đặc trưng lệch phải dùng \(\log(1+x)\), rồi toàn bộ được chuẩn hóa.</li>
+            <li>PCA chỉ chiếu dữ liệu xuống hai chiều để vẽ. Tên cụm được đặt sau khi đọc hồ sơ trung bình, không suy diễn trực tiếp từ mã cụm.</li>
+            <li>Apriori tạo {{ basket.get('rules_count') }} luật từ {{ basket.get('completed_orders') }} đơn hoàn thành với support tối thiểu {{ basket.get('min_support') * 100 }}% và confidence tối thiểu {{ basket.get('min_confidence') * 100 }}%.</li>
         </ul>
-        <p class="text-xs mt-3">scikit-learn {{ meta.get('sklearn_version') }}, seed {{ meta.get('random_seed') }}, provenance: {{ meta.get('data_provenance') }}.</p>
+        <div class="math-block">
+            \[
+                \operatorname{support}(A\rightarrow B)=\frac{n(A\cap B)}{N},
+                \quad
+                \operatorname{confidence}(A\rightarrow B)=\frac{n(A\cap B)}{n(A)},
+                \quad
+                \operatorname{lift}(A\rightarrow B)=
+                \frac{\operatorname{confidence}(A\rightarrow B)}{n(B)/N}
+            \]
+        </div>
+        <p class="mt-2 text-xs leading-5 text-on-surface-variant">
+            Lift mô tả mức đồng xuất hiện so với giả định độc lập; không chứng minh quan hệ nhân quả hay hiệu quả thương mại của một gói sản phẩm.
+        </p>
+    </section>
+
+    <section class="report-section card-shadow rounded-2xl border border-outline-variant/70 bg-surface p-card-padding">
+        <h2 class="font-headline text-xl font-bold">7. Giới hạn của kết luận</h2>
+        <ul class="mt-3 list-disc space-y-1 pl-5 text-sm leading-6 text-on-surface-variant">
+            {% for limitation in provenance.get('limitations', []) %}
+            <li>{{ limitation }}</li>
+            {% endfor %}
+            <li>Cảnh báo trên trang chất lượng dữ liệu chỉ phản ánh trường thiếu hoặc giá trị bất thường; đây không phải mô hình rủi ro kinh doanh.</li>
+            <li>Mức độ quan trọng của đặc trưng trong mô hình cây là thống kê toàn cục, không phải tác động nhân quả đối với từng sản phẩm.</li>
+        </ul>
+        <p class="mt-4 border-t border-outline-variant/60 pt-3 text-[11px] leading-5 text-on-surface-variant">
+            scikit-learn {{ meta.get('sklearn_version') }} · seed {{ meta.get('random_seed') }} · hồ sơ nguồn: {{ meta.get('data_provenance') }}
+        </p>
     </section>
 </article>
 {% endblock %}

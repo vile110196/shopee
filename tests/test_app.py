@@ -1,5 +1,6 @@
 import math
 import unittest
+from pathlib import Path
 
 import app as app_module
 
@@ -13,15 +14,45 @@ class AppContractTests(unittest.TestCase):
 
     def test_html_pages_exist(self):
         expected_markers = {
-            "/": "Dashboard Tổng Quan",
+            "/": "Tổng quan dữ liệu",
             "/report": "Báo cáo nghiệm thu kỹ thuật",
-            "/theory": "Cơ sở lý thuyết các thuật toán",
+            "/theory": "Cơ sở lý thuyết và công thức sử dụng",
         }
         for path, marker in expected_markers.items():
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
                 self.assertIn(marker, response.get_data(as_text=True))
+
+    def test_responsive_shell_and_mathjax_contract(self):
+        homepage = self.client.get("/").get_data(as_text=True)
+        theory = self.client.get("/theory").get_data(as_text=True)
+        report = self.client.get("/report").get_data(as_text=True)
+
+        for marker in ("app-sidebar", "sidebar-backdrop", "sidebar-open", "sidebar-close"):
+            self.assertIn(marker, homepage)
+        self.assertIn('<html class="light" lang="vi">', homepage)
+        self.assertIn('id="MathJax-script"', theory)
+        self.assertIn(r"\operatorname{tfidf}", theory)
+        self.assertIn(r"\arg\max", theory)
+        self.assertIn(r"\operatorname{support}", theory)
+        self.assertIn(r"\operatorname{MAE}", report)
+
+    def test_ui_sources_do_not_contain_common_mojibake(self):
+        project_root = Path(app_module.__file__).resolve().parent
+        ui_files = [
+            project_root / "templates" / "base.html",
+            project_root / "templates" / "index.html",
+            project_root / "templates" / "report.html",
+            project_root / "templates" / "theory.html",
+            project_root / "static" / "js" / "app.js",
+        ]
+        mojibake_markers = ("Ã¡", "Ã¢", "Ã ", "Ã©", "Ãª", "Ä‘", "Æ°", "áº", "á»", "â€“", "â€”", "â†’", "ðŸ", "�")
+        for path in ui_files:
+            text = path.read_text(encoding="utf-8")
+            for marker in mojibake_markers:
+                with self.subTest(path=path.name, marker=marker):
+                    self.assertNotIn(marker, text)
 
     def test_overview_uses_real_dataset_and_observable_quality_fields(self):
         response = self.client.get("/api/overview_stats")

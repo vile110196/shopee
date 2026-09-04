@@ -7,8 +7,12 @@
     "confidence": 40.0,
     "lift": 4.971,
     "cooccurrence_orders": 4,
+    "antecedent_orders": 10,
+    "consequent_orders": 21,
     "completed_order_count": 261,
-    "insight": "Đây là liên hệ đồng xuất hiện trong mẫu đơn, không phải quan hệ nhân quả."
+    "association_level": "Liên hệ mạnh",
+    "actionable": true,
+    "insight": "4/10 đơn có sản phẩm A cũng có B; cặp này xuất hiện trong 4/261 đơn hoàn thành."
   },
   {
     "antecedent": "Pempek Tenggiri Super Premium Murah  AlKindi 20 pcs Palembang Asli SIZE MINI Lenjer, Kulit, & Telur",
@@ -18,8 +22,12 @@
     "confidence": 19.05,
     "lift": 4.971,
     "cooccurrence_orders": 4,
+    "antecedent_orders": 21,
+    "consequent_orders": 10,
     "completed_order_count": 261,
-    "insight": "Đây là liên hệ đồng xuất hiện trong mẫu đơn, không phải quan hệ nhân quả."
+    "association_level": "Liên hệ mạnh",
+    "actionable": true,
+    "insight": "4/21 đơn có sản phẩm A cũng có B; cặp này xuất hiện trong 4/261 đơn hoàn thành."
   },
   {
     "antecedent": "Sterofoam Extra",
@@ -29,8 +37,12 @@
     "confidence": 100.0,
     "lift": 2.231,
     "cooccurrence_orders": 4,
+    "antecedent_orders": 4,
+    "consequent_orders": 117,
     "completed_order_count": 261,
-    "insight": "Đây là liên hệ đồng xuất hiện trong mẫu đơn, không phải quan hệ nhân quả."
+    "association_level": "Liên hệ mạnh",
+    "actionable": true,
+    "insight": "4/4 đơn có sản phẩm A cũng có B; cặp này xuất hiện trong 4/261 đơn hoàn thành."
   },
   {
     "antecedent": "Pempek Palembang Asli Super Murah AlKindi 10 pcs Palembang Asli SIZE MEDIUM Lenjer, Kulit & Telur",
@@ -40,8 +52,12 @@
     "confidence": 20.83,
     "lift": 0.8,
     "cooccurrence_orders": 5,
+    "antecedent_orders": 24,
+    "consequent_orders": 68,
     "completed_order_count": 261,
-    "insight": "Đây là liên hệ đồng xuất hiện trong mẫu đơn, không phải quan hệ nhân quả."
+    "association_level": "Không nên gợi ý mua cùng",
+    "actionable": false,
+    "insight": "5/24 đơn có sản phẩm A cũng có B; cặp này xuất hiện trong 5/261 đơn hoàn thành."
   },
   {
     "antecedent": "Pempek Palembang Asli Super Murah  AlKindi 20 pcs Palembang Asli SIZE MEDIUM Lenjer, Kulit & Telur",
@@ -51,7 +67,11 @@
     "confidence": 29.41,
     "lift": 0.656,
     "cooccurrence_orders": 5,
+    "antecedent_orders": 17,
+    "consequent_orders": 117,
     "completed_order_count": 261,
-    "insight": "Đây là liên hệ đồng xuất hiện trong mẫu đơn, không phải quan hệ nhân quả."
+    "association_level": "Không nên gợi ý mua cùng",
+    "actionable": false,
+    "insight": "5/17 đơn có sản phẩm A cũng có B; cặp này xuất hiện trong 5/261 đơn hoàn thành."
   }
 ]

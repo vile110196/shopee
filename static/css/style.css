@@ -1,137 +1,388 @@
-/* =============================================================================
-   SHOPEE DATA MINING - STITCH CORPORATE MODERNISM LIGHT THEME
-   Tailwind Extension Styles & Animations
-   Authors: Le Thanh Truc Vi, Tran Dinh Huy, Vu Hoang Thien An, Duong Phuong Anh
-============================================================================= */
-
-/* Card Shadows & Elevation matching DESIGN.md */
-.card-shadow {
-    box-shadow: 0 4px 20px -2px rgba(178, 34, 4, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+:root {
+    color-scheme: light;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
 }
 
-.card-shadow:hover {
-    box-shadow: 0 10px 28px -4px rgba(178, 34, 4, 0.08), 0 4px 10px -2px rgba(0, 0, 0, 0.03);
-    transform: translateY(-2px);
+html {
+    scroll-behavior: smooth;
 }
 
-/* Sidebar Active Navigation Items */
+body {
+    overflow-x: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+    outline: 3px solid rgba(238, 77, 45, 0.28);
+    outline-offset: 2px;
+}
+
+code {
+    border-radius: 0.3rem;
+    background: #f2f4f7;
+    padding: 0.08rem 0.32rem;
+    color: #344054;
+    font-size: 0.88em;
+}
+
+/* Khung điều hướng */
+.app-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 50;
+    width: 16rem;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    border-right: 1px solid #d0d5dd;
+    background: #fff;
+    transform: translateX(-100%);
+    transition: transform 180ms ease;
+}
+
+.sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    visibility: hidden;
+    background: rgba(16, 24, 40, 0.46);
+    opacity: 0;
+    transition: opacity 180ms ease, visibility 180ms ease;
+}
+
+.sidebar-is-open {
+    overflow: hidden;
+}
+
+.sidebar-is-open .app-sidebar {
+    transform: translateX(0);
+}
+
+.sidebar-is-open .sidebar-backdrop {
+    visibility: visible;
+    opacity: 1;
+}
+
+.stitch-nav-item {
+    display: flex;
+    min-height: 2.65rem;
+    align-items: center;
+    gap: 0.7rem;
+    border-radius: 0.65rem;
+    padding: 0.58rem 0.75rem;
+    color: #475467;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.35;
+    transition: color 150ms ease, background-color 150ms ease;
+}
+
+.stitch-nav-item:hover {
+    background: #f2f4f7;
+    color: #182230;
+}
+
 .stitch-nav-item.active {
-    background-color: #ffe9e5 !important;
-    color: #b22204 !important;
-    font-weight: 700 !important;
+    background: #fff0ec;
+    color: #d83c1d;
+    font-weight: 700;
 }
 
-.stitch-nav-item.active span.material-symbols-outlined {
-    color: #b22204 !important;
-    font-variation-settings: 'FILL' 1;
+.stitch-nav-item .material-symbols-outlined {
+    flex: 0 0 auto;
+    font-size: 1.2rem;
 }
 
-/* Tab Panes */
+.stitch-nav-item.active .material-symbols-outlined {
+    color: #ee4d2d;
+    font-variation-settings: "FILL" 1;
+}
+
+.icon-button {
+    width: 2.35rem;
+    height: 2.35rem;
+    place-items: center;
+    border: 1px solid #d0d5dd;
+    border-radius: 0.65rem;
+    background: #fff;
+    color: #344054;
+    transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.icon-button:hover {
+    border-color: #f5a18f;
+    background: #fff5f2;
+}
+
+.primary-button {
+    display: inline-flex;
+    min-height: 2.35rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 0.65rem;
+    background: #ee4d2d;
+    padding: 0.55rem 0.8rem;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08);
+    transition: background-color 150ms ease, transform 100ms ease;
+}
+
+.primary-button:hover {
+    background: #d83c1d;
+}
+
+.primary-button:active {
+    transform: scale(0.98);
+}
+
+@media (min-width: 1024px) {
+    .app-sidebar {
+        transform: translateX(0);
+    }
+
+    .sidebar-backdrop {
+        display: none;
+    }
+
+    .sidebar-is-open {
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+}
+
+/* Thành phần nội dung */
+.card-shadow {
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 1px 8px rgba(16, 24, 40, 0.04);
+}
+
 .tab-pane {
     display: none;
-    animation: fadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fade-in 180ms ease-out;
 }
 
 .tab-pane.active {
     display: block;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(3px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Custom Word Cloud Chips */
 .wc-word-pill {
-    padding: 0.35rem 0.85rem;
-    border-radius: 9999px;
-    font-weight: 700;
-    transition: all 0.2s ease;
     cursor: default;
-    border: 1px solid rgba(143, 112, 105, 0.2);
+    border: 1px solid #fed0c5;
+    border-radius: 9999px;
+    padding: 0.35rem 0.8rem;
+    font-weight: 700;
+    transition: border-color 150ms ease, background-color 150ms ease;
 }
 
 .wc-word-pill:hover {
-    transform: scale(1.12);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: #f5a18f;
+    background: #fff5f2;
 }
 
-/* Feature Importance Progress Bar */
 .feat-bar-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 0.75rem;
     gap: 0.75rem;
+    font-size: 0.72rem;
 }
 
 .feat-name {
-    width: 140px;
-    color: #5b403b;
+    width: 9rem;
+    color: #475467;
+    font-size: 0.7rem;
     font-weight: 600;
-    font-size: 0.72rem;
 }
 
 .feat-track {
     flex: 1;
-    height: 7px;
-    background: #ffe9e5;
-    border-radius: 4px;
+    height: 0.45rem;
     overflow: hidden;
+    border-radius: 999px;
+    background: #eaecf0;
 }
 
 .feat-fill {
     height: 100%;
-    background: linear-gradient(90deg, #d63c1e 0%, #b22204 100%);
-    border-radius: 4px;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #f47a60, #ee4d2d);
 }
 
 .feat-val {
-    font-size: 0.72rem;
+    min-width: 3rem;
+    color: #182230;
+    font-size: 0.7rem;
     font-weight: 700;
-    color: #271815;
+    text-align: right;
 }
 
-/* Confusion Matrix Table */
 .cm-table {
-    border-collapse: collapse;
     width: 100%;
-    max-width: 480px;
+    max-width: 30rem;
     margin: 0.5rem 0;
+    border-collapse: collapse;
 }
 
-.cm-table th, .cm-table td {
-    padding: 0.65rem 1rem;
+.cm-table th,
+.cm-table td {
+    border: 1px solid #d0d5dd;
+    padding: 0.65rem 0.8rem;
     text-align: center;
-    border: 1px solid #e3beb6;
-    font-size: 0.8rem;
+    font-size: 0.76rem;
 }
 
 .cm-table th {
-    background: #ffe9e5;
+    background: #f2f4f7;
+    color: #182230;
     font-weight: 700;
-    color: #271815;
 }
 
-.cm-cell-high { background: #dcfce7; color: #15803d; font-weight: 800; }
-.cm-cell-zero { background: #fff8f6; color: #8f7069; }
+.cm-cell-high {
+    background: #dcfae6;
+    color: #067647;
+    font-weight: 800;
+}
 
-/* Custom Scrollbar */
+.cm-cell-zero {
+    background: #f9fafb;
+    color: #667085;
+}
+
+/* Công thức MathJax */
+.math-block {
+    margin-top: 0.8rem;
+    overflow-x: auto;
+    border: 1px solid #e4e7ec;
+    border-left: 3px solid #ee4d2d;
+    border-radius: 0.75rem;
+    background: #f9fafb;
+    padding: 0.8rem 1rem;
+    color: #182230;
+}
+
+.math-block mjx-container[display="true"] {
+    margin: 0.35rem 0 !important;
+}
+
+.math-inline mjx-container,
+p mjx-container {
+    color: #182230;
+}
+
+mjx-container {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.definition-list dt {
+    color: #182230;
+    font-weight: 700;
+}
+
+.definition-list dd {
+    margin-top: 0.15rem;
+    color: #475467;
+}
+
+/* Bảng và màn hình nhỏ */
+table {
+    border-spacing: 0;
+}
+
+thead th {
+    white-space: nowrap;
+}
+
+@media (max-width: 639px) {
+    .card-shadow {
+        border-radius: 0.8rem;
+    }
+
+    .feat-name {
+        width: 6.5rem;
+    }
+
+    .math-block {
+        padding: 0.7rem;
+        font-size: 0.88rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
 ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #fff8f6;
+    background: #f2f4f7;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #e3beb6;
-    border-radius: 3px;
+    border-radius: 999px;
+    background: #b7c0cc;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #8f7069;
+    background: #8c98a8;
+}
+
+@media print {
+    body {
+        background: #fff !important;
+    }
+
+    .app-sidebar,
+    .sidebar-backdrop,
+    body > div > div > header,
+    body > div > div > footer {
+        display: none !important;
+    }
+
+    .app-sidebar + div {
+        padding-left: 0 !important;
+    }
+
+    main {
+        max-width: none !important;
+        padding: 0 !important;
+    }
+
+    .card-shadow {
+        box-shadow: none !important;
+    }
+
+    .report-section {
+        break-inside: avoid;
+    }
 }

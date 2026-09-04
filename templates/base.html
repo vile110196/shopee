@@ -1,224 +1,213 @@
 <!DOCTYPE html>
 <html class="light" lang="vi">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>{% block title %}Shopee Analytics Lab - Social Media Mining & E-Commerce Analytics{% endblock %}</title>
-    
-    <!-- Tailwind CSS with Stitch Design Tokens -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- Chart.js & Confetti -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>{% block title %}Shopee Analytics Lab{% endblock %}</title>
 
-    <!-- Tailwind Config based on Stitch DESIGN.md -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#b22204",
-                        "primary-container": "#d63c1e",
+                        "primary": "#ee4d2d",
+                        "primary-container": "#d83c1d",
                         "on-primary": "#ffffff",
-                        "on-primary-container": "#fffbff",
-                        "inverse-primary": "#ffb4a4",
-                        "primary-fixed": "#ffdad3",
-                        "primary-fixed-dim": "#ffb4a4",
-                        
-                        "secondary": "#005bbd",
-                        "secondary-container": "#4f92fe",
-                        "on-secondary": "#ffffff",
-                        "on-secondary-container": "#002b5f",
-                        "secondary-fixed": "#d7e2ff",
-                        "secondary-fixed-dim": "#acc7ff",
-                        
-                        "tertiary": "#7e5300",
-                        "tertiary-container": "#9e6a00",
-                        "on-tertiary": "#ffffff",
-                        "tertiary-fixed": "#ffddb2",
-                        "tertiary-fixed-dim": "#ffb94c",
-                        
-                        "error": "#ba1a1a",
-                        "error-container": "#ffdad6",
-                        "on-error": "#ffffff",
-                        "on-error-container": "#93000a",
-                        
-                        "surface": "#fff8f6",
-                        "surface-dim": "#f0d4ce",
-                        "surface-bright": "#fff8f6",
-                        "surface-variant": "#f9dcd6",
+                        "primary-fixed": "#ffded7",
+                        "secondary": "#1769aa",
+                        "secondary-container": "#e1effb",
+                        "tertiary": "#8a5600",
+                        "tertiary-container": "#fff0d5",
+                        "tertiary-fixed": "#ffefd0",
+                        "error": "#b42318",
+                        "error-container": "#fee4e2",
+                        "surface": "#ffffff",
                         "surface-container-lowest": "#ffffff",
-                        "surface-container-low": "#fff0ee",
-                        "surface-container": "#ffe9e5",
-                        "surface-container-high": "#ffe2dc",
-                        "surface-container-highest": "#f9dcd6",
-                        
-                        "on-surface": "#271815",
-                        "on-surface-variant": "#5b403b",
-                        "inverse-surface": "#3e2c29",
-                        "outline": "#8f7069",
-                        "outline-variant": "#e3beb6",
-                        "background": "#fff8f6",
-                        "on-background": "#271815"
+                        "surface-container-low": "#f9fafb",
+                        "surface-container": "#f2f4f7",
+                        "surface-container-high": "#e9edf2",
+                        "surface-container-highest": "#dde3ea",
+                        "on-surface": "#182230",
+                        "on-surface-variant": "#475467",
+                        "outline": "#667085",
+                        "outline-variant": "#d0d5dd",
+                        "background": "#f6f7fb",
+                        "on-background": "#182230"
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        headline: ['Inter', 'sans-serif'],
-                        body: ['Inter', 'sans-serif']
+                        sans: ['"Be Vietnam Pro"', 'Segoe UI', 'sans-serif'],
+                        headline: ['"Be Vietnam Pro"', 'Segoe UI', 'sans-serif'],
+                        body: ['"Be Vietnam Pro"', 'Segoe UI', 'sans-serif']
+                    },
+                    boxShadow: {
+                        card: "0 1px 2px rgba(16, 24, 40, 0.05), 0 1px 8px rgba(16, 24, 40, 0.04)"
                     },
                     spacing: {
-                        'gutter': '24px',
-                        'margin-desktop': '32px',
-                        'card-padding': '20px'
+                        "card-padding": "1.25rem",
+                        "gutter": "1.5rem",
+                        "margin-desktop": "2rem"
                     },
                     borderRadius: {
-                        'xl': '0.75rem',
-                        '2xl': '1rem'
+                        xl: "0.75rem",
+                        "2xl": "1rem"
                     }
                 }
             }
         };
     </script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['\\[', '\\]']],
+                processEscapes: true
+            },
+            chtml: { scale: 1.02 },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+        };
+    </script>
+    <script defer id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3">
     {% block head_extra %}{% endblock %}
 </head>
-<body class="bg-background text-on-surface min-h-screen flex flex-col font-sans selection:bg-primary-fixed selection:text-primary">
-    <div class="flex flex-1 min-h-screen">
-        
-        <!-- STITCH LEFT SIDEBAR -->
-        <aside class="w-64 bg-surface-container-low border-r border-outline-variant/40 flex flex-col justify-between p-4 sticky top-0 h-screen shrink-0 z-30">
-            <div class="flex flex-col gap-6">
-                <!-- App Logo -->
-                <div class="flex items-center gap-3 px-2 py-1">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-primary-container flex items-center justify-center text-white shadow-md shadow-primary/20">
-                        <span class="material-symbols-outlined text-2xl">local_mall</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <h1 class="font-headline font-black text-base tracking-tight text-on-surface leading-tight">Shopee Analytics</h1>
-                        <span class="text-[11px] font-semibold text-primary uppercase tracking-wider">Social Mining Lab</span>
-                    </div>
+<body class="min-h-screen bg-background font-sans text-on-surface antialiased selection:bg-primary-fixed selection:text-primary-container">
+    <div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+
+    <div class="flex min-h-screen">
+        <aside id="app-sidebar" class="app-sidebar" aria-label="Điều hướng chính">
+            <div class="flex min-h-full flex-col">
+                <div class="flex items-center justify-between gap-3 border-b border-outline-variant/70 px-4 py-4">
+                    <a href="{{ url_for('index') }}" class="flex min-w-0 items-center gap-3" aria-label="Trang chủ Shopee Analytics Lab">
+                        <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary text-white shadow-sm">
+                            <span class="material-symbols-outlined text-2xl" aria-hidden="true">local_mall</span>
+                        </span>
+                        <span class="min-w-0">
+                            <span class="block truncate text-sm font-extrabold tracking-tight text-on-surface">Shopee Analytics</span>
+                            <span class="block truncate text-[10px] font-bold uppercase tracking-[0.16em] text-primary">Phân tích dữ liệu</span>
+                        </span>
+                    </a>
+                    <button id="sidebar-close" type="button" class="icon-button inline-grid lg:hidden" aria-label="Đóng trình đơn">
+                        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                    </button>
                 </div>
 
-                <!-- Navigation Links -->
-                <nav class="flex flex-col gap-1.5" id="stitch-sidebar-nav">
-                    <a href="{{ url_for('index') }}#tab-overview" data-tab="tab-overview" class="stitch-nav-item {{ 'active' if request.endpoint == 'index' else 'text-on-surface-variant' }} flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-left">
-                        <span class="material-symbols-outlined text-xl">dashboard</span>
-                        <span>1. Dashboard Tổng Quan</span>
+                <nav id="stitch-sidebar-nav" class="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-4">
+                    <a href="{{ url_for('index') }}#tab-overview" data-tab="tab-overview" class="stitch-nav-item {{ 'active' if request.endpoint == 'index' else '' }}">
+                        <span class="material-symbols-outlined" aria-hidden="true">space_dashboard</span>
+                        <span>1. Tổng quan dữ liệu</span>
+                    </a>
+                    <a href="{{ url_for('index') }}#tab-sentiment" data-tab="tab-sentiment" class="stitch-nav-item">
+                        <span class="material-symbols-outlined" aria-hidden="true">sentiment_satisfied</span>
+                        <span>2. Cảm xúc và khía cạnh</span>
+                    </a>
+                    <a href="{{ url_for('index') }}#tab-forecaster" data-tab="tab-forecaster" class="stitch-nav-item">
+                        <span class="material-symbols-outlined" aria-hidden="true">trending_up</span>
+                        <span>3. Ước lượng nhịp bán</span>
+                    </a>
+                    <a href="{{ url_for('index') }}#tab-risk" data-tab="tab-risk" class="stitch-nav-item">
+                        <span class="material-symbols-outlined" aria-hidden="true">data_alert</span>
+                        <span>4. Chất lượng dữ liệu</span>
+                    </a>
+                    <a href="{{ url_for('index') }}#tab-basket" data-tab="tab-basket" class="stitch-nav-item">
+                        <span class="material-symbols-outlined" aria-hidden="true">shopping_cart</span>
+                        <span>5. Sản phẩm mua cùng</span>
+                    </a>
+                    <a href="{{ url_for('index') }}#tab-clustering" data-tab="tab-clustering" class="stitch-nav-item">
+                        <span class="material-symbols-outlined" aria-hidden="true">bubble_chart</span>
+                        <span>6. Phân cụm sản phẩm</span>
+                    </a>
+                    <a href="{{ url_for('index') }}#tab-benchmark" data-tab="tab-benchmark" class="stitch-nav-item">
+                        <span class="material-symbols-outlined" aria-hidden="true">monitoring</span>
+                        <span>7. Đánh giá mô hình</span>
                     </a>
 
-                    <a href="{{ url_for('index') }}#tab-sentiment" data-tab="tab-sentiment" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
-                        <span class="material-symbols-outlined text-xl">sentiment_satisfied</span>
-                        <span>2. Cảm Xúc &amp; ABSA</span>
-                    </a>
+                    <div class="my-2 border-t border-outline-variant/70"></div>
 
-                    <a href="{{ url_for('index') }}#tab-forecaster" data-tab="tab-forecaster" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
-                        <span class="material-symbols-outlined text-xl">trending_up</span>
-                        <span>3. Ước Lượng Nhịp Bán</span>
+                    <a href="{{ url_for('report') }}" class="stitch-nav-item {{ 'active' if request.endpoint == 'report' else '' }}">
+                        <span class="material-symbols-outlined" aria-hidden="true">description</span>
+                        <span>8. Báo cáo kỹ thuật</span>
                     </a>
-
-                    <a href="{{ url_for('index') }}#tab-risk" data-tab="tab-risk" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
-                        <span class="material-symbols-outlined text-xl">warning</span>
-                        <span>4. Chất Lượng Dữ Liệu</span>
-                    </a>
-
-                    <a href="{{ url_for('index') }}#tab-basket" data-tab="tab-basket" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
-                        <span class="material-symbols-outlined text-xl">shopping_cart</span>
-                        <span>5. Combo Giỏ Hàng (Apriori)</span>
-                    </a>
-
-                    <a href="{{ url_for('index') }}#tab-clustering" data-tab="tab-clustering" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
-                        <span class="material-symbols-outlined text-xl">bubble_chart</span>
-                        <span>6. Gom Cụm K-Means (PCA)</span>
-                    </a>
-
-                    <a href="{{ url_for('index') }}#tab-benchmark" data-tab="tab-benchmark" class="stitch-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 text-left">
-                        <span class="material-symbols-outlined text-xl">equalizer</span>
-                        <span>7. Đánh Giá Mô Hình</span>
-                    </a>
-
-                    <div class="border-t border-outline-variant/30 my-1"></div>
-                    <a href="{{ url_for('report') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {{ 'bg-surface-container text-primary font-bold' if request.endpoint == 'report' else 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container' }}">
-                        <span class="material-symbols-outlined text-xl">description</span>
-                        <span>8. Báo Cáo Nghiệm Thu</span>
-                    </a>
-                    <a href="{{ url_for('theory') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {{ 'bg-surface-container text-primary font-bold' if request.endpoint == 'theory' else 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container' }}">
-                        <span class="material-symbols-outlined text-xl">menu_book</span>
-                        <span>9. Cơ Sở Lý Thuyết</span>
+                    <a href="{{ url_for('theory') }}" class="stitch-nav-item {{ 'active' if request.endpoint == 'theory' else '' }}">
+                        <span class="material-symbols-outlined" aria-hidden="true">menu_book</span>
+                        <span>9. Cơ sở lý thuyết</span>
                     </a>
                 </nav>
-            </div>
 
-            <!-- Team Members Card at Bottom of Sidebar -->
-            <div class="bg-surface-container p-3 rounded-xl border border-outline-variant/30 flex flex-col gap-2">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-sm">school</span>
-                    <span class="text-xs font-bold text-on-surface">Đồ Án Khai Thác Dữ Liệu</span>
-                </div>
-                <div class="flex flex-col gap-1 text-[11px] text-on-surface-variant">
-                    <div>👑 <strong>Trần Đình Huy</strong> (24730103)</div>
-                    <div>⭐ <strong>Lê Thanh Trúc Vi</strong> (24730150)</div>
-                    <div>🔹 <strong>Vũ Hoàng Thiên Ân</strong> (24730155)</div>
-                    <div>🔹 <strong>Dương Phương Anh</strong> (24730156)</div>
-                </div>
-                <div class="text-[10px] text-outline text-right">UIT - 2026</div>
+                <section class="m-3 rounded-xl border border-outline-variant/70 bg-surface-container-low p-3" aria-label="Thông tin nhóm">
+                    <div class="mb-2 flex items-center gap-2 text-xs font-bold text-on-surface">
+                        <span class="material-symbols-outlined text-base text-primary" aria-hidden="true">school</span>
+                        Đồ án khai thác dữ liệu
+                    </div>
+                    <ul class="space-y-1 text-[10px] leading-relaxed text-on-surface-variant">
+                        <li>Trần Đình Huy — 24730103</li>
+                        <li>Lê Thanh Trúc Vi — 24730150</li>
+                        <li>Vũ Hoàng Thiên Ân — 24730155</li>
+                        <li>Dương Phương Anh — 24730156</li>
+                    </ul>
+                    <p class="mt-2 text-[9px] font-semibold uppercase tracking-wider text-outline">UIT · 2026</p>
+                </section>
             </div>
         </aside>
 
-        <!-- MAIN CONTENT WRAPPER -->
-        <div class="flex-1 flex flex-col min-w-0">
-            
-            <!-- STITCH TOP NAVBAR -->
-            <header class="bg-surface border-b border-outline-variant/30 px-margin-desktop py-3 flex items-center justify-between sticky top-0 z-20 shadow-sm backdrop-blur-md bg-surface/90">
-                <div class="flex items-center gap-3">
-                    <div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
-                        <span>Shopee Lab</span>
-                        <span class="material-symbols-outlined text-xs">chevron_right</span>
-                        <span class="font-semibold text-primary" id="stitch-breadcrumb-text">{% block breadcrumb %}Dashboard Tổng Quan{% endblock %}</span>
-                    </div>
-                </div>
-
-                <!-- Right Action Bar & Student Badges -->
-                <div class="flex items-center gap-3">
-                    <div class="hidden lg:flex items-center gap-1.5">
-                        <span class="px-2.5 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold">Trần Đình Huy</span>
-                        <span class="px-2.5 py-1 bg-secondary/10 text-secondary rounded-full text-xs font-semibold">Lê Thanh Trúc Vi</span>
-                        <span class="px-2.5 py-1 bg-surface-container text-on-surface-variant rounded-full text-xs font-semibold">Vũ Hoàng Thiên Ân</span>
-                        <span class="px-2.5 py-1 bg-surface-container text-on-surface-variant rounded-full text-xs font-semibold">Dương Phương Anh</span>
-                    </div>
-
-                    {% if request.endpoint == 'index' %}
-                        <button onclick="loadOverviewStats()" class="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white hover:bg-primary-container active:scale-95 text-xs font-semibold rounded-lg shadow-sm shadow-primary/20 transition-all cursor-pointer">
-                            <span class="material-symbols-outlined text-sm">refresh</span>
-                            <span>Cập Nhật Số Liệu</span>
+        <div class="flex min-w-0 flex-1 flex-col lg:pl-64">
+            <header class="sticky top-0 z-20 border-b border-outline-variant/70 bg-white/95 shadow-sm backdrop-blur">
+                <div class="flex min-h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+                    <div class="flex min-w-0 items-center gap-3">
+                        <button id="sidebar-open" type="button" class="icon-button inline-grid shrink-0 lg:hidden" aria-label="Mở trình đơn" aria-controls="app-sidebar" aria-expanded="false">
+                            <span class="material-symbols-outlined" aria-hidden="true">menu</span>
                         </button>
-                    {% else %}
-                        <a href="{{ url_for('index') }}" class="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white hover:bg-primary-container text-xs font-semibold rounded-lg shadow-sm shadow-primary/20 transition-all">
-                            <span class="material-symbols-outlined text-sm">dashboard</span>
-                            <span>Về Dashboard</span>
-                        </a>
-                    {% endif %}
+                        <div class="min-w-0">
+                            <p class="hidden text-[10px] font-bold uppercase tracking-[0.14em] text-outline sm:block">Shopee Analytics Lab</p>
+                            <p id="stitch-breadcrumb-text" class="truncate text-sm font-bold text-on-surface">{% block breadcrumb %}Tổng quan dữ liệu{% endblock %}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex shrink-0 items-center gap-2">
+                        <span class="hidden items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-[10px] font-bold text-emerald-700 md:flex">
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true"></span>
+                            Dữ liệu Kaggle đã kiểm tra
+                        </span>
+                        {% if request.endpoint == 'index' %}
+                            <button type="button" onclick="loadOverviewStats()" class="primary-button">
+                                <span class="material-symbols-outlined text-base" aria-hidden="true">refresh</span>
+                                <span class="hidden sm:inline">Cập nhật số liệu</span>
+                            </button>
+                        {% else %}
+                            <a href="{{ url_for('index') }}" class="primary-button">
+                                <span class="material-symbols-outlined text-base" aria-hidden="true">space_dashboard</span>
+                                <span class="hidden sm:inline">Về trang tổng quan</span>
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
             </header>
 
-            <!-- MAIN CONTENT CANVAS -->
-            <main class="flex-1 p-gutter max-w-[1440px] w-full mx-auto">
+            <main class="mx-auto w-full max-w-[1480px] flex-1 p-4 sm:p-6 lg:p-8">
                 {% block content %}{% endblock %}
             </main>
 
-            <!-- FOOTER -->
-            <footer class="bg-surface-container border-t border-outline-variant/30 w-full py-4 px-margin-desktop flex flex-col md:flex-row justify-between items-center text-xs text-on-surface-variant gap-2 mt-auto">
-                <span>© 2026 Shopee Analytics Lab - Đồ án Khai thác dữ liệu &amp; Truyền thông xã hội (UIT)</span>
-                <span>Nhóm sinh viên: <strong>Lê Thanh Trúc Vi (24730150)</strong>, <strong>Trần Đình Huy (24730103)</strong>, <strong>Vũ Hoàng Thiên Ân (24730155)</strong>, <strong>Dương Phương Anh (24730156)</strong></span>
+            <footer class="border-t border-outline-variant/70 bg-white px-4 py-4 text-[10px] leading-relaxed text-on-surface-variant sm:px-6 lg:px-8">
+                <div class="mx-auto flex max-w-[1480px] flex-col justify-between gap-1 lg:flex-row">
+                    <span>© 2026 Shopee Analytics Lab · Đồ án Khai thác dữ liệu và Truyền thông xã hội, UIT</span>
+                    <span>Nhóm: Lê Thanh Trúc Vi · Trần Đình Huy · Vũ Hoàng Thiên Ân · Dương Phương Anh</span>
+                </div>
             </footer>
         </div>
     </div>
 
-    <!-- Custom JavaScript Engine -->
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}?v=3"></script>
 </body>
 </html>
