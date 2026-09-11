@@ -1,432 +1,586 @@
 # -*- coding: utf-8 -*-
-"""
-=============================================================================
-ĐỒ ÁN TỐT NGHIỆP / CUỐI KỲ: KHAI THÁC DỮ LIỆU & TRUYỀN THÔNG XÃ HỘI
-HỆ THỐNG PHÂN TÍCH E-COMMERCE SHOPEE & SOCIAL MEDIA MINING
-FLASK WEB APPLICATION SERVER (app.py)
+"""Flask dashboard cho ba bộ dữ liệu Shopee công khai đã chuẩn hóa."""
 
-NHÓM SINH VIÊN THỰC HIỆN:
-1. Trần Đình Huy (MSSV: 24730103) - Nhóm trưởng
-2. Lê Thanh Trúc Vi (MSSV: 24730150) - Thành viên (NLP, Teencode & Sentiment)
-3. Vũ Hoàng Thiên Ân (MSSV: 24730155) - Thành viên (Gom cụm & Luật kết hợp)
-4. Dương Phương Anh (MSSV: 24730156) - Thành viên (Đánh giá Mô hình & UI/UX)
-=============================================================================
-"""
+from __future__ import annotations
 
-import os
-import sys
-import io
+import hashlib
 import json
-import base64
-import random
-import webbrowser
+import math
+import os
+import re
+import secrets
+import sys
 import threading
-from typing import Dict, Any, List
+import webbrowser
+from pathlib import Path
+from typing import Any
+
+import joblib
+import numpy as np
+import pandas as pd
+from flask import Flask, jsonify, render_template, request
+
+from data_processing import (
+    VIETNAMESE_STOPWORDS,
+    calculate_lexicon_sentiment_score,
+    clean_vietnamese_text,
+)
+from model_training import ASPECT_LABEL_NAMES, run_full_training_pipeline
+
 
 if sys.stdout and hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 if sys.stderr and hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-from flask import Flask, render_template, request, jsonify, redirect
-import pandas as pd
-import numpy as np
-import joblib
-
-from data_processing import clean_vietnamese_text, calculate_lexicon_sentiment_score, generate_shopee_datasets, VIETNAMESE_STOPWORDS
-from model_training import run_full_training_pipeline
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
-app.config["SECRET_KEY"] = "shopee-data-mining-uit-2026-secret-key"
+app.config["SECRET_KEY"] = os.environ.get("SHOPEE_SECRET_KEY") or secrets.token_hex(32)
 
-# Thư mục chứa dữ liệu và mô hình
-DATA_DIR = "data"
-MODELS_DIR = "models"
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR / "data"
+MODELS_DIR = BASE_DIR / "models"
+REQUIRED_DATA_FILES = (
+    "shopee_products.csv",
+    "shopee_reviews.csv",
+    "shopee_transactions.csv",
+    "provenance.json",
+)
+REQUIRED_MODEL_FILES = (
+    "sentiment_model.joblib",
+    "tfidf_vectorizer.joblib",
+    "aspect_models.joblib",
+    "sales_regressor.joblib",
+    "feature_encoders.joblib",
+    "kmeans_model.joblib",
+    "cluster_scaler.joblib",
+    "clustering_data.json",
+    "market_basket_rules.json",
+    "model_benchmarks.json",
+)
 
-# Tải trước hoặc khởi tạo dữ liệu và mô hình
-def ensure_models_and_data():
-    """Kiểm tra sự tồn tại của dữ liệu và mô hình, nếu chưa có thì tự động sinh và huấn luyện."""
-    os.makedirs(DATA_DIR, exist_ok=True)
-    os.makedirs(MODELS_DIR, exist_ok=True)
-    
-    prod_csv = os.path.join(DATA_DIR, "shopee_products.csv")
-    if not os.path.exists(prod_csv):
-        print("-> Đang khởi tạo bộ dữ liệu mẫu Shopee...")
-        generate_shopee_datasets(DATA_DIR)
-        
-    model_bench = os.path.join(MODELS_DIR, "model_benchmarks.json")
-    if not os.path.exists(model_bench):
-        print("-> Đang huấn luyện toàn bộ mô hình Machine Learning...")
+PRODUCT_PAYLOAD_FIELDS = [
+    "product_id",
+    "source_item_id",
+    "source_shop_id",
+    "product_url",
+    "product_name",
+    "category",
+    "subcategory",
+    "shop_name",
+    "shop_location",
+    "currency",
+    "price",
+    "original_price",
+    "discount_rate",
+    "rating_star",
+    "rating_count",
+    "historical_sold",
+    "favorite_count",
+    "snapshot_count",
+    "first_seen_date",
+    "last_seen_date",
+    "observation_days",
+    "observed_sold_delta",
+    "daily_sold_rate",
+    "description",
+    "source_dataset",
+]
+FEATURE_LABELS = {
+    "category_code": "Ngành hàng",
+    "location_code": "Khu vực shop",
+    "price": "Giá bán",
+    "discount_rate": "Tỷ lệ giảm giá",
+    "rating_star": "Điểm đánh giá",
+    "rating_count": "Số lượt đánh giá",
+    "historical_sold": "Lượt bán tích lũy",
+    "favorite_count": "Lượt yêu thích",
+    "snapshot_count": "Số lần ghi nhận",
+}
+ASPECT_DISPLAY_NAMES = {
+    "price_sentiment": "Giá",
+    "shipping_sentiment": "Giao hàng",
+    "outlook_sentiment": "Hình thức",
+    "quality_sentiment": "Chất lượng",
+    "size_sentiment": "Kích cỡ",
+    "shop_service_sentiment": "Dịch vụ của shop",
+    "general_sentiment": "Trải nghiệm chung",
+    "others_sentiment": "Khác",
+}
+
+
+def ensure_models_and_data() -> None:
+    """Chỉ tự huấn luyện từ dữ liệu thật; không âm thầm sinh dữ liệu giả."""
+    missing_data = [name for name in REQUIRED_DATA_FILES if not (DATA_DIR / name).is_file()]
+    if missing_data:
+        joined = ", ".join(missing_data)
+        raise RuntimeError(
+            f"Thiếu dữ liệu đã chuẩn hóa: {joined}. "
+            "Chạy '.venv\\Scripts\\python.exe import_public_data.py --download' trước."
+        )
+    provenance = json.loads((DATA_DIR / "provenance.json").read_text(encoding="utf-8"))
+    if provenance.get("source_type") != "kaggle_real_shopee_multi_source":
+        raise RuntimeError("provenance.json không xác nhận bộ dữ liệu Kaggle thật")
+
+    MODELS_DIR.mkdir(parents=True, exist_ok=True)
+    missing_models = [name for name in REQUIRED_MODEL_FILES if not (MODELS_DIR / name).is_file()]
+    models_stale = bool(missing_models)
+    if not models_stale:
+        try:
+            benchmark = json.loads((MODELS_DIR / "model_benchmarks.json").read_text(encoding="utf-8"))
+            expected = benchmark["metadata"]["data_sha256"]
+            current = {
+                name: hashlib.sha256((DATA_DIR / name).read_bytes()).hexdigest()
+                for name in REQUIRED_DATA_FILES
+                if name.endswith(".csv")
+            }
+            models_stale = benchmark["metadata"]["data_provenance"] != provenance["source_type"] or expected != current
+        except (KeyError, OSError, TypeError, json.JSONDecodeError):
+            models_stale = True
+    if models_stale:
+        print("-> Artifact thiếu hoặc cũ; huấn luyện lại từ dữ liệu Kaggle đã xác minh...")
         run_full_training_pipeline()
+
 
 ensure_models_and_data()
 
-# Nạp các mô hình đã huấn luyện
 try:
-    sentiment_model = joblib.load(os.path.join(MODELS_DIR, "sentiment_model.joblib"))
-    tfidf_vectorizer = joblib.load(os.path.join(MODELS_DIR, "tfidf_vectorizer.joblib"))
-    growth_classifier = joblib.load(os.path.join(MODELS_DIR, "growth_classifier.joblib"))
-    sales_regressor = joblib.load(os.path.join(MODELS_DIR, "sales_regressor.joblib"))
-    risk_classifier = joblib.load(os.path.join(MODELS_DIR, "risk_classifier.joblib"))
-    feature_encoders = joblib.load(os.path.join(MODELS_DIR, "feature_encoders.joblib"))
-    
-    with open(os.path.join(MODELS_DIR, "clustering_data.json"), "r", encoding="utf-8") as f:
-        clustering_data = json.load(f)
-    with open(os.path.join(MODELS_DIR, "market_basket_rules.json"), "r", encoding="utf-8") as f:
-        market_basket_rules = json.load(f)
-    with open(os.path.join(MODELS_DIR, "model_benchmarks.json"), "r", encoding="utf-8") as f:
-        model_benchmarks = json.load(f)
-        
-    df_products = pd.read_csv(os.path.join(DATA_DIR, "shopee_products.csv"))
-    df_reviews = pd.read_csv(os.path.join(DATA_DIR, "shopee_reviews.csv"))
-    print("-> Nạp thành công toàn bộ mô hình và dữ liệu vào bộ nhớ Flask!")
-except Exception as e:
-    print(f"-> Cảnh báo khi nạp mô hình: {e}")
+    sentiment_model = joblib.load(MODELS_DIR / "sentiment_model.joblib")
+    tfidf_vectorizer = joblib.load(MODELS_DIR / "tfidf_vectorizer.joblib")
+    aspect_models = joblib.load(MODELS_DIR / "aspect_models.joblib")
+    sales_regressor = joblib.load(MODELS_DIR / "sales_regressor.joblib")
+    feature_encoders = joblib.load(MODELS_DIR / "feature_encoders.joblib")
+    clustering_data = json.loads((MODELS_DIR / "clustering_data.json").read_text(encoding="utf-8"))
+    market_basket_rules = json.loads((MODELS_DIR / "market_basket_rules.json").read_text(encoding="utf-8"))
+    model_benchmarks = json.loads((MODELS_DIR / "model_benchmarks.json").read_text(encoding="utf-8"))
+    provenance = json.loads((DATA_DIR / "provenance.json").read_text(encoding="utf-8"))
+    df_products = pd.read_csv(DATA_DIR / "shopee_products.csv")
+    df_reviews = pd.read_csv(DATA_DIR / "shopee_reviews.csv")
+    df_transactions = pd.read_csv(DATA_DIR / "shopee_transactions.csv")
+except Exception as exc:
+    raise RuntimeError("Không thể nạp dữ liệu hoặc artifact; chạy model_training.py để dựng lại.") from exc
 
 
-# =============================================================================
-# WEB PAGE ROUTES
-# =============================================================================
+def _native(value: Any) -> Any:
+    if value is None or (isinstance(value, float) and math.isnan(value)):
+        return None
+    return value.item() if isinstance(value, np.generic) else value
+
+
+def _product_payload(row: pd.Series) -> dict[str, Any]:
+    return {field: _native(row[field]) for field in PRODUCT_PAYLOAD_FIELDS}
+
+
+def _parse_shopee_identity(reference: str) -> tuple[str, str] | None:
+    match = re.search(r"(?:i\.|/product/)(\d+)[./](\d+)", reference, flags=re.IGNORECASE)
+    if not match:
+        match = re.fullmatch(r"MY_(\d+)_(\d+)", reference.strip(), flags=re.IGNORECASE)
+    return (match.group(1), match.group(2)) if match else None
+
+
+def _find_product(reference: str) -> pd.Series | None:
+    reference = str(reference or "").strip()
+    if not reference:
+        return None
+    direct = df_products[df_products["product_id"].str.casefold().eq(reference.casefold())]
+    if not direct.empty:
+        return direct.iloc[0]
+    if reference.isdigit():
+        item = df_products[pd.to_numeric(df_products["source_item_id"], errors="coerce").eq(int(reference))]
+        if not item.empty:
+            return item.iloc[0]
+    identity = _parse_shopee_identity(reference)
+    if identity:
+        shop_id, item_id = map(int, identity)
+        matches = df_products[
+            pd.to_numeric(df_products["source_shop_id"], errors="coerce").eq(shop_id)
+            & pd.to_numeric(df_products["source_item_id"], errors="coerce").eq(item_id)
+        ]
+        if not matches.empty:
+            return matches.iloc[0]
+    exact_url = df_products[df_products["product_url"].str.rstrip("/").eq(reference.rstrip("/"))]
+    return None if exact_url.empty else exact_url.iloc[0]
+
+
+def _number_field(
+    data: dict[str, Any],
+    name: str,
+    default: float,
+    minimum: float,
+    maximum: float,
+    *,
+    integer: bool = False,
+) -> float | int:
+    value = data.get(name, default)
+    if value is None or value == "":
+        value = default
+    if isinstance(value, bool):
+        raise ValueError(f"'{name}' phải là số")
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"'{name}' phải là số") from exc
+    if not math.isfinite(parsed) or not minimum <= parsed <= maximum:
+        raise ValueError(f"'{name}' phải nằm trong [{minimum}, {maximum}]")
+    if integer and not parsed.is_integer():
+        raise ValueError(f"'{name}' phải là số nguyên")
+    return int(parsed) if integer else parsed
+
+
+def _category_field(data: dict[str, Any], name: str, default: str, encoder_name: str) -> str:
+    value = str(data.get(name, default) or default).strip()
+    if value not in feature_encoders[encoder_name]:
+        raise ValueError(f"'{name}' không tồn tại trong tập huấn luyện")
+    return value
+
+
+def _sales_feature_impacts(limit: int = 6) -> list[dict[str, Any]]:
+    importances = getattr(sales_regressor, "feature_importances_", None)
+    feature_names = feature_encoders.get("feature_cols", [])
+    if importances is None or len(importances) != len(feature_names):
+        return []
+    ranked = sorted(zip(feature_names, importances), key=lambda item: float(item[1]), reverse=True)[:limit]
+    maximum = max((float(value) for _, value in ranked), default=1.0)
+    return [
+        {
+            "name": FEATURE_LABELS.get(feature, feature),
+            "score": round(float(value) / maximum * 100, 1) if maximum else 0.0,
+            "importance_percent": round(float(value) * 100, 2),
+            "impact": "Trọng số toàn cục của mô hình; không phải tác động nhân quả.",
+        }
+        for feature, value in ranked
+    ]
+
+
+def _listing_quality_alerts(limit: int = 8) -> list[dict[str, Any]]:
+    price_p99 = float(df_products["price"].quantile(0.99))
+    candidates = []
+    for _, row in df_products.iterrows():
+        issues: list[str] = []
+        score = 0
+        if pd.isna(row["rating_star"]):
+            issues.append("Thiếu điểm đánh giá")
+            score += 2
+        elif float(row["rating_star"]) <= 3 and int(row["rating_count"]) >= 5:
+            issues.append("Điểm đánh giá thấp")
+            score += 3
+        if float(row["price"]) > price_p99:
+            issues.append("Giá nằm trên phân vị 99%")
+            score += 2
+        if not str(row.get("description", "") or "").strip():
+            issues.append("Thiếu mô tả")
+            score += 1
+        if pd.isna(row["shop_location"]) or not str(row["shop_location"]).strip():
+            issues.append("Thiếu vị trí shop")
+            score += 1
+        if issues:
+            candidates.append((score, row, issues))
+    candidates.sort(key=lambda item: (item[0], float(item[1]["historical_sold"])), reverse=True)
+    alerts = []
+    for score, row, issues in candidates[:limit]:
+        alerts.append(
+            {
+                "product_id": row["product_id"],
+                "product_name": row["product_name"],
+                "quality_level": "Cần kiểm tra" if score >= 3 else "Thiếu dữ liệu",
+                "issues": issues,
+                "price": round(float(row["price"]), 2),
+                "rating_star": _native(row["rating_star"]),
+                "rating_count": int(row["rating_count"]),
+                "recommended_action": "Đối chiếu lại bản ghi sản phẩm gốc trước khi dùng cho phân tích.",
+            }
+        )
+    return alerts
+
 
 @app.route("/")
 def index():
-    """Trang chủ ứng dụng Dashboard & Khai thác dữ liệu tương tác."""
     return render_template("index.html")
 
+
 @app.route("/report")
+def report():
+    return render_template(
+        "report.html",
+        dataset_summary={
+            "products": int(len(df_products)),
+            "reviews": int(len(df_reviews)),
+            "labeled_reviews": int(df_reviews["sentiment_label"].notna().sum()),
+            "transactions": int(len(df_transactions)),
+            "completed_transactions": int(df_transactions["order_status"].eq("Hoàn thành").sum()),
+            "velocity_products": int(df_products["daily_sold_rate"].notna().sum()),
+            "unique_comments": int(df_reviews["cleaned_comment"].nunique()),
+        },
+        benchmarks=model_benchmarks,
+        provenance=provenance,
+    )
+
+
 @app.route("/theory")
-def redirect_to_home():
-    """Chuyển hướng toàn bộ các trang lý thuyết cũ về trang công cụ chính."""
-    return redirect("/")
+def theory():
+    return render_template("theory.html")
 
-
-# =============================================================================
-# REST API ENDPOINTS
-# =============================================================================
 
 @app.route("/api/overview_stats", methods=["GET"])
 def api_overview_stats():
-    """Lấy số liệu thống kê toàn sàn Shopee & phân bố truyền thông xã hội."""
     try:
-        total_products = len(df_products)
-        total_reviews = len(df_reviews)
-        avg_price = int(df_products["price"].mean())
-        total_monthly_sales = int(df_products["monthly_sold"].sum())
-        est_monthly_revenue = int((df_products["price"] * df_products["monthly_sold"]).sum())
-        avg_rating = round(float(df_products["rating_star"].mean()), 2)
-        
-        # Phân bố Cảm xúc Review
         sentiment_counts = df_reviews["sentiment_label"].value_counts().to_dict()
         sentiment_dist = {
             "pos": int(sentiment_counts.get("Tích cực", 0)),
             "neu": int(sentiment_counts.get("Trung lập", 0)),
-            "neg": int(sentiment_counts.get("Tiêu cực", 0))
+            "neg": int(sentiment_counts.get("Tiêu cực", 0)),
+            "unlabeled": int(df_reviews["sentiment_label"].isna().sum()),
         }
-        
-        # Phân bố Doanh số theo Ngành Hàng
-        cat_sales = df_products.groupby("category")["monthly_sold"].sum().reset_index()
-        cat_labels = cat_sales["category"].tolist()
-        cat_values = cat_sales["monthly_sold"].tolist()
-        
-        # Phân bố Điểm Đánh Giá Rating (1 - 5 sao)
-        rating_round = df_products["rating_star"].round().astype(int)
-        rating_dist = rating_round.value_counts().sort_index().to_dict()
-        rating_labels = [f"{k} Sao" for k in range(1, 6)]
-        rating_values = [int(rating_dist.get(k, 0)) for k in range(1, 6)]
-        
-        # Phân bố Rủi ro vận hành
-        risk_counts = df_products["risk_level"].value_counts().to_dict()
-        risk_dist = {
-            "low": int(risk_counts.get("Thấp", 0)),
-            "medium": int(risk_counts.get("Trung Bình", 0)),
-            "high": int(risk_counts.get("Cao", 0))
+        category_sales = (
+            df_products.groupby("category", as_index=False)["historical_sold"]
+            .sum()
+            .sort_values("historical_sold", ascending=False)
+        )
+        rating_values = pd.to_numeric(df_products["rating_star"], errors="coerce").dropna().round().astype(int)
+        rating_counts = rating_values.value_counts().to_dict()
+        quality_dist = {
+            "with_velocity": int(df_products["daily_sold_rate"].notna().sum()),
+            "without_velocity": int(df_products["daily_sold_rate"].isna().sum()),
+            "missing_rating": int(df_products["rating_star"].isna().sum()),
+            "missing_location": int(df_products["shop_location"].isna().sum()),
         }
-        
-        # Top 5 Sản phẩm Bán Chạy Nhất
-        top_products = df_products.sort_values(by="monthly_sold", ascending=False).head(5)[
-            ["product_id", "product_name", "category", "price", "monthly_sold", "rating_star", "growth_potential"]
-        ].to_dict(orient="records")
-        
-        return jsonify({
-            "status": "success",
-            "kpis": {
-                "total_products": total_products,
-                "total_reviews": total_reviews,
-                "avg_price": f"{avg_price:,.0f} đ",
-                "total_monthly_sales": f"{total_monthly_sales:,.0f} SP/tháng",
-                "est_monthly_revenue": f"{est_monthly_revenue:,.0f} đ",
-                "avg_rating": avg_rating
-            },
-            "sentiment_dist": sentiment_dist,
-            "category_sales": {"labels": cat_labels, "values": cat_values},
-            "rating_dist": {"labels": rating_labels, "values": rating_values},
-            "risk_dist": risk_dist,
-            "top_products": top_products
-        })
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        top_products = (
+            df_products.sort_values("historical_sold", ascending=False)
+            .head(5)[
+                [
+                    "product_id",
+                    "product_url",
+                    "product_name",
+                    "category",
+                    "currency",
+                    "price",
+                    "historical_sold",
+                    "rating_star",
+                    "daily_sold_rate",
+                ]
+            ]
+            .replace({np.nan: None})
+            .to_dict(orient="records")
+        )
+        return jsonify(
+            {
+                "status": "success",
+                "kpis": {
+                    "total_products": int(len(df_products)),
+                    "total_reviews": int(len(df_reviews)),
+                    "median_price": f"RM {df_products['price'].median():,.2f}",
+                    "historical_sold": f"{int(df_products['historical_sold'].sum()):,} SP",
+                    "velocity_coverage": f"{quality_dist['with_velocity']:,} SP",
+                    "avg_rating": round(float(df_products["rating_star"].mean()), 2),
+                },
+                "sentiment_dist": sentiment_dist,
+                "category_sales": {
+                    "labels": category_sales["category"].tolist(),
+                    "values": [int(value) for value in category_sales["historical_sold"]],
+                },
+                "rating_dist": {
+                    "labels": [f"{star} Sao" for star in range(1, 6)],
+                    "values": [int(rating_counts.get(star, 0)) for star in range(1, 6)],
+                },
+                "quality_dist": quality_dist,
+                "listing_alerts": _listing_quality_alerts(),
+                "top_products": top_products,
+                "currency": "MYR",
+                "snapshot_period": "2023-04-24 đến 2023-05-13",
+            }
+        )
+    except Exception as exc:
+        app.logger.exception("Lỗi tổng hợp trang tổng quan")
+        return jsonify({"status": "error", "message": str(exc)}), 500
+
+
+@app.route("/api/product_lookup", methods=["GET"])
+def api_product_lookup():
+    reference = request.args.get("reference", "").strip()
+    if not reference:
+        return jsonify({"status": "error", "message": "Thiếu mã item, product_id hoặc URL Shopee"}), 400
+    row = _find_product(reference)
+    if row is None:
+        return jsonify({"status": "error", "message": "Không tìm thấy sản phẩm trong dữ liệu công khai"}), 404
+    return jsonify({"status": "success", "product": _product_payload(row)})
 
 
 @app.route("/api/predict_product", methods=["POST"])
 def api_predict_product():
-    """
-    Dự đoán tiềm năng tăng trưởng, doanh số tháng kỳ vọng và mức độ rủi ro hoàn hàng
-    từ các thông số sản phẩm hoặc Link Shopee.
-    """
+    """Ước lượng nhịp bán từ biến quan sát; không dự báo tăng trưởng hay rủi ro."""
     try:
-        data = request.json or {}
-        
-        # Lấy các giá trị đầu vào
-        cat_name = data.get("category", "Thời Trang Nam/Nữ")
-        shop_type = data.get("shop_type", "Shop Yêu Thích")
-        location = data.get("shop_location", "TP. Hồ Chí Minh")
-        price = float(data.get("price", 199000))
-        discount_rate = float(data.get("discount_rate", 20))
-        is_megasale = int(data.get("is_megasale", 1))
-        shipping_fee = float(data.get("shipping_fee", 22000))
-        view_count = int(data.get("view_count", 12500))
-        favorite_count = int(data.get("favorite_count", 850))
-        historical_sold = int(data.get("historical_sold", 1200))
-        rating_star = float(data.get("rating_star", 4.7))
-        rating_count = int(data.get("rating_count", 450))
-        shop_rating = float(data.get("shop_rating", 4.8))
-        chat_response_rate = float(data.get("chat_response_rate", 95))
-        ship_on_time_rate = float(data.get("ship_on_time_rate", 96))
-        avg_delivery_days = float(data.get("avg_delivery_days", 2.5))
-        
-        # Mã hóa biến phân loại theo encoders đã lưu
-        cat_code = feature_encoders["category"].get(cat_name, 0)
-        shop_type_code = feature_encoders["shop_type"].get(shop_type, 0)
-        location_code = feature_encoders["shop_location"].get(location, 0)
-        
-        features_vec = np.array([[
-            cat_code, shop_type_code, location_code,
-            price, discount_rate, is_megasale, shipping_fee,
-            view_count, favorite_count, historical_sold,
-            rating_star, rating_count, shop_rating,
-            chat_response_rate, ship_on_time_rate, avg_delivery_days
-        ]])
-        
-        # 1. Dự đoán Tiềm Năng Tăng Trưởng (Classification)
-        growth_pred = growth_classifier.predict(features_vec)[0]
-        if hasattr(growth_classifier, "predict_proba"):
-            growth_probs = growth_classifier.predict_proba(features_vec)[0]
-            max_prob = max(growth_probs)
-            confidence = round(float(max_prob * 100), 1)
+        data = request.get_json(silent=True) or {}
+        if not isinstance(data, dict):
+            raise ValueError("Nội dung JSON phải là một đối tượng")
+
+        defaults = feature_encoders["numeric_medians"]
+        default_category = next(iter(feature_encoders["category"]))
+        default_location = "Không rõ" if "Không rõ" in feature_encoders["shop_location"] else next(iter(feature_encoders["shop_location"]))
+        category = _category_field(data, "category", default_category, "category")
+        location = _category_field(data, "shop_location", default_location, "shop_location")
+        values = {
+            "category_code": feature_encoders["category"][category],
+            "location_code": feature_encoders["shop_location"][location],
+            "price": _number_field(data, "price", defaults["price"], 0.01, 1_000_000_000),
+            "discount_rate": _number_field(data, "discount_rate", defaults["discount_rate"], 0, 100),
+            "rating_star": _number_field(data, "rating_star", defaults["rating_star"], 1, 5),
+            "rating_count": _number_field(data, "rating_count", defaults["rating_count"], 0, 1_000_000_000, integer=True),
+            "historical_sold": _number_field(data, "historical_sold", defaults["historical_sold"], 0, 1_000_000_000, integer=True),
+            "favorite_count": _number_field(data, "favorite_count", defaults["favorite_count"], 0, 1_000_000_000, integer=True),
+            "snapshot_count": _number_field(data, "snapshot_count", defaults["snapshot_count"], 1, 10_000, integer=True),
+        }
+        vector = np.array([[values[name] for name in feature_encoders["feature_cols"]]], dtype=float)
+        daily_rate = max(0.0, float(np.expm1(sales_regressor.predict(vector)[0])))
+        rate_30d = daily_rate * 30
+        price = float(values["price"])
+        thresholds = feature_encoders["performance_band_thresholds"]
+        if daily_rate <= thresholds["low_max_daily_rate"]:
+            band = "Nhịp bán thấp trong mẫu quan sát"
+        elif daily_rate <= thresholds["medium_max_daily_rate"]:
+            band = "Nhịp bán trung bình trong mẫu quan sát"
         else:
-            confidence = 88.5
-            
-        # 2. Dự đoán Doanh Số Tháng Tới (Regression)
-        sales_pred = int(max(0, sales_regressor.predict(features_vec)[0]))
-        est_revenue = int(sales_pred * price * (1 - discount_rate / 100))
-        
-        # 3. Dự đoán Mức Độ Rủi Ro Vận Hành & Hoàn Hàng
-        risk_pred = risk_classifier.predict(features_vec)[0]
-        
-        # Tính toán Feature Importance tác động riêng đến kết quả này
-        importances = [
-            {"name": "Lượt Xem & Tìm Kiếm", "score": min(100, int(view_count / 300)), "impact": "Tích cực" if view_count > 8000 else "Trung bình"},
-            {"name": "Điểm Đánh Giá Rating", "score": int(rating_star / 5.0 * 100), "impact": "Rất tích cực" if rating_star >= 4.5 else "Rủi ro"},
-            {"name": "Chương Trình Mega Sale & Giảm Giá", "score": int(discount_rate * 2), "impact": "Kích cầu mạnh" if is_megasale else "Bình thường"},
-            {"name": "Tốc Độ Giao Hàng Chuỗi Cung Ứng", "score": int(ship_on_time_rate), "impact": "Tối ưu tốt" if ship_on_time_rate >= 95 else "Cần cải thiện"}
-        ]
-        
-        # Gợi ý chiến lược
-        recommendations = []
-        if growth_pred == "Tiềm Năng Cao":
-            recommendations.append("🚀 Tăng ngân sách Shopee Ads vào khung giờ vàng (12h trưa & 20h tối) để chiếm trọn thị phần.")
-            recommendations.append("📦 Đăng ký tham gia Flash Sale và Deal 1K/9K để kéo thêm traffic cho toàn gian hàng.")
-        elif growth_pred == "Trung Bình":
-            recommendations.append("💡 Cải thiện hình ảnh sản phẩm chuẩn SEO Shopee và tối ưu mô tả chứa từ khóa hot trend.")
-            recommendations.append("🎁 Thiết lập mã giảm giá Follower (Voucher theo dõi shop) để chuyển đổi lượt xem thành đơn hàng.")
-        else:
-            recommendations.append("⚠️ Rà soát lại chất lượng sản phẩm và kiểm tra lý do nhận đánh giá 1-2 sao gần đây.")
-            recommendations.append("🚚 Cải thiện thời gian đóng gói và liên hệ đơn vị vận chuyển để giảm tỷ lệ giao trễ.")
-            
-        return jsonify({
-            "status": "success",
-            "prediction": {
-                "growth_potential": str(growth_pred),
-                "confidence_percent": confidence,
-                "predicted_monthly_sold": f"{sales_pred:,.0f} sản phẩm",
-                "estimated_monthly_revenue": f"{est_revenue:,.0f} đ",
-                "risk_level": str(risk_pred),
-                "risk_badge": "danger" if risk_pred == "Cao" else ("warning" if risk_pred == "Trung Bình" else "success"),
-                "feature_impacts": importances,
-                "recommendations": recommendations
+            band = "Nhịp bán cao trong mẫu quan sát"
+        return jsonify(
+            {
+                "status": "success",
+                "prediction": {
+                    "performance_band": band,
+                    "estimated_daily_sold_rate": round(daily_rate, 4),
+                    "estimated_30d_sales_pace": round(rate_30d, 2),
+                    "estimated_30d_gross_value_myr": round(rate_30d * price, 2),
+                    "currency": "MYR",
+                    "feature_impacts": _sales_feature_impacts(),
+                    "sales_model": feature_encoders["selected_sales_model"],
+                    "training_rows": feature_encoders["observed_target_rows"],
+                    "method_note": "Ước lượng từ mức tăng tổng lượt bán giữa các lần ghi nhận; không phải dự báo nhân quả hoặc cam kết doanh số tương lai.",
+                    "input_reference": str(data.get("product_url") or data.get("product_id") or "").strip(),
+                },
             }
-        })
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        )
+    except ValueError as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 400
+    except Exception:
+        app.logger.exception("Lỗi ước lượng nhịp bán")
+        return jsonify({"status": "error", "message": "Không thể thực hiện ước lượng"}), 500
 
 
 @app.route("/api/analyze_sentiment", methods=["POST"])
 def api_analyze_sentiment():
-    """
-    Phân tích cảm xúc văn bản đánh giá / bình luận Shopee & MXH (TikTok, Facebook):
-    - Làm sạch teencode, tách từ.
-    - Dự đoán nhãn (Tích cực / Trung lập / Tiêu cực) bằng Naive Bayes + Lexicon.
-    - Tính điểm Polarity Score (-1.0 đến +1.0).
-    - Trích xuất từ khóa tích cực và tiêu cực.
-    """
     try:
-        data = request.json or {}
+        data = request.get_json(silent=True) or {}
+        if not isinstance(data, dict) or not isinstance(data.get("text", ""), str):
+            return jsonify({"status": "error", "message": "'text' phải là chuỗi"}), 400
         raw_text = data.get("text", "").strip()
-        
         if not raw_text:
-            return jsonify({"status": "error", "message": "Vui lòng nhập nội dung đánh giá cần phân tích"}), 400
-            
-        # Tiền xử lý văn bản
-        cleaned_text = clean_vietnamese_text(raw_text)
-        
-        # Dự đoán bằng Mô hình Máy học (TF-IDF + Naive Bayes / RF)
-        text_vec = tfidf_vectorizer.transform([cleaned_text])
-        ml_pred_label = sentiment_model.predict(text_vec)[0]
-        
-        ml_probs = sentiment_model.predict_proba(text_vec)[0]
-        classes = list(sentiment_model.classes_)
-        prob_dict = {cls: round(float(prob * 100), 1) for cls, prob in zip(classes, ml_probs)}
-        
-        # Kết hợp Lexicon Score
-        lex_score, lex_label, pos_words, neg_words = calculate_lexicon_sentiment_score(raw_text)
-        
-        # Nhận diện khía cạnh (Aspects: Vận chuyển, Chất lượng, Phục vụ, Giá)
+            return jsonify({"status": "error", "message": "Vui lòng nhập nội dung đánh giá"}), 400
+        if len(raw_text) > 5_000:
+            return jsonify({"status": "error", "message": "Nội dung tối đa 5.000 ký tự"}), 400
+        cleaned = clean_vietnamese_text(raw_text)
+        vector = tfidf_vectorizer.transform([cleaned])
+        prediction = str(sentiment_model.predict(vector)[0])
+        probabilities = sentiment_model.predict_proba(vector)[0]
+        probability_map = {
+            str(label): round(float(probability * 100), 1)
+            for label, probability in zip(sentiment_model.classes_, probabilities)
+        }
+        lexicon_score, lexicon_label, positive, negative = calculate_lexicon_sentiment_score(raw_text)
+
         aspects = []
-        lower_raw = raw_text.lower()
-        if any(w in lower_raw for w in ["ship", "giao hàng", "shipper", "nhanh", "chậm", "hỏa tốc"]):
-            aspects.append("Vận chuyển & Giao hàng")
-        if any(w in lower_raw for w in ["đóng gói", "bọc", "hộp", "móp", "vỡ"]):
-            aspects.append("Đóng gói bao bì")
-        if any(w in lower_raw for w in ["chất lượng", "vải", "dùng", "xịn", "dỏm", "fake", "auth", "hỏng"]):
-            aspects.append("Chất lượng sản phẩm")
-        if any(w in lower_raw for w in ["shop", "tư vấn", "rep", "inbox", "nhiệt tình", "thái độ"]):
-            aspects.append("Dịch vụ & Chăm sóc KH")
-        if any(w in lower_raw for w in ["giá", "rẻ", "đắt", "tiền", "sale", "voucher", "hạt dẻ"]):
-            aspects.append("Giá cả & Khuyến mãi")
-            
-        if not aspects:
-            aspects.append("Trải nghiệm chung")
-            
-        return jsonify({
-            "status": "success",
-            "raw_text": raw_text,
-            "cleaned_text": cleaned_text,
-            "sentiment_label": ml_pred_label,
-            "confidence_percent": prob_dict.get(ml_pred_label, 90.0),
-            "sentiment_score": lex_score,
-            "probabilities": prob_dict,
-            "positive_keywords": pos_words,
-            "negative_keywords": neg_words,
-            "aspects": aspects
-        })
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        for name, model in aspect_models.items():
+            code = int(model.predict(vector)[0])
+            aspect_probability = model.predict_proba(vector)[0]
+            class_index = list(model.classes_).index(code)
+            aspects.append(
+                {
+                    "key": name,
+                    "name": ASPECT_DISPLAY_NAMES.get(name, name),
+                    "code": code,
+                    "label": ASPECT_LABEL_NAMES[str(code)],
+                    "confidence_percent": round(float(aspect_probability[class_index] * 100), 1),
+                }
+            )
+        return jsonify(
+            {
+                "status": "success",
+                "raw_text": raw_text,
+                "cleaned_text": cleaned,
+                "sentiment_label": prediction,
+                "confidence_percent": probability_map[prediction],
+                "probabilities": probability_map,
+                "lexicon_score": lexicon_score,
+                "lexicon_label": lexicon_label,
+                "positive_keywords": positive,
+                "negative_keywords": negative,
+                "aspects": aspects,
+                "aspect_method": "Tám mô hình Logistic Regression (hồi quy logistic) được huấn luyện từ nhãn ABSA do con người gán.",
+            }
+        )
+    except Exception:
+        app.logger.exception("Lỗi phân tích cảm xúc")
+        return jsonify({"status": "error", "message": "Không thể phân tích nội dung"}), 500
 
 
 @app.route("/api/wordcloud", methods=["GET"])
 def api_wordcloud():
-    """Tạo ảnh Word Cloud hoặc danh sách từ khóa tần suất cao nhất."""
-    try:
-        sentiment_filter = request.args.get("sentiment", "all")
-        if sentiment_filter == "pos":
-            subset = df_reviews[df_reviews["sentiment_label"] == "Tích cực"]
-        elif sentiment_filter == "neg":
-            subset = df_reviews[df_reviews["sentiment_label"] == "Tiêu cực"]
-        else:
-            subset = df_reviews
-            
-        text_corpus = " ".join(subset["cleaned_comment"].dropna().values)
-        
-        # Đếm tần suất từ (loại bỏ stopwords)
-        words = text_corpus.split()
-        word_counts = {}
-        for w in words:
-            if len(w) > 1 and w not in VIETNAMESE_STOPWORDS and not w.isdigit():
-                word_counts[w] = word_counts.get(w, 0) + 1
-                
-        top_words = sorted(word_counts.items(), key=lambda x: x[1], reverse=True)[:50]
-        top_words_list = [{"text": k, "weight": v} for k, v in top_words]
-        
-        return jsonify({
-            "status": "success",
-            "words": top_words_list
-        })
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    sentiment_filter = request.args.get("sentiment", "all")
+    if sentiment_filter == "pos":
+        subset = df_reviews[df_reviews["sentiment_label"].eq("Tích cực")]
+    elif sentiment_filter == "neg":
+        subset = df_reviews[df_reviews["sentiment_label"].eq("Tiêu cực")]
+    else:
+        subset = df_reviews
+    counts: dict[str, int] = {}
+    for word in " ".join(subset["cleaned_comment"].dropna().astype(str)).split():
+        if len(word) > 1 and word not in VIETNAMESE_STOPWORDS and not word.isdigit():
+            counts[word] = counts.get(word, 0) + 1
+    words = [
+        {"text": word, "weight": weight}
+        for word, weight in sorted(counts.items(), key=lambda item: item[1], reverse=True)[:50]
+    ]
+    return jsonify({"status": "success", "words": words})
 
 
 @app.route("/api/model_benchmarks", methods=["GET"])
 def api_model_benchmarks():
-    """Trả về toàn bộ số liệu so sánh mô hình học máy (Confusion Matrix, ROC, F1)."""
-    return jsonify({
-        "status": "success",
-        "benchmarks": model_benchmarks
-    })
+    return jsonify({"status": "success", "benchmarks": model_benchmarks})
 
 
 @app.route("/api/clustering", methods=["GET"])
 def api_clustering():
-    """Trả về dữ liệu gom cụm K-Means 2D PCA."""
-    return jsonify({
-        "status": "success",
-        "clustering": clustering_data
-    })
+    return jsonify({"status": "success", "clustering": clustering_data})
 
 
 @app.route("/api/market_basket", methods=["GET"])
 def api_market_basket():
-    """Trả về danh sách các luật kết hợp Apriori giỏ hàng."""
-    return jsonify({
-        "status": "success",
-        "rules": market_basket_rules
-    })
+    return jsonify({"status": "success", "rules": market_basket_rules})
 
 
 @app.route("/api/sample_products", methods=["GET"])
 def api_sample_products():
-    """Trả về danh sách 10 sản phẩm mẫu đa dạng để người dùng thử nghiệm nhanh."""
-    samples = df_products.sample(min(12, len(df_products)), random_state=123)[
-        ["product_id", "product_name", "category", "shop_type", "shop_location",
-         "price", "discount_rate", "is_megasale", "shipping_fee", "view_count",
-         "favorite_count", "historical_sold", "monthly_sold", "rating_star",
-         "rating_count", "shop_rating", "chat_response_rate", "ship_on_time_rate",
-         "avg_delivery_days", "growth_potential", "risk_level"]
-    ].to_dict(orient="records")
-    return jsonify({"status": "success", "samples": samples})
+    sample = df_products.sample(min(12, len(df_products)), random_state=123)
+    return jsonify({"status": "success", "samples": [_product_payload(row) for _, row in sample.iterrows()]})
 
 
 @app.route("/api/sample_comments", methods=["GET"])
 def api_sample_comments():
-    """Trả về danh sách các bình luận mẫu teencode tiếng Việt để người dùng test."""
-    samples = [
-        {"type": "Tích cực", "text": "sp dùng ok lắm shop ơi, ship nhanh đóng gói cẩn thận 5 sao ❤️💯"},
-        {"type": "Tích cực", "text": "hàng chuẩn auth xịn sò nha mn, săn sale đc giá hạt dẻ thích mê"},
-        {"type": "Tiêu cực", "text": "shop lừa đảo, hàng fake kém chất lượng, nhắn tin khiếu nại thì bị block ko rep 😡👎"},
-        {"type": "Tiêu cực", "text": "giao hàng siêu chậm mất 9 ngày, hộp móp méo đồ bên trong bị nứt vỡ thất vọng"},
-        {"type": "Trung lập", "text": "hàng nhận đc bình thường, tiền nào của nấy, shop giao đúng số lượng"},
-        {"type": "Phức tạp / Teencode", "text": "sp nhìn cx đẹpp nhưng ship hơi lâu xíu, rep ib nhiệt tình nhưng bọc hàng hơi ẩu nha"}
-    ]
+    samples = []
+    labeled = df_reviews[df_reviews["sentiment_label"].notna()]
+    for label in ("Tích cực", "Trung lập", "Tiêu cực"):
+        subset = labeled[labeled["sentiment_label"].eq(label)]
+        for _, row in subset.sample(min(2, len(subset)), random_state=123).iterrows():
+            samples.append({"type": label, "text": row["raw_comment"], "review_id": row["review_id"]})
     return jsonify({"status": "success", "samples": samples})
 
 
-# =============================================================================
-# KHỞI CHẠY MÁY CHỦ WEB
-# =============================================================================
-
-def open_browser():
-    """Tự động mở trình duyệt web sau khi Flask server khởi động."""
+def open_browser() -> None:
     try:
         webbrowser.open_new("http://127.0.0.1:5000")
     except Exception:
         pass
 
+
 if __name__ == "__main__":
-    port = 5000
-    print(f"\n=============================================================================")
-    print(f"🚀 KHỞI ĐỘNG HỆ THỐNG KHAI THÁC DỮ LIỆU & TRUYỀN THÔNG E-COMMERCE SHOPEE")
-    print(f"🌐 ĐỊA CHỈ TRUY CẬP: http://127.0.0.1:{port}")
-    print(f"=============================================================================\n")
-    
-    # Mở browser sau 1.5 giây
+    port = int(os.environ.get("SHOPEE_PORT", "5000"))
+    print(f"Shopee Analytics Lab: http://127.0.0.1:{port}")
     threading.Timer(1.5, open_browser).start()
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host=os.environ.get("SHOPEE_HOST", "127.0.0.1"), port=port, debug=False)

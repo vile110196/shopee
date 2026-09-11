@@ -1,488 +1,77 @@
 [
   {
-    "antecedent": "Cáp Sạc Nhanh Type-C",
-    "consequent": "Ốp Lưng Chống Sốc",
-    "rule_text": "Nếu mua 'Cáp Sạc Nhanh Type-C' => Có xu hướng mua 'Ốp Lưng Chống Sốc'",
-    "support": 5.93,
-    "confidence": 50.86,
-    "lift": 4.68,
-    "insight": "Khách hàng mua Cáp Sạc Nhanh Type-C có khả năng mua thêm Ốp Lưng Chống Sốc gấp 4.7 lần so với ngẫu nhiên."
+    "antecedent": "Pempek Tenggiri Super Premium Murah  AlKindi 10 pcs Palembang Asli SIZE MEDIUM Lenjer, Kulit & Telur",
+    "consequent": "Pempek Tenggiri Super Premium Murah  AlKindi 20 pcs Palembang Asli SIZE MINI Lenjer, Kulit, & Telur",
+    "rule_text": "Nếu có 'Pempek Tenggiri Super Premium Murah  AlKindi 10 pcs Palembang Asli SIZE MEDIUM Lenjer, Kulit & Telur' → thường kèm 'Pempek Tenggiri Super Premium Murah  AlKindi 20 pcs Palembang Asli SIZE MINI Lenjer, Kulit, & Telur'",
+    "support": 1.53,
+    "confidence": 40.0,
+    "lift": 4.971,
+    "cooccurrence_orders": 4,
+    "antecedent_orders": 10,
+    "consequent_orders": 21,
+    "completed_order_count": 261,
+    "association_level": "Liên hệ mạnh",
+    "actionable": true,
+    "insight": "4/10 đơn có sản phẩm A cũng có B; cặp này xuất hiện trong 4/261 đơn hoàn thành."
   },
   {
-    "antecedent": "Ốp Lưng Chống Sốc",
-    "consequent": "Cáp Sạc Nhanh Type-C",
-    "rule_text": "Nếu mua 'Ốp Lưng Chống Sốc' => Có xu hướng mua 'Cáp Sạc Nhanh Type-C'",
-    "support": 5.93,
-    "confidence": 54.6,
-    "lift": 4.68,
-    "insight": "Khách hàng mua Ốp Lưng Chống Sốc có khả năng mua thêm Cáp Sạc Nhanh Type-C gấp 4.7 lần so với ngẫu nhiên."
+    "antecedent": "Pempek Tenggiri Super Premium Murah  AlKindi 20 pcs Palembang Asli SIZE MINI Lenjer, Kulit, & Telur",
+    "consequent": "Pempek Tenggiri Super Premium Murah  AlKindi 10 pcs Palembang Asli SIZE MEDIUM Lenjer, Kulit & Telur",
+    "rule_text": "Nếu có 'Pempek Tenggiri Super Premium Murah  AlKindi 20 pcs Palembang Asli SIZE MINI Lenjer, Kulit, & Telur' → thường kèm 'Pempek Tenggiri Super Premium Murah  AlKindi 10 pcs Palembang Asli SIZE MEDIUM Lenjer, Kulit & Telur'",
+    "support": 1.53,
+    "confidence": 19.05,
+    "lift": 4.971,
+    "cooccurrence_orders": 4,
+    "antecedent_orders": 21,
+    "consequent_orders": 10,
+    "completed_order_count": 261,
+    "association_level": "Liên hệ mạnh",
+    "actionable": true,
+    "insight": "4/21 đơn có sản phẩm A cũng có B; cặp này xuất hiện trong 4/261 đơn hoàn thành."
   },
   {
-    "antecedent": "Cáp Sạc Nhanh Type-C",
-    "consequent": "Kính Cường Lực Full Màn",
-    "rule_text": "Nếu mua 'Cáp Sạc Nhanh Type-C' => Có xu hướng mua 'Kính Cường Lực Full Màn'",
-    "support": 6.47,
-    "confidence": 55.43,
-    "lift": 4.67,
-    "insight": "Khách hàng mua Cáp Sạc Nhanh Type-C có khả năng mua thêm Kính Cường Lực Full Màn gấp 4.7 lần so với ngẫu nhiên."
+    "antecedent": "Sterofoam Extra",
+    "consequent": "Pempek Palembang Asli Super Murah AlKindi 40 pcs Palembang Asli SIZE MINI Lenjer, Kulit, & Telur",
+    "rule_text": "Nếu có 'Sterofoam Extra' → thường kèm 'Pempek Palembang Asli Super Murah AlKindi 40 pcs Palembang Asli SIZE MINI Lenjer, Kulit, & Telur'",
+    "support": 1.53,
+    "confidence": 100.0,
+    "lift": 2.231,
+    "cooccurrence_orders": 4,
+    "antecedent_orders": 4,
+    "consequent_orders": 117,
+    "completed_order_count": 261,
+    "association_level": "Liên hệ mạnh",
+    "actionable": true,
+    "insight": "4/4 đơn có sản phẩm A cũng có B; cặp này xuất hiện trong 4/261 đơn hoàn thành."
   },
   {
-    "antecedent": "Kính Cường Lực Full Màn",
-    "consequent": "Cáp Sạc Nhanh Type-C",
-    "rule_text": "Nếu mua 'Kính Cường Lực Full Màn' => Có xu hướng mua 'Cáp Sạc Nhanh Type-C'",
-    "support": 6.47,
-    "confidence": 54.49,
-    "lift": 4.67,
-    "insight": "Khách hàng mua Kính Cường Lực Full Màn có khả năng mua thêm Cáp Sạc Nhanh Type-C gấp 4.7 lần so với ngẫu nhiên."
+    "antecedent": "Pempek Palembang Asli Super Murah AlKindi 10 pcs Palembang Asli SIZE MEDIUM Lenjer, Kulit & Telur",
+    "consequent": "Pempek Palembang Asli Super Murah  AlKindi 20 pcs Palembang Asli SIZE MINI Lenjer, Kulit, & Telur",
+    "rule_text": "Nếu có 'Pempek Palembang Asli Super Murah AlKindi 10 pcs Palembang Asli SIZE MEDIUM Lenjer, Kulit & Telur' → thường kèm 'Pempek Palembang Asli Super Murah  AlKindi 20 pcs Palembang Asli SIZE MINI Lenjer, Kulit, & Telur'",
+    "support": 1.92,
+    "confidence": 20.83,
+    "lift": 0.8,
+    "cooccurrence_orders": 5,
+    "antecedent_orders": 24,
+    "consequent_orders": 68,
+    "completed_order_count": 261,
+    "association_level": "Không nên gợi ý mua cùng",
+    "actionable": false,
+    "insight": "5/24 đơn có sản phẩm A cũng có B; cặp này xuất hiện trong 5/261 đơn hoàn thành."
   },
   {
-    "antecedent": "Quần Jean Baggy",
-    "consequent": "Áo Thun Unisex Cotton",
-    "rule_text": "Nếu mua 'Quần Jean Baggy' => Có xu hướng mua 'Áo Thun Unisex Cotton'",
-    "support": 7.6,
-    "confidence": 60.0,
-    "lift": 4.62,
-    "insight": "Khách hàng mua Quần Jean Baggy có khả năng mua thêm Áo Thun Unisex Cotton gấp 4.6 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Áo Thun Unisex Cotton",
-    "consequent": "Quần Jean Baggy",
-    "rule_text": "Nếu mua 'Áo Thun Unisex Cotton' => Có xu hướng mua 'Quần Jean Baggy'",
-    "support": 7.6,
-    "confidence": 58.46,
-    "lift": 4.62,
-    "insight": "Khách hàng mua Áo Thun Unisex Cotton có khả năng mua thêm Quần Jean Baggy gấp 4.6 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Củ Sạc Nhanh 65W",
-    "consequent": "Ốp Lưng Chống Sốc",
-    "rule_text": "Nếu mua 'Củ Sạc Nhanh 65W' => Có xu hướng mua 'Ốp Lưng Chống Sốc'",
-    "support": 5.87,
-    "confidence": 49.44,
-    "lift": 4.55,
-    "insight": "Khách hàng mua Củ Sạc Nhanh 65W có khả năng mua thêm Ốp Lưng Chống Sốc gấp 4.5 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Ốp Lưng Chống Sốc",
-    "consequent": "Củ Sạc Nhanh 65W",
-    "rule_text": "Nếu mua 'Ốp Lưng Chống Sốc' => Có xu hướng mua 'Củ Sạc Nhanh 65W'",
-    "support": 5.87,
-    "confidence": 53.99,
-    "lift": 4.55,
-    "insight": "Khách hàng mua Ốp Lưng Chống Sốc có khả năng mua thêm Củ Sạc Nhanh 65W gấp 4.5 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Nước Tẩy Trang Micellar",
-    "consequent": "Sữa Rửa Mặt Dịu Nhẹ",
-    "rule_text": "Nếu mua 'Nước Tẩy Trang Micellar' => Có xu hướng mua 'Sữa Rửa Mặt Dịu Nhẹ'",
-    "support": 7.27,
-    "confidence": 57.37,
-    "lift": 4.44,
-    "insight": "Khách hàng mua Nước Tẩy Trang Micellar có khả năng mua thêm Sữa Rửa Mặt Dịu Nhẹ gấp 4.4 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Sữa Rửa Mặt Dịu Nhẹ",
-    "consequent": "Nước Tẩy Trang Micellar",
-    "rule_text": "Nếu mua 'Sữa Rửa Mặt Dịu Nhẹ' => Có xu hướng mua 'Nước Tẩy Trang Micellar'",
-    "support": 7.27,
-    "confidence": 56.19,
-    "lift": 4.44,
-    "insight": "Khách hàng mua Sữa Rửa Mặt Dịu Nhẹ có khả năng mua thêm Nước Tẩy Trang Micellar gấp 4.4 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Bình Sữa Chống Sặc",
-    "consequent": "Khăn Ướt Kháng Khuẩn",
-    "rule_text": "Nếu mua 'Bình Sữa Chống Sặc' => Có xu hướng mua 'Khăn Ướt Kháng Khuẩn'",
-    "support": 8.27,
-    "confidence": 59.62,
-    "lift": 4.32,
-    "insight": "Khách hàng mua Bình Sữa Chống Sặc có khả năng mua thêm Khăn Ướt Kháng Khuẩn gấp 4.3 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Khăn Ướt Kháng Khuẩn",
-    "consequent": "Bình Sữa Chống Sặc",
-    "rule_text": "Nếu mua 'Khăn Ướt Kháng Khuẩn' => Có xu hướng mua 'Bình Sữa Chống Sặc'",
-    "support": 8.27,
-    "confidence": 59.9,
-    "lift": 4.32,
-    "insight": "Khách hàng mua Khăn Ướt Kháng Khuẩn có khả năng mua thêm Bình Sữa Chống Sặc gấp 4.3 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Bình Sữa Chống Sặc",
-    "consequent": "Tã Bỉm Dán Siêu Thấm",
-    "rule_text": "Nếu mua 'Bình Sữa Chống Sặc' => Có xu hướng mua 'Tã Bỉm Dán Siêu Thấm'",
-    "support": 8.07,
-    "confidence": 58.17,
-    "lift": 4.26,
-    "insight": "Khách hàng mua Bình Sữa Chống Sặc có khả năng mua thêm Tã Bỉm Dán Siêu Thấm gấp 4.3 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Tã Bỉm Dán Siêu Thấm",
-    "consequent": "Bình Sữa Chống Sặc",
-    "rule_text": "Nếu mua 'Tã Bỉm Dán Siêu Thấm' => Có xu hướng mua 'Bình Sữa Chống Sặc'",
-    "support": 8.07,
-    "confidence": 59.02,
-    "lift": 4.26,
-    "insight": "Khách hàng mua Tã Bỉm Dán Siêu Thấm có khả năng mua thêm Bình Sữa Chống Sặc gấp 4.3 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Giày Sneaker Thể Thao",
-    "consequent": "Áo Thun Unisex Cotton",
-    "rule_text": "Nếu mua 'Giày Sneaker Thể Thao' => Có xu hướng mua 'Áo Thun Unisex Cotton'",
-    "support": 7.73,
-    "confidence": 55.24,
-    "lift": 4.25,
-    "insight": "Khách hàng mua Giày Sneaker Thể Thao có khả năng mua thêm Áo Thun Unisex Cotton gấp 4.2 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Áo Thun Unisex Cotton",
-    "consequent": "Giày Sneaker Thể Thao",
-    "rule_text": "Nếu mua 'Áo Thun Unisex Cotton' => Có xu hướng mua 'Giày Sneaker Thể Thao'",
-    "support": 7.73,
-    "confidence": 59.49,
-    "lift": 4.25,
-    "insight": "Khách hàng mua Áo Thun Unisex Cotton có khả năng mua thêm Giày Sneaker Thể Thao gấp 4.2 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Kem Chống Nắng Kiềm Dầu",
-    "consequent": "Sữa Rửa Mặt Dịu Nhẹ",
-    "rule_text": "Nếu mua 'Kem Chống Nắng Kiềm Dầu' => Có xu hướng mua 'Sữa Rửa Mặt Dịu Nhẹ'",
-    "support": 7.67,
-    "confidence": 54.5,
-    "lift": 4.21,
-    "insight": "Khách hàng mua Kem Chống Nắng Kiềm Dầu có khả năng mua thêm Sữa Rửa Mặt Dịu Nhẹ gấp 4.2 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Sữa Rửa Mặt Dịu Nhẹ",
-    "consequent": "Kem Chống Nắng Kiềm Dầu",
-    "rule_text": "Nếu mua 'Sữa Rửa Mặt Dịu Nhẹ' => Có xu hướng mua 'Kem Chống Nắng Kiềm Dầu'",
-    "support": 7.67,
-    "confidence": 59.28,
-    "lift": 4.21,
-    "insight": "Khách hàng mua Sữa Rửa Mặt Dịu Nhẹ có khả năng mua thêm Kem Chống Nắng Kiềm Dầu gấp 4.2 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Giày Sneaker Thể Thao",
-    "consequent": "Quần Jean Baggy",
-    "rule_text": "Nếu mua 'Giày Sneaker Thể Thao' => Có xu hướng mua 'Quần Jean Baggy'",
-    "support": 7.47,
-    "confidence": 53.33,
-    "lift": 4.21,
-    "insight": "Khách hàng mua Giày Sneaker Thể Thao có khả năng mua thêm Quần Jean Baggy gấp 4.2 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Quần Jean Baggy",
-    "consequent": "Giày Sneaker Thể Thao",
-    "rule_text": "Nếu mua 'Quần Jean Baggy' => Có xu hướng mua 'Giày Sneaker Thể Thao'",
-    "support": 7.47,
-    "confidence": 58.95,
-    "lift": 4.21,
-    "insight": "Khách hàng mua Quần Jean Baggy có khả năng mua thêm Giày Sneaker Thể Thao gấp 4.2 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Bình Giữ Nhiệt Inox",
-    "consequent": "Nồi Chiên Không Dầu",
-    "rule_text": "Nếu mua 'Bình Giữ Nhiệt Inox' => Có xu hướng mua 'Nồi Chiên Không Dầu'",
-    "support": 8.67,
-    "confidence": 61.61,
-    "lift": 4.2,
-    "insight": "Khách hàng mua Bình Giữ Nhiệt Inox có khả năng mua thêm Nồi Chiên Không Dầu gấp 4.2 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Nồi Chiên Không Dầu",
-    "consequent": "Bình Giữ Nhiệt Inox",
-    "rule_text": "Nếu mua 'Nồi Chiên Không Dầu' => Có xu hướng mua 'Bình Giữ Nhiệt Inox'",
-    "support": 8.67,
-    "confidence": 59.09,
-    "lift": 4.2,
-    "insight": "Khách hàng mua Nồi Chiên Không Dầu có khả năng mua thêm Bình Giữ Nhiệt Inox gấp 4.2 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Khăn Ướt Kháng Khuẩn",
-    "consequent": "Tã Bỉm Dán Siêu Thấm",
-    "rule_text": "Nếu mua 'Khăn Ướt Kháng Khuẩn' => Có xu hướng mua 'Tã Bỉm Dán Siêu Thấm'",
-    "support": 7.87,
-    "confidence": 57.0,
-    "lift": 4.17,
-    "insight": "Khách hàng mua Khăn Ướt Kháng Khuẩn có khả năng mua thêm Tã Bỉm Dán Siêu Thấm gấp 4.2 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Tã Bỉm Dán Siêu Thấm",
-    "consequent": "Khăn Ướt Kháng Khuẩn",
-    "rule_text": "Nếu mua 'Tã Bỉm Dán Siêu Thấm' => Có xu hướng mua 'Khăn Ướt Kháng Khuẩn'",
-    "support": 7.87,
-    "confidence": 57.56,
-    "lift": 4.17,
-    "insight": "Khách hàng mua Tã Bỉm Dán Siêu Thấm có khả năng mua thêm Khăn Ướt Kháng Khuẩn gấp 4.2 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Củ Sạc Nhanh 65W",
-    "consequent": "Kính Cường Lực Full Màn",
-    "rule_text": "Nếu mua 'Củ Sạc Nhanh 65W' => Có xu hướng mua 'Kính Cường Lực Full Màn'",
-    "support": 5.87,
-    "confidence": 49.44,
-    "lift": 4.17,
-    "insight": "Khách hàng mua Củ Sạc Nhanh 65W có khả năng mua thêm Kính Cường Lực Full Màn gấp 4.2 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Kính Cường Lực Full Màn",
-    "consequent": "Củ Sạc Nhanh 65W",
-    "rule_text": "Nếu mua 'Kính Cường Lực Full Màn' => Có xu hướng mua 'Củ Sạc Nhanh 65W'",
-    "support": 5.87,
-    "confidence": 49.44,
-    "lift": 4.17,
-    "insight": "Khách hàng mua Kính Cường Lực Full Màn có khả năng mua thêm Củ Sạc Nhanh 65W gấp 4.2 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Serum B5 Phục Hồi",
-    "consequent": "Sữa Rửa Mặt Dịu Nhẹ",
-    "rule_text": "Nếu mua 'Serum B5 Phục Hồi' => Có xu hướng mua 'Sữa Rửa Mặt Dịu Nhẹ'",
-    "support": 7.87,
-    "confidence": 53.64,
-    "lift": 4.15,
-    "insight": "Khách hàng mua Serum B5 Phục Hồi có khả năng mua thêm Sữa Rửa Mặt Dịu Nhẹ gấp 4.1 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Sữa Rửa Mặt Dịu Nhẹ",
-    "consequent": "Serum B5 Phục Hồi",
-    "rule_text": "Nếu mua 'Sữa Rửa Mặt Dịu Nhẹ' => Có xu hướng mua 'Serum B5 Phục Hồi'",
-    "support": 7.87,
-    "confidence": 60.82,
-    "lift": 4.15,
-    "insight": "Khách hàng mua Sữa Rửa Mặt Dịu Nhẹ có khả năng mua thêm Serum B5 Phục Hồi gấp 4.1 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Nồi Chiên Không Dầu",
-    "consequent": "Ấm Siêu Tốc 2 Lớp",
-    "rule_text": "Nếu mua 'Nồi Chiên Không Dầu' => Có xu hướng mua 'Ấm Siêu Tốc 2 Lớp'",
-    "support": 9.2,
-    "confidence": 62.73,
-    "lift": 4.07,
-    "insight": "Khách hàng mua Nồi Chiên Không Dầu có khả năng mua thêm Ấm Siêu Tốc 2 Lớp gấp 4.1 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Ấm Siêu Tốc 2 Lớp",
-    "consequent": "Nồi Chiên Không Dầu",
-    "rule_text": "Nếu mua 'Ấm Siêu Tốc 2 Lớp' => Có xu hướng mua 'Nồi Chiên Không Dầu'",
-    "support": 9.2,
-    "confidence": 59.74,
-    "lift": 4.07,
-    "insight": "Khách hàng mua Ấm Siêu Tốc 2 Lớp có khả năng mua thêm Nồi Chiên Không Dầu gấp 4.1 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Chuột Không Dây Silent",
-    "consequent": "Giá Đỡ Laptop Nhôm",
-    "rule_text": "Nếu mua 'Chuột Không Dây Silent' => Có xu hướng mua 'Giá Đỡ Laptop Nhôm'",
-    "support": 8.67,
-    "confidence": 62.2,
-    "lift": 4.07,
-    "insight": "Khách hàng mua Chuột Không Dây Silent có khả năng mua thêm Giá Đỡ Laptop Nhôm gấp 4.1 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Giá Đỡ Laptop Nhôm",
-    "consequent": "Chuột Không Dây Silent",
-    "rule_text": "Nếu mua 'Giá Đỡ Laptop Nhôm' => Có xu hướng mua 'Chuột Không Dây Silent'",
-    "support": 8.67,
-    "confidence": 56.77,
-    "lift": 4.07,
-    "insight": "Khách hàng mua Giá Đỡ Laptop Nhôm có khả năng mua thêm Chuột Không Dây Silent gấp 4.1 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Cáp Sạc Nhanh Type-C",
-    "consequent": "Củ Sạc Nhanh 65W",
-    "rule_text": "Nếu mua 'Cáp Sạc Nhanh Type-C' => Có xu hướng mua 'Củ Sạc Nhanh 65W'",
-    "support": 5.53,
-    "confidence": 47.43,
-    "lift": 4.0,
-    "insight": "Khách hàng mua Cáp Sạc Nhanh Type-C có khả năng mua thêm Củ Sạc Nhanh 65W gấp 4.0 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Củ Sạc Nhanh 65W",
-    "consequent": "Cáp Sạc Nhanh Type-C",
-    "rule_text": "Nếu mua 'Củ Sạc Nhanh 65W' => Có xu hướng mua 'Cáp Sạc Nhanh Type-C'",
-    "support": 5.53,
-    "confidence": 46.63,
-    "lift": 4.0,
-    "insight": "Khách hàng mua Củ Sạc Nhanh 65W có khả năng mua thêm Cáp Sạc Nhanh Type-C gấp 4.0 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Nước Tẩy Trang Micellar",
-    "consequent": "Serum B5 Phục Hồi",
-    "rule_text": "Nếu mua 'Nước Tẩy Trang Micellar' => Có xu hướng mua 'Serum B5 Phục Hồi'",
-    "support": 7.33,
-    "confidence": 57.89,
-    "lift": 3.95,
-    "insight": "Khách hàng mua Nước Tẩy Trang Micellar có khả năng mua thêm Serum B5 Phục Hồi gấp 3.9 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Serum B5 Phục Hồi",
-    "consequent": "Nước Tẩy Trang Micellar",
-    "rule_text": "Nếu mua 'Serum B5 Phục Hồi' => Có xu hướng mua 'Nước Tẩy Trang Micellar'",
-    "support": 7.33,
-    "confidence": 50.0,
-    "lift": 3.95,
-    "insight": "Khách hàng mua Serum B5 Phục Hồi có khả năng mua thêm Nước Tẩy Trang Micellar gấp 3.9 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Kem Chống Nắng Kiềm Dầu",
-    "consequent": "Serum B5 Phục Hồi",
-    "rule_text": "Nếu mua 'Kem Chống Nắng Kiềm Dầu' => Có xu hướng mua 'Serum B5 Phục Hồi'",
-    "support": 8.13,
-    "confidence": 57.82,
-    "lift": 3.94,
-    "insight": "Khách hàng mua Kem Chống Nắng Kiềm Dầu có khả năng mua thêm Serum B5 Phục Hồi gấp 3.9 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Serum B5 Phục Hồi",
-    "consequent": "Kem Chống Nắng Kiềm Dầu",
-    "rule_text": "Nếu mua 'Serum B5 Phục Hồi' => Có xu hướng mua 'Kem Chống Nắng Kiềm Dầu'",
-    "support": 8.13,
-    "confidence": 55.45,
-    "lift": 3.94,
-    "insight": "Khách hàng mua Serum B5 Phục Hồi có khả năng mua thêm Kem Chống Nắng Kiềm Dầu gấp 3.9 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Bình Giữ Nhiệt Inox",
-    "consequent": "Ấm Siêu Tốc 2 Lớp",
-    "rule_text": "Nếu mua 'Bình Giữ Nhiệt Inox' => Có xu hướng mua 'Ấm Siêu Tốc 2 Lớp'",
-    "support": 8.53,
-    "confidence": 60.66,
-    "lift": 3.94,
-    "insight": "Khách hàng mua Bình Giữ Nhiệt Inox có khả năng mua thêm Ấm Siêu Tốc 2 Lớp gấp 3.9 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Ấm Siêu Tốc 2 Lớp",
-    "consequent": "Bình Giữ Nhiệt Inox",
-    "rule_text": "Nếu mua 'Ấm Siêu Tốc 2 Lớp' => Có xu hướng mua 'Bình Giữ Nhiệt Inox'",
-    "support": 8.53,
-    "confidence": 55.41,
-    "lift": 3.94,
-    "insight": "Khách hàng mua Ấm Siêu Tốc 2 Lớp có khả năng mua thêm Bình Giữ Nhiệt Inox gấp 3.9 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Kem Chống Nắng Kiềm Dầu",
-    "consequent": "Nước Tẩy Trang Micellar",
-    "rule_text": "Nếu mua 'Kem Chống Nắng Kiềm Dầu' => Có xu hướng mua 'Nước Tẩy Trang Micellar'",
-    "support": 7.0,
-    "confidence": 49.76,
-    "lift": 3.93,
-    "insight": "Khách hàng mua Kem Chống Nắng Kiềm Dầu có khả năng mua thêm Nước Tẩy Trang Micellar gấp 3.9 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Nước Tẩy Trang Micellar",
-    "consequent": "Kem Chống Nắng Kiềm Dầu",
-    "rule_text": "Nếu mua 'Nước Tẩy Trang Micellar' => Có xu hướng mua 'Kem Chống Nắng Kiềm Dầu'",
-    "support": 7.0,
-    "confidence": 55.26,
-    "lift": 3.93,
-    "insight": "Khách hàng mua Nước Tẩy Trang Micellar có khả năng mua thêm Kem Chống Nắng Kiềm Dầu gấp 3.9 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Chuột Không Dây Silent",
-    "consequent": "Lót Chuột Gaming Khổ Lớn",
-    "rule_text": "Nếu mua 'Chuột Không Dây Silent' => Có xu hướng mua 'Lót Chuột Gaming Khổ Lớn'",
-    "support": 7.4,
-    "confidence": 53.11,
-    "lift": 3.85,
-    "insight": "Khách hàng mua Chuột Không Dây Silent có khả năng mua thêm Lót Chuột Gaming Khổ Lớn gấp 3.8 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Lót Chuột Gaming Khổ Lớn",
-    "consequent": "Chuột Không Dây Silent",
-    "rule_text": "Nếu mua 'Lót Chuột Gaming Khổ Lớn' => Có xu hướng mua 'Chuột Không Dây Silent'",
-    "support": 7.4,
-    "confidence": 53.62,
-    "lift": 3.85,
-    "insight": "Khách hàng mua Lót Chuột Gaming Khổ Lớn có khả năng mua thêm Chuột Không Dây Silent gấp 3.8 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Kính Cường Lực Full Màn",
-    "consequent": "Ốp Lưng Chống Sốc",
-    "rule_text": "Nếu mua 'Kính Cường Lực Full Màn' => Có xu hướng mua 'Ốp Lưng Chống Sốc'",
-    "support": 4.93,
-    "confidence": 41.57,
-    "lift": 3.83,
-    "insight": "Khách hàng mua Kính Cường Lực Full Màn có khả năng mua thêm Ốp Lưng Chống Sốc gấp 3.8 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Ốp Lưng Chống Sốc",
-    "consequent": "Kính Cường Lực Full Màn",
-    "rule_text": "Nếu mua 'Ốp Lưng Chống Sốc' => Có xu hướng mua 'Kính Cường Lực Full Màn'",
-    "support": 4.93,
-    "confidence": 45.4,
-    "lift": 3.83,
-    "insight": "Khách hàng mua Ốp Lưng Chống Sốc có khả năng mua thêm Kính Cường Lực Full Màn gấp 3.8 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Bàn Phím Cơ LED RGB",
-    "consequent": "Lót Chuột Gaming Khổ Lớn",
-    "rule_text": "Nếu mua 'Bàn Phím Cơ LED RGB' => Có xu hướng mua 'Lót Chuột Gaming Khổ Lớn'",
-    "support": 7.0,
-    "confidence": 51.72,
-    "lift": 3.75,
-    "insight": "Khách hàng mua Bàn Phím Cơ LED RGB có khả năng mua thêm Lót Chuột Gaming Khổ Lớn gấp 3.7 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Lót Chuột Gaming Khổ Lớn",
-    "consequent": "Bàn Phím Cơ LED RGB",
-    "rule_text": "Nếu mua 'Lót Chuột Gaming Khổ Lớn' => Có xu hướng mua 'Bàn Phím Cơ LED RGB'",
-    "support": 7.0,
-    "confidence": 50.72,
-    "lift": 3.75,
-    "insight": "Khách hàng mua Lót Chuột Gaming Khổ Lớn có khả năng mua thêm Bàn Phím Cơ LED RGB gấp 3.7 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Giá Đỡ Laptop Nhôm",
-    "consequent": "Lót Chuột Gaming Khổ Lớn",
-    "rule_text": "Nếu mua 'Giá Đỡ Laptop Nhôm' => Có xu hướng mua 'Lót Chuột Gaming Khổ Lớn'",
-    "support": 7.8,
-    "confidence": 51.09,
-    "lift": 3.7,
-    "insight": "Khách hàng mua Giá Đỡ Laptop Nhôm có khả năng mua thêm Lót Chuột Gaming Khổ Lớn gấp 3.7 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Lót Chuột Gaming Khổ Lớn",
-    "consequent": "Giá Đỡ Laptop Nhôm",
-    "rule_text": "Nếu mua 'Lót Chuột Gaming Khổ Lớn' => Có xu hướng mua 'Giá Đỡ Laptop Nhôm'",
-    "support": 7.8,
-    "confidence": 56.52,
-    "lift": 3.7,
-    "insight": "Khách hàng mua Lót Chuột Gaming Khổ Lớn có khả năng mua thêm Giá Đỡ Laptop Nhôm gấp 3.7 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Bàn Phím Cơ LED RGB",
-    "consequent": "Giá Đỡ Laptop Nhôm",
-    "rule_text": "Nếu mua 'Bàn Phím Cơ LED RGB' => Có xu hướng mua 'Giá Đỡ Laptop Nhôm'",
-    "support": 7.47,
-    "confidence": 55.17,
-    "lift": 3.61,
-    "insight": "Khách hàng mua Bàn Phím Cơ LED RGB có khả năng mua thêm Giá Đỡ Laptop Nhôm gấp 3.6 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Giá Đỡ Laptop Nhôm",
-    "consequent": "Bàn Phím Cơ LED RGB",
-    "rule_text": "Nếu mua 'Giá Đỡ Laptop Nhôm' => Có xu hướng mua 'Bàn Phím Cơ LED RGB'",
-    "support": 7.47,
-    "confidence": 48.91,
-    "lift": 3.61,
-    "insight": "Khách hàng mua Giá Đỡ Laptop Nhôm có khả năng mua thêm Bàn Phím Cơ LED RGB gấp 3.6 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Bàn Phím Cơ LED RGB",
-    "consequent": "Chuột Không Dây Silent",
-    "rule_text": "Nếu mua 'Bàn Phím Cơ LED RGB' => Có xu hướng mua 'Chuột Không Dây Silent'",
-    "support": 6.67,
-    "confidence": 49.26,
-    "lift": 3.54,
-    "insight": "Khách hàng mua Bàn Phím Cơ LED RGB có khả năng mua thêm Chuột Không Dây Silent gấp 3.5 lần so với ngẫu nhiên."
-  },
-  {
-    "antecedent": "Chuột Không Dây Silent",
-    "consequent": "Bàn Phím Cơ LED RGB",
-    "rule_text": "Nếu mua 'Chuột Không Dây Silent' => Có xu hướng mua 'Bàn Phím Cơ LED RGB'",
-    "support": 6.67,
-    "confidence": 47.85,
-    "lift": 3.54,
-    "insight": "Khách hàng mua Chuột Không Dây Silent có khả năng mua thêm Bàn Phím Cơ LED RGB gấp 3.5 lần so với ngẫu nhiên."
+    "antecedent": "Pempek Palembang Asli Super Murah  AlKindi 20 pcs Palembang Asli SIZE MEDIUM Lenjer, Kulit & Telur",
+    "consequent": "Pempek Palembang Asli Super Murah AlKindi 40 pcs Palembang Asli SIZE MINI Lenjer, Kulit, & Telur",
+    "rule_text": "Nếu có 'Pempek Palembang Asli Super Murah  AlKindi 20 pcs Palembang Asli SIZE MEDIUM Lenjer, Kulit & Telur' → thường kèm 'Pempek Palembang Asli Super Murah AlKindi 40 pcs Palembang Asli SIZE MINI Lenjer, Kulit, & Telur'",
+    "support": 1.92,
+    "confidence": 29.41,
+    "lift": 0.656,
+    "cooccurrence_orders": 5,
+    "antecedent_orders": 17,
+    "consequent_orders": 117,
+    "completed_order_count": 261,
+    "association_level": "Không nên gợi ý mua cùng",
+    "actionable": false,
+    "insight": "5/17 đơn có sản phẩm A cũng có B; cặp này xuất hiện trong 5/261 đơn hoàn thành."
   }
 ]

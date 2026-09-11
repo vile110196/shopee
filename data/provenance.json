@@ -1,0 +1,117 @@
+{
+  "source_type": "kaggle_real_shopee_multi_source",
+  "generated_by": "import_public_data.py",
+  "generated_at_utc": "2026-09-04T03:37:17.029129+00:00",
+  "joinability": "Three independent source namespaces; no cross-source product, review, user, or order identity joins are claimed.",
+  "sources": {
+    "product_analytics": {
+      "dataset": "Shopee Sales Data Apr - May 2023",
+      "kaggle_ref": "yoongsin/shopee-sample-data",
+      "homepage": "https://www.kaggle.com/datasets/yoongsin/shopee-sample-data",
+      "version": 1,
+      "last_updated": "2024-04-04T06:28:25.503Z",
+      "license": "Other (specified in description)",
+      "archive_sha256": "c82bd733ba8813fe08f934f8c68c88d9e2defe8e3b14953c55c5b9815b142c27",
+      "source_file_sha256": {
+        "20240121_shopee_sample_data (1).csv": "afed3932287c81df7eefcd7397b723cc2e2ca71d73690dc661ad250c7c78bc69"
+      },
+      "raw_snapshot_rows": 20312,
+      "processed_unique_products": 16563,
+      "unique_shops": 9221,
+      "crawl_date_min": "2023-04-24",
+      "crawl_date_max": "2023-05-13",
+      "products_with_observed_velocity": 2263,
+      "negative_sold_deltas_excluded": 2,
+      "currency": "MYR",
+      "deduplication_key": "shop_id_plus_item_id_keep_latest_snapshot",
+      "velocity_rule": "nonnegative_change_in_total_sold_divided_by_distinct_snapshot_day_span"
+    },
+    "review_and_aspect_analytics": {
+      "dataset": "ABSA Vietnamese",
+      "kaggle_ref": "cthng123/absa-vietnamese",
+      "homepage": "https://www.kaggle.com/datasets/cthng123/absa-vietnamese",
+      "version": 1,
+      "last_updated": "2024-05-14T15:27:14.390Z",
+      "license": "CC BY 4.0",
+      "archive_sha256": "c494fba611da8ff89b9b198900a340ae48c3f0e131ade8d1c5fca877fa7cdf97",
+      "source_file_sha256": {
+        "train_data.csv": "58350af4348ac3edec26278d98e249f556e3437545d5b1dd278a499418cc4c4f",
+        "val_data.csv": "d128932e9fa59ddb736b449c2241718f7be4b590d258e5519187368f3ff0b824",
+        "test_data.csv": "397bce8c6f45c9b8ff1d358e3356aeda7185acec28c9c5e154f13ee48bef6166"
+      },
+      "source_rows": {
+        "train": 8424,
+        "validation": 936,
+        "test": 2340
+      },
+      "processed_rows": 11700,
+      "duplicate_cleaned_reviews": 54,
+      "overall_labeled_rows": 9326,
+      "mixed_or_unlabeled_overall_rows": 2374,
+      "overall_label_counts": {
+        "Tích cực": 6403,
+        "Trung lập": 2076,
+        "Tiêu cực": 847
+      },
+      "overall_label_rule": "human General aspect when present; otherwise unanimous non-None human aspect labels; mixed labels remain null",
+      "aspect_encoding": {
+        "none": -1,
+        "negative": 0,
+        "positive": 1,
+        "neutral": 2
+      }
+    },
+    "market_basket": {
+      "dataset": "Shopee Seller Transaction",
+      "kaggle_ref": "nugrahmaindonesa/shopee-seller-transaction",
+      "homepage": "https://www.kaggle.com/datasets/nugrahmaindonesa/shopee-seller-transaction",
+      "version": 1,
+      "last_updated": "2025-12-20T02:19:21.037Z",
+      "license": "Apache 2.0",
+      "archive_sha256": "fd9b0c2a2a92dbfedb927ad299d81ebf06e7ba6b70b175ee09b9717691be5e46",
+      "source_file_sha256": {
+        "Shopee Seller Transaction.csv": "b02d725d1bd2ff8e7ce401bac17684d74f5464c992edcd7a33f6e3459658504c"
+      },
+      "raw_line_items": 403,
+      "processed_orders": 325,
+      "unique_products": 20,
+      "orders_with_multiple_products": 67,
+      "completed_orders": 261,
+      "cancelled_orders": 64,
+      "privacy_rule": "allowlist_only; raw order IDs hashed; buyer, recipient, phone, address and tracking fields dropped",
+      "retained_columns": [
+        "transaction_id",
+        "order_status",
+        "created_at",
+        "completed_at",
+        "payment_method",
+        "items_json",
+        "items",
+        "item_count",
+        "total_quantity",
+        "source_dataset"
+      ]
+    }
+  },
+  "processed": {
+    "shopee_products.csv": {
+      "rows": 16563,
+      "sha256": "2ee941c3a48105c1b2c155b2c3aa4d0e3ea98b94374b4776464b17be00d43903"
+    },
+    "shopee_reviews.csv": {
+      "rows": 11700,
+      "sha256": "771f0e741a592dca7a48e959005361880e2993cd04ebf14ee040bd24a3256671"
+    },
+    "shopee_transactions.csv": {
+      "rows": 325,
+      "sha256": "8911a4ef6c9779c251fc1af94622ac2930ea7138bdcf6853605c034985c4b178"
+    }
+  },
+  "limitations": [
+    "Product snapshots are from Shopee Malaysia and use MYR.",
+    "ABSA reviews are Vietnamese shoe-product comments and have no product IDs.",
+    "Seller transactions are from one Indonesian shop and are not linked to the product snapshots.",
+    "Sales velocity exists only for products observed on at least two distinct dates.",
+    "No return-rate, delivery-SLA, causal growth, or operational-risk target is available."
+  ]
+}

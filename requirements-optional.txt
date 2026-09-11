@@ -1,0 +1,2 @@
+# Bộ tách từ tiếng Việt tốt hơn; ứng dụng vẫn có regex fallback nếu không cài.
+underthesea>=6.8

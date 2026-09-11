@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Cơ sở lý thuyết — Shopee Analytics Lab{% endblock %}
+{% block breadcrumb %}Cơ sở lý thuyết{% endblock %}
+
+{% block content %}
+<article class="mx-auto flex max-w-5xl flex-col gap-5">
+    <header class="card-shadow rounded-2xl border border-outline-variant/70 bg-surface p-5 sm:p-7">
+        <p class="text-xs font-bold uppercase tracking-[0.16em] text-primary">Tài liệu phương pháp</p>
+        <h1 class="mt-2 font-headline text-2xl font-extrabold tracking-tight sm:text-3xl">Cơ sở lý thuyết và công thức sử dụng</h1>
+        <p class="mt-2 max-w-3xl text-sm leading-6 text-on-surface-variant">
+            Các biểu thức dưới đây bám theo pipeline hiện hành. Ký hiệu được giải thích ngay tại nơi sử dụng và công thức được hiển thị bằng LaTeX qua MathJax.
+        </p>
+    </header>
+
+    <section class="card-shadow rounded-2xl border border-outline-variant/70 bg-surface p-card-padding">
+        <h2 class="font-headline text-xl font-bold">1. Quy trình KDD và biểu diễn văn bản</h2>
+        <p class="mt-2 text-sm leading-6 text-on-surface-variant">
+            Quy trình khám phá tri thức trong dữ liệu (KDD) gồm chọn dữ liệu, làm sạch, biến đổi, khai phá và đánh giá. Với đánh giá tiếng Việt, hệ thống chuẩn hóa chữ thường, emoji và từ viết tắt; loại URL, email, ký tự nhiễu; rồi biểu diễn văn bản bằng TF–IDF với unigram và bigram.
+        </p>
+        <div class="math-block" aria-label="Công thức TF-IDF">
+            \[
+                \operatorname{idf}(t)=\log\!\left(\frac{1+N}{1+\operatorname{df}(t)}\right)+1,
+                \qquad
+                \operatorname{tfidf}(t,d)=\operatorname{tf}(t,d)\operatorname{idf}(t)
+            \]
+        </div>
+        <dl class="definition-list mt-3 grid gap-3 text-sm sm:grid-cols-2">
+            <div><dt>\(t,d,N\)</dt><dd>Từ đang xét, tài liệu đang xét và tổng số tài liệu.</dd></div>
+            <div><dt>\(\operatorname{df}(t)\)</dt><dd>Số tài liệu có chứa từ \(t\); cộng 1 để làm trơn và tránh chia cho 0.</dd></div>
+        </dl>
+        <p class="mt-3 text-xs leading-5 text-on-surface-variant">
+            Mã dùng <code>TfidfVectorizer</code> với tần suất từ dạng logarit, tối đa 15.000 đặc trưng và bỏ các từ xuất hiện trong ít hơn hai văn bản.
+        </p>
+    </section>
+
+    <section class="card-shadow rounded-2xl border border-outline-variant/70 bg-surface p-card-padding">
+        <h2 class="font-headline text-xl font-bold">2. Phân loại cảm xúc và khía cạnh</h2>
+        <div class="mt-3 grid gap-4 md:grid-cols-2">
+            <div class="rounded-xl border border-outline-variant/60 bg-surface-container-low p-4">
+                <h3 class="text-sm font-bold text-on-surface">Multinomial Naive Bayes</h3>
+                <div class="math-block">
+                    \[
+                        \hat{c}=\arg\max_{c} P(c)\prod_{j=1}^{m}P(x_j\mid c)
+                    \]
+                </div>
+                <p class="mt-2 text-xs leading-5 text-on-surface-variant">
+                    \(\hat c\) là lớp dự đoán; \(x_j\) là đặc trưng TF–IDF thứ \(j\). Mô hình giả định các đặc trưng độc lập có điều kiện theo lớp.
+                </p>
+            </div>
+            <div class="rounded-xl border border-outline-variant/60 bg-surface-container-low p-4">
+                <h3 class="text-sm font-bold text-on-surface">Hồi quy logistic đa lớp</h3>
+                <div class="math-block">
+                    \[
+                        P(y=c\mid\mathbf{x})
+                        =\frac{\exp(\mathbf{w}_c^\mathsf{T}\mathbf{x}+b_c)}
+                        {\sum_{k=1}^{C}\exp(\mathbf{w}_k^\mathsf{T}\mathbf{x}+b_k)}
+                    \]
+                </div>
+                <p class="mt-2 text-xs leading-5 text-on-surface-variant">
+                    \(\mathbf{x}\) là vector TF–IDF, còn \(C\) là số lớp. Trọng số lớp cân bằng giúp hạn chế ảnh hưởng của phân bố nhãn lệch.
+                </p>
+            </div>
+        </div>
+        <p class="mt-3 text-sm leading-6 text-on-surface-variant">
+            Cảm xúc tổng quát có ba lớp: tích cực, trung lập và tiêu cực. Phân tích cảm xúc theo khía cạnh (ABSA) gồm tám mô hình riêng, mỗi mô hình nhận một trong bốn nhãn: không đề cập, tiêu cực, tích cực hoặc trung lập.
+        </p>
+    </section>
+
+    <section class="card-shadow rounded-2xl border border-outline-variant/70 bg-surface p-card-padding">
+        <h2 class="font-headline text-xl font-bold">3. Nhịp bán quan sát và mô hình hồi quy</h2>
+        <p class="mt-2 text-sm leading-6 text-on-surface-variant">
+            Với từng cặp <code>shop_id + item_id</code>, nhịp bán chỉ được tính khi có ít nhất hai ngày ghi nhận, khoảng thời gian dương và tổng lượt bán không giảm:
+        </p>
+        <div class="math-block">
+            \[
+                v_i=
+                \frac{s_{i,\mathrm{last}}-s_{i,\mathrm{first}}}
+                {d_{i,\mathrm{last}}-d_{i,\mathrm{first}}},
+                \qquad v_i\ge 0
+            \]
+        </div>
+        <p class="mt-2 text-xs leading-5 text-on-surface-variant">
+            \(s\) là tổng lượt bán tích lũy tại lần ghi nhận; \(d\) là ngày ghi nhận; \(v_i\) có đơn vị sản phẩm/ngày. Đây là nhịp bán quan sát trong khoảng dữ liệu, không phải doanh số tương lai đã biết.
+        </p>
+        <p class="mt-3 text-sm leading-6 text-on-surface-variant">
+            Random Forest và Extra Trees học biến đích đã nén để giảm độ lệch phải. Dự đoán được đổi về đơn vị gốc trước khi tính sai số:
+        </p>
+        <div class="math-block">
+            \[
+                z_i=\log(1+v_i),
+                \qquad
+                \hat v_i=\max\!\left(0,\exp(\hat z_i)-1\right)
+            \]
+        </div>
+        <p class="mt-2 text-xs leading-5 text-on-surface-variant">
+            Pipeline chia ngẫu nhiên 80% dữ liệu để huấn luyện và 20% để kiểm tra với seed 42; mô hình có MAE thấp hơn được chọn.
+        </p>
+    </section>
+
+    <section class="card-shadow rounded-2xl border border-outline-variant/70 bg-surface p-card-padding">
+        <h2 class="font-headline text-xl font-bold">4. Các độ đo đánh giá</h2>
+        <div class="mt-3 grid gap-4 md:grid-cols-2">
+            <div>
+                <h3 class="text-sm font-bold">Bài toán phân loại</h3>
+                <div class="math-block">
+                    \[
+                        \operatorname{Precision}=\frac{TP}{TP+FP},
+                        \qquad
+                        \operatorname{Recall}=\frac{TP}{TP+FN}
+                    \]
+                    \[
+                        F_1=\frac{2\,\operatorname{Precision}\operatorname{Recall}}
+                        {\operatorname{Precision}+\operatorname{Recall}}
+                    \]
+                </div>
+                <p class="mt-2 text-xs leading-5 text-on-surface-variant">
+                    Macro-F1 lấy trung bình F1 của các lớp với trọng số bằng nhau; Weighted-F1 lấy trung bình theo số mẫu của từng lớp. Vì dữ liệu lệch nhãn, hệ thống dùng Macro-F1 để chọn mô hình cảm xúc.
+                </p>
+            </div>
+            <div>
+                <h3 class="text-sm font-bold">Bài toán hồi quy</h3>
+                <div class="math-block">
+                    \[
+                        \operatorname{MAE}=\frac{1}{n}\sum_{i=1}^{n}|y_i-\hat y_i|
+                    \]
+                    \[
+                        \operatorname{RMSE}=
+                        \sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat y_i)^2}
+                    \]
+                    \[
+                        R^2=1-\frac{\sum_{i=1}^{n}(y_i-\hat y_i)^2}
+                        {\sum_{i=1}^{n}(y_i-\bar y)^2}
+                    \]
+                </div>
+                <p class="mt-2 text-xs leading-5 text-on-surface-variant">
+                    MAE và RMSE có đơn vị sản phẩm/ngày; RMSE phạt sai số lớn mạnh hơn. \(R^2\) so sánh mô hình với dự đoán bằng giá trị trung bình và có thể âm nếu mô hình kém hơn mốc này.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="card-shadow rounded-2xl border border-outline-variant/70 bg-surface p-card-padding">
+        <h2 class="font-headline text-xl font-bold">5. Chuẩn hóa, K-Means và PCA</h2>
+        <p class="mt-2 text-sm leading-6 text-on-surface-variant">
+            Giá trị thiếu được điền bằng trung vị. Các đặc trưng lệch phải được biến đổi bằng \(\log(1+x)\), sau đó cả tám đặc trưng được chuẩn hóa:
+        </p>
+        <div class="math-block">
+            \[
+                z_{ij}=\frac{x_{ij}-\mu_j}{\sigma_j}
+            \]
+        </div>
+        <p class="mt-3 text-sm leading-6 text-on-surface-variant">
+            K-Means với \(K=4\) tìm các tâm cụm \(\boldsymbol{\mu}_k\) sao cho tổng bình phương khoảng cách trong cụm nhỏ nhất:
+        </p>
+        <div class="math-block">
+            \[
+                J=\sum_{i=1}^{n}\min_{1\le k\le K}
+                \left\lVert\mathbf{z}_i-\boldsymbol{\mu}_k\right\rVert_2^2
+            \]
+        </div>
+        <p class="mt-3 text-sm leading-6 text-on-surface-variant">
+            PCA chỉ phục vụ biểu diễn hai chiều. Với ma trận dữ liệu chuẩn hóa \(\mathbf{Z}\), hai trục chính được chọn theo phương sai lớn nhất và tọa độ vẽ là:
+        </p>
+        <div class="math-block">
+            \[
+                \mathbf{Z}_{\mathrm{PCA}}=\mathbf{Z}\mathbf{W}_2
+            \]
+        </div>
+        <p class="mt-2 text-xs leading-5 text-on-surface-variant">
+            \(\mathbf{W}_2\) chứa hai vector riêng chính. Mã cụm 0–3 không tự mang ý nghĩa; tên cụm được đặt sau khi đọc hồ sơ trung bình của từng cụm.
+        </p>
+    </section>
+
+    <section class="card-shadow rounded-2xl border border-outline-variant/70 bg-surface p-card-padding">
+        <h2 class="font-headline text-xl font-bold">6. Apriori và luật kết hợp</h2>
+        <p class="mt-2 text-sm leading-6 text-on-surface-variant">
+            Mỗi giao dịch là tập sản phẩm trong một đơn hoàn thành. Với luật \(A\rightarrow B\):
+        </p>
+        <div class="math-block">
+            \[
+                \operatorname{support}(A\rightarrow B)
+                =\frac{|\{T:A\cup B\subseteq T\}|}{N}
+            \]
+            \[
+                \operatorname{confidence}(A\rightarrow B)
+                =\frac{\operatorname{support}(A\cup B)}
+                {\operatorname{support}(A)}
+            \]
+            \[
+                \operatorname{lift}(A\rightarrow B)
+                =\frac{\operatorname{confidence}(A\rightarrow B)}
+                {\operatorname{support}(B)}
+            \]
+        </div>
+        <dl class="definition-list mt-3 grid gap-3 text-sm sm:grid-cols-3">
+            <div><dt>Support</dt><dd>Tỷ lệ đơn chứa đồng thời cả \(A\) và \(B\).</dd></div>
+            <div><dt>Confidence</dt><dd>Trong các đơn có \(A\), tỷ lệ cũng có \(B\).</dd></div>
+            <div><dt>Lift</dt><dd>Mức đi cùng so với trường hợp \(A\) và \(B\) độc lập.</dd></div>
+        </dl>
+        <p class="mt-3 rounded-lg bg-amber-50 p-3 text-xs leading-5 text-amber-900">
+            Lift lớn hơn 1 cho thấy hai sản phẩm xuất hiện cùng nhau nhiều hơn mức độc lập; lift bằng 1 là không liên hệ; lift nhỏ hơn 1 là ít đi cùng nhau. Đây là quan hệ đồng xuất hiện, không phải quan hệ nhân quả.
+        </p>
+    </section>
+
+    <section class="card-shadow rounded-2xl border border-outline-variant/70 bg-surface p-card-padding">
+        <h2 class="font-headline text-xl font-bold">7. Chia tập dữ liệu và tránh rò rỉ</h2>
+        <p class="mt-2 text-sm leading-6 text-on-surface-variant">
+            Bộ ABSA Vietnamese giữ nguyên ba tập huấn luyện, kiểm định và kiểm tra do nguồn công bố. Pipeline loại câu có nhãn xung đột, loại bản ghi trùng giữa các tập và chỉ dùng tập kiểm tra gốc để báo cáo độ đo. Mô hình triển khai được huấn luyện lại sau bước đánh giá; kết quả kiểm tra không được dùng để chọn tham số.
+        </p>
+    </section>
+</article>
+{% endblock %}

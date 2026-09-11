@@ -1,0 +1,31 @@
+name: shopee-kaggle-real-data
+initial: audit
+nodes:
+  audit:
+    prompt: Audit the current data, model, API, UI, and test contracts; freeze the minimum schema backed by the three approved Kaggle datasets.
+    before_transfer:
+      type: command
+      run: python -B -c "from pathlib import Path; assert all(Path(p).is_file() for p in ('README.md','app.py','data_processing.py','import_public_data.py','model_training.py','tests/test_app.py','tests/test_data_and_models.py'))"
+    next: acquire
+  acquire:
+    prompt: Download the three pinned Kaggle sources, verify source hashes, remove transaction PII, and generate normalized product, review, sentiment, and basket CSV files with provenance.
+    before_transfer:
+      type: command
+      run: .venv\\Scripts\\python.exe -B -c "import json,pandas as pd; from pathlib import Path; p=json.loads(Path('data/provenance.json').read_text(encoding='utf-8')); assert p['source_type']=='kaggle_real_shopee_multi_source'; assert len(pd.read_csv('data/shopee_products.csv'))>10000; assert len(pd.read_csv('data/shopee_reviews.csv'))>10000; assert len(pd.read_csv('data/shopee_transactions.csv'))>=300"
+    next: refactor
+  refactor:
+    prompt: Train only targets supported by observed fields, update APIs and pages to the normalized schema, and remove synthetic growth and risk claims.
+    before_transfer:
+      type: command
+      run: .venv\\Scripts\\python.exe -m unittest discover -s tests -v
+    next: verify
+  verify:
+    prompt: Run deterministic acceptance checks, inspect the diff, and correct only demonstrated failures.
+    before_transfer:
+      - type: command
+        run: .venv\\Scripts\\python.exe -m unittest discover -s tests -v
+      - type: command
+        run: git -c safe.directory="D:/New folder (2)/doanhethongkhaithacdulieuvatruyenthong/shopee" diff --check
+    next: done
+  done:
+    prompt: Stop and report exact source versions, row counts, hashes, changed files, checks, and remaining non-joinability limits.
